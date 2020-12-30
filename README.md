@@ -5,7 +5,9 @@ by Döbereiner, Eckel, Elblaus, Pirrò
 - Elm https://guide.elm-lang.org/install/elm.html
 
 ## Building
-There are several ways, e.g.:
+`$ elm install`
+
+There are several ways to build and serve, e.g.:
 
 `$ elm reactor`
 Browse to the displayed url and open `src/Main.elm`
