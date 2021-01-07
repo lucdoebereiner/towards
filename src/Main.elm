@@ -67,6 +67,43 @@ davidStr1 =
         |> insertNewlinesEveryN 30
 
 
+ludvig1 =
+    """
+
+Artistic research is a more
+narrow term than art.
+
+
+
+
+
+Artistic research encompasses
+a subset of artistic
+activities.
+
+
+
+
+
+Artistic research does not
+require aesthetic adaptation,
+but certain aesthetic
+approaches are more compatible
+with the superficial traits
+of traditional modes of
+research.
+
+
+
+
+
+The idea of artistic research
+is a child of its time, it
+could not have existed 50
+years ago, and it might not
+exist 50 years from now."""
+
+
 sampleText =
     """aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 bbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
@@ -121,5 +158,5 @@ main =
             [ textColumn gerhard1
             , textColumn davidStr1
             , textColumn lucStr1
-            , textColumn sampleText
+            , textColumn ludvig1
             ]
