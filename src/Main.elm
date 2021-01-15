@@ -12,6 +12,7 @@ import Element.Font as Font
 import Element.Input as Input
 import Html exposing (pre)
 import Html.Attributes as Attributes
+import Html.Events
 import List.Extra as L
 import Texts.David as David
 import Texts.Gerhard as Gerhard
@@ -25,6 +26,7 @@ type alias Model =
     { pageIndices : Animator.Timeline PageIndices
     , navKey : Browser.Navigation.Key
     , needsUpdate : Bool
+    , texts : { ge : List String, dp : List String, ld : List String, le : List String }
     }
 
 
@@ -43,6 +45,12 @@ main =
                 ( { pageIndices = Animator.init (PageIndices 0 0 0 0)
                   , navKey = navKey
                   , needsUpdate = False
+                  , texts =
+                        { ge = List.map format Gerhard.texts
+                        , le = List.map format Ludvig.texts
+                        , dp = List.map format David.texts
+                        , ld = List.map format Luc.texts
+                        }
                   }
                 , Cmd.none
                 )
@@ -64,11 +72,79 @@ type Msg
     | ClickedLink Browser.UrlRequest
     | UrlChanged Url.Url
     | SetPage PageIndices
+    | SetEditorGerhard String
+    | SetEditorLudvig String
+    | SetEditorDavid String
+    | SetEditorLuc String
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        SetEditorGerhard str ->
+            let
+                oldTexts =
+                    model.texts
+
+                _ =
+                    Debug.log "Text:" (formatPrinting str)
+
+                t =
+                    L.setAt (Animator.current model.pageIndices).ge str model.texts.ge
+
+                newTexts =
+                    { oldTexts | ge = t }
+            in
+            ( { model | texts = newTexts }, Cmd.none )
+
+        SetEditorDavid str ->
+            let
+                oldTexts =
+                    model.texts
+
+                _ =
+                    Debug.log "Text:" (formatPrinting str)
+
+                t =
+                    L.setAt (Animator.current model.pageIndices).dp str model.texts.dp
+
+                newTexts =
+                    { oldTexts | dp = t }
+            in
+            ( { model | texts = newTexts }, Cmd.none )
+
+        SetEditorLuc str ->
+            let
+                oldTexts =
+                    model.texts
+
+                _ =
+                    Debug.log "Text:" (formatPrinting str)
+
+                t =
+                    L.setAt (Animator.current model.pageIndices).ld str model.texts.ld
+
+                newTexts =
+                    { oldTexts | ld = t }
+            in
+            ( { model | texts = newTexts }, Cmd.none )
+
+        SetEditorLudvig str ->
+            let
+                oldTexts =
+                    model.texts
+
+                _ =
+                    Debug.log "Text:" (formatPrinting str)
+
+                t =
+                    L.setAt (Animator.current model.pageIndices).le str model.texts.le
+
+                newTexts =
+                    { oldTexts | le = t }
+            in
+            ( { model | texts = newTexts }, Cmd.none )
+
         Tick newTime ->
             ( Animator.update newTime animator model
             , Cmd.none
@@ -115,12 +191,18 @@ insertNewlinesEveryN n s =
 format : String -> String
 format s =
     s
+        |> String.replace "\n" ""
+        |> String.left (40 * 30)
         |> String.padRight (40 * 30) ' '
         |> insertNewlinesEveryN 40
 
 
-
---Attributes.style "opacity" "0.1" ]
+formatPrinting : String -> String
+formatPrinting s =
+    s
+        |> String.replace "\n" ""
+        |> String.left (40 * 30)
+        |> String.padRight (40 * 30) ' '
 
 
 textColumn :
@@ -146,14 +228,13 @@ textColumn timeline accessCurrent index t =
                             Animator.at 0.0
                 ]
                 []
-                [ pre
-                    []
+                [ pre []
                     [ Html.text t ]
                 ]
             )
 
 
-emptyColumn =
+emptyColumn n =
     el
         [ width shrink
         , htmlAttribute (Attributes.style "line-height" "2")
@@ -162,7 +243,7 @@ emptyColumn =
         html
             (pre
                 []
-                [ Html.text " " ]
+                [ Html.text (String.repeat n " ") ]
             )
 
 
@@ -175,15 +256,13 @@ iteration :
     -> String
     -> Element msg
 iteration timeline index david gerhard luc ludvig =
-    row [ centerX, centerY ]
-        [ textColumn timeline .dp index (format david)
-        , emptyColumn
-        , textColumn timeline .ge index (format gerhard)
-        , emptyColumn
-        , textColumn timeline .ld index (format luc)
-        , emptyColumn
-        , textColumn timeline .le index (format ludvig)
-        ]
+    row [ centerX, centerY ] <|
+        List.intersperse (emptyColumn 1)
+            [ textColumn timeline .dp index (format david)
+            , textColumn timeline .ge index (format gerhard)
+            , textColumn timeline .ld index (format luc)
+            , textColumn timeline .le index (format ludvig)
+            ]
 
 
 repeatLastN : Int -> List String -> List String
@@ -230,34 +309,111 @@ matryoshka els =
             none
 
 
-buttons : PageIndices -> Int -> Element Msg
-buttons indices maxIdx =
-    row [ spacing 20, centerX ]
-        [ Input.button
-            [ Border.width 1, padding 10 ]
+buttonStyling =
+    [ Border.width 1, padding 10, centerX ]
+
+
+columnButtons : PageIndices -> PageIndices -> Int -> Element Msg
+columnButtons back forward idx =
+    row [ centerX, spacing 10 ]
+        [ Input.button buttonStyling
             { onPress =
                 Just <|
-                    SetPage
-                        { ld = modBy maxIdx (indices.ld - 1)
-                        , ge = modBy maxIdx (indices.ge - 1)
-                        , dp = modBy maxIdx (indices.ge - 1)
-                        , le = modBy maxIdx (indices.ge - 1)
-                        }
-            , label = text "Previous Page"
+                    SetPage back
+            , label = text "<"
             }
-        , Input.button
-            [ Border.width 1, padding 10 ]
+        , text (String.fromInt (idx + 1))
+        , Input.button buttonStyling
             { onPress =
                 Just <|
-                    SetPage
-                        { ld = modBy maxIdx (indices.ld + 1)
-                        , ge = modBy maxIdx (indices.ge + 1)
-                        , dp = modBy maxIdx (indices.ge + 1)
-                        , le = modBy maxIdx (indices.ge + 1)
-                        }
-            , label = text "Next Page"
+                    SetPage forward
+            , label = text ">"
             }
         ]
+
+
+buttons : PageIndices -> Int -> Element Msg
+buttons indices maxIdx =
+    row [ centerX ] <|
+        List.intersperse (emptyColumn 1) <|
+            List.map
+                (\b ->
+                    column [ width shrink ]
+                        [ emptyColumn 40
+                        , b
+                        ]
+                )
+                [ columnButtons
+                    { indices
+                        | dp = modBy maxIdx (indices.dp - 1)
+                    }
+                    { indices
+                        | dp = modBy maxIdx (indices.dp + 1)
+                    }
+                    indices.dp
+                , columnButtons
+                    { indices
+                        | ge = modBy maxIdx (indices.ge - 1)
+                    }
+                    { indices
+                        | ge = modBy maxIdx (indices.ge + 1)
+                    }
+                    indices.ge
+                , columnButtons
+                    { indices
+                        | ld = modBy maxIdx (indices.ld - 1)
+                    }
+                    { indices
+                        | ld = modBy maxIdx (indices.ld + 1)
+                    }
+                    indices.ld
+                , columnButtons
+                    { indices
+                        | le = modBy maxIdx (indices.le - 1)
+                    }
+                    { indices
+                        | le = modBy maxIdx (indices.le + 1)
+                    }
+                    indices.le
+                ]
+
+
+editColumn : String -> (String -> msg) -> Element msg
+editColumn content msg =
+    Input.multiline [ width (px 370), height (px 833), htmlAttribute (Attributes.style "line-height" "2"), clip ]
+        { onChange = msg
+        , text = content
+        , placeholder = Nothing
+        , label = Input.labelHidden ""
+        , spellcheck = True
+        }
+
+
+viewEditable : Model -> Element Msg
+viewEditable m =
+    let
+        indices =
+            Animator.current m.pageIndices
+
+        david =
+            Maybe.withDefault " " <| L.getAt indices.dp m.texts.dp
+
+        gerhard =
+            Maybe.withDefault " " <| L.getAt indices.ge m.texts.ge
+
+        luc =
+            Maybe.withDefault " " <| L.getAt indices.ld m.texts.ld
+
+        ludvig =
+            Maybe.withDefault " " <| L.getAt indices.le m.texts.le
+    in
+    row [ centerX, centerY ] <|
+        List.intersperse (emptyColumn 1)
+            [ editColumn david SetEditorDavid
+            , editColumn gerhard SetEditorGerhard
+            , editColumn luc SetEditorLuc
+            , editColumn ludvig SetEditorLudvig
+            ]
 
 
 view : Model -> Browser.Document Msg
@@ -273,7 +429,7 @@ view model =
                 [ Font.monospace ]
             ]
           <|
-            column [ width fill, spacingXY 0 50 ] <|
+            column [ width fill, spacingXY 0 20 ] <|
                 [ matryoshka <|
                     List.indexedMap
                         (\i l ->
@@ -289,22 +445,23 @@ view model =
                                     text "Problem"
                         )
                         (padLists
-                            [ David.texts
-                            , Gerhard.texts
-                            , Luc.texts
-                            , Ludvig.texts
+                            [ model.texts.dp
+                            , model.texts.ge
+                            , model.texts.ld
+                            , model.texts.le
                             ]
                             |> L.transpose
                         )
                 , buttons (Animator.current model.pageIndices)
                     (maxLength
-                        [ Luc.texts
-                        , Gerhard.texts
-                        , David.texts
-                        , Ludvig.texts
+                        [ model.texts.dp
+                        , model.texts.ge
+                        , model.texts.ld
+                        , model.texts.le
                         ]
                         |> Maybe.withDefault 0
                     )
+                , viewEditable model
                 ]
         ]
     }
