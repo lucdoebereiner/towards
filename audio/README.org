@@ -1,0 +1,43 @@
+
+For testing directory with audiofiles should be linked in into the js directory:
+
+e.g.
+
+#+BEGIN_SRC
+$ cd js
+$ ln -s /home/david/ownCloud/towards/page0 ./page0
+$ ln -s /home/david/ownCloud/towards/page0 ./page1
+$ ln -s /home/david/ownCloud/towards/page0 ./page2
+$ ln -s /home/david/ownCloud/towards/page0 ./page3
+#+END_SRC
+
+Audio files in each directory should be named 
+#+BEGIN_SRC
+david.wav
+gerhard.wav
+luc.wav
+ludvig.wav
+#+END_SRC
+
+the js function:
+
+#+BEGIN_SRC
+bufferLoader.load(2);
+#+END_SRC
+
+load all files for page 2
+
+while the js function:
+
+#+BEGIN_SRC
+bufferLoader.playBuffer(0, 3);
+#+END_SRC
+
+plays buffer with index 3 on page 0
+
+test with:
+
+#+BEGIN_SRC
+$ http-server .
+#+END_SRC
+
