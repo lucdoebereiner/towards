@@ -19,7 +19,7 @@ class PlayBufProcessor extends AudioWorkletProcessor {
 	}
 	
 	this.port.onmessage = (e) => {
-	    console.log(e.data)
+	    // console.log(e.data)
 	    if (e.data.load) {
 		// console.log("gotload");
 		// console.log(e.data.load);

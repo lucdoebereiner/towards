@@ -13,7 +13,7 @@ class BufferLoader {
     }
 
     playBuffer(page, index){
-	console.log([page, index, this.bufferList[page][index]]);
+	// console.log([page, index, this.bufferList[page][index]]);
 	this.node.port.postMessage({load: [index, this.bufferList[page][index]]});
     }
     
