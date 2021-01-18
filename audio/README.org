@@ -6,34 +6,36 @@ e.g.
 #+BEGIN_SRC
 $ cd js
 $ ln -s /home/david/ownCloud/towards/page0 ./page0
-$ ln -s /home/david/ownCloud/towards/page0 ./page1
-$ ln -s /home/david/ownCloud/towards/page0 ./page2
-$ ln -s /home/david/ownCloud/towards/page0 ./page3
+$ ln -s /home/david/ownCloud/towards/page1 ./page1
+$ ln -s /home/david/ownCloud/towards/page2 ./page2
+$ ln -s /home/david/ownCloud/towards/page3 ./page3
 #+END_SRC
 
 Audio files in each directory should be named 
 #+BEGIN_SRC
-david.wav
-gerhard.wav
-luc.wav
-ludvig.wav
+david.mp3
+gerhard.mp3
+luc.mp3
+ludvig.mp3
 #+END_SRC
 
 the js function:
 
 #+BEGIN_SRC
-bufferLoader.load(2);
+bufferLoader.loadAll( );
 #+END_SRC
 
-load all files for page 2
+loads all files in mp3 format
 
 while the js function:
 
 #+BEGIN_SRC
-bufferLoader.playBuffer(0, 3);
+bufferLoader.sendAmps(2, [0.9, 0.1, .... 0.0]);
 #+END_SRC
 
-plays buffer with index 3 on page 0
+sends an array of amplitude values for all files over all pages
+associated with index 2. The array length should be equal to the
+number of pages (4 in this testingv ersion).
 
 test with:
 
