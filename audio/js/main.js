@@ -139,20 +139,20 @@ play00.onclick = function() {
     bufferLoader.playBuffer(0, 0);
 }
 play10.onclick = function() {
-    console.log("play page 1 idx 0");
+    console.log("play page 0 idx 1");
     bufferLoader.playBuffer(0, 1);
 }
 play20.onclick = function() {
-    console.log("play page 2 idx 0");
+    console.log("play page 0 idx 2");
     bufferLoader.playBuffer(0, 2);
 }
 play30.onclick = function() {
-    console.log("play page 3 idx 0");
+    console.log("play page 0 idx 3");
     bufferLoader.playBuffer(0, 3);
 }
 
 play01.onclick = function() {
-    console.log("play page 0 idx 1");
+    console.log("play page 1 idx 0");
     bufferLoader.playBuffer(1, 0);
 }
 play11.onclick = function() {
@@ -160,20 +160,20 @@ play11.onclick = function() {
     bufferLoader.playBuffer(1, 1);
 }
 play21.onclick = function() {
-    console.log("play page 2 idx 1");
+    console.log("play page 1 idx 2");
     bufferLoader.playBuffer(1, 2);
 }
 play31.onclick = function() {
-    console.log("play page 3 idx 1");
+    console.log("play page 1 idx 3");
     bufferLoader.playBuffer(1, 3);
 }
 
 play02.onclick = function() {
-    console.log("play page 0 idx 2");
+    console.log("play page 2 idx 0");
     bufferLoader.playBuffer(2, 0);
 }
 play12.onclick = function() {
-    console.log("play page 1 idx 2");
+    console.log("play page 2 idx 1");
     bufferLoader.playBuffer(2, 1);
 }
 play22.onclick = function() {
@@ -181,20 +181,20 @@ play22.onclick = function() {
     bufferLoader.playBuffer(2, 2);
 }
 play32.onclick = function() {
-    console.log("play page 3 idx 2");
+    console.log("play page 2 idx 3");
     bufferLoader.playBuffer(2, 3);
 }
 
 play03.onclick = function() {
-    console.log("play page 0 idx 3");
+    console.log("play page 3 idx 0");
     bufferLoader.playBuffer(3, 0);
 }
 play13.onclick = function() {
-    console.log("play page 1 idx 3");
+    console.log("play page 3 idx 1");
     bufferLoader.playBuffer(3, 1);
 }
 play23.onclick = function() {
-    console.log("play page 2 idx 3");
+    console.log("play page 3 idx 2");
     bufferLoader.playBuffer(3, 2);
 }
 play33.onclick = function() {
