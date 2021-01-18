@@ -1,6 +1,8 @@
 
 // import { BufferLoader } from 'js/bufferloader.js'; // doesn't work : hate
 
+const pageNum = 4;
+
 class BufferLoader {
 
     constructor (context, node, callback) {
@@ -12,15 +14,26 @@ class BufferLoader {
 	this.names = ["david", "gerhard", "luc", "ludvig"];
     }
 
-    playBuffer(page, index){
+    // playBuffer(page, index){
+    // 	// console.log([page, index, this.bufferList[page][index]]);
+    // 	this.node.port.postMessage({load: [index, this.bufferList[page][index]]});
+    // }
+
+    sendBuffer(page, index){
 	// console.log([page, index, this.bufferList[page][index]]);
-	this.node.port.postMessage({load: [index, this.bufferList[page][index]]});
+	this.node.port.postMessage({load: [page, index, this.bufferList[page][index]]});
+    }
+
+    sendAmps(index, amps) {
+	this.node.port.postMessage({amps: [index, amps]});
     }
     
     loadBuffer(page, index, firstCall) {
 	// Load buffer asynchronously
 	var request = new XMLHttpRequest();
-	var url = "js/page" + page + "/" + this.names[index] + ".wav";
+	var url = "js/page" + page + "/" + this.names[index] + ".mp3";
+
+	console.log(url);
 	
 	request.open("GET", url, true);
 	request.responseType = "arraybuffer";
@@ -38,9 +51,10 @@ class BufferLoader {
 		    loader.bufferList[page][index] = [];
 		    loader.bufferList[page][index][0] = buffer.getChannelData(0);
 		    loader.bufferList[page][index][1] = buffer.getChannelData(1);
-		    if (firstCall) {
-			loader.playBuffer(page, index);
-		    }
+		    // if (firstCall) {
+		    // 	loader.playBuffer(page, index);
+		    // }
+		    loader.sendBuffer(page, index);
 		},
 		function(error) {
 		    console.error('decodeAudioData error', error);
@@ -66,31 +80,30 @@ class BufferLoader {
 	    console.log("page already loaded :: nothing to be done");
 	}	    
     }
+
+    loadAll( ) {
+	if (this.bufferList[page]) {
+	    alert('erro : buffer list is not empty');
+	} else {
+	    console.log("not yet loaded");
+	    this.node.port.postMessage({pages: pageNum});
+	    for (var page = 0; page < pageNum; ++page) {
+		this.bufferList[page] = [];
+		for (var i = 0; i < 4; ++i) {
+		    this.loadBuffer(page, i);
+		}
+	    }
+	} 	    
+    }
 }
 
 
 const initButton = document.querySelector('button');
 
-const play00 = document.querySelector('#p00');
-const play10 = document.querySelector('#p10');
-const play20 = document.querySelector('#p20');
-const play30 = document.querySelector('#p30');
-
-const play01 = document.querySelector('#p01');
-const play11 = document.querySelector('#p11');
-const play21 = document.querySelector('#p21');
-const play31 = document.querySelector('#p31');
-
-const play02 = document.querySelector('#p02');
-const play12 = document.querySelector('#p12');
-const play22 = document.querySelector('#p22');
-const play32 = document.querySelector('#p32');
-
-const play03 = document.querySelector('#p03');
-const play13 = document.querySelector('#p13');
-const play23 = document.querySelector('#p23');
-const play33 = document.querySelector('#p33');
-
+const fad0 = document.getElementById("fader0");
+const fad1 = document.getElementById("fader1");
+const fad2 = document.getElementById("fader2");
+const fad3 = document.getElementById("fader3");
 
 // Create AudioContext and source
 let audioCtx;
@@ -98,6 +111,8 @@ let source;
 let bufferLoader;
 
 async function init() {
+
+    console.log(fad0);
     
     if (navigator.mediaDevices) {
         navigator.mediaDevices.getUserMedia ({audio: true, video: false})
@@ -117,11 +132,9 @@ async function init() {
 		    audioCtx,
 		    playbuf
 		);
+
+		bufferLoader.loadAll( ); // load all audio files 0 and play page 0
 		
-		bufferLoader.load(0, true); // load all audio files for page 0 and play
-		bufferLoader.load(1); // load page 1
-		bufferLoader.load(2); // load page 1
-		bufferLoader.load(3); // load page 1
             })
     }
 
@@ -134,71 +147,41 @@ initButton.onclick = function() {
     }
 }
 
-play00.onclick = function() {
-    console.log("play page 0 idx 0");
-    bufferLoader.playBuffer(0, 0);
-}
-play10.onclick = function() {
-    console.log("play page 0 idx 1");
-    bufferLoader.playBuffer(0, 1);
-}
-play20.onclick = function() {
-    console.log("play page 0 idx 2");
-    bufferLoader.playBuffer(0, 2);
-}
-play30.onclick = function() {
-    console.log("play page 0 idx 3");
-    bufferLoader.playBuffer(0, 3);
+
+faderToAmp = function(idx, value) {
+    var ta = [0.0, 0.0, 0.0, 0.0];
+    var v = value;
+    var fv = Math.floor(value);
+    var cv = fv + 1;
+    ta[fv] = 1.0 - (v - fv);
+    if (cv < pageNum) {
+	ta[cv] = v - fv;
+    }
+    bufferLoader.sendAmps(idx, ta)
 }
 
-play01.onclick = function() {
-    console.log("play page 1 idx 0");
-    bufferLoader.playBuffer(1, 0);
+fad0.oninput = function() {
+    console.log("got fader0");
+    console.log(this.value);
+    document.querySelector('#volume0').value = this.value;
+    faderToAmp(0, this.value);
 }
-play11.onclick = function() {
-    console.log("play page 1 idx 1");
-    bufferLoader.playBuffer(1, 1);
+fad1.oninput = function() {
+    console.log("got fader1");
+    console.log(this.value);
+    document.querySelector('#volume1').value = this.value;
+    faderToAmp(1, this.value);
 }
-play21.onclick = function() {
-    console.log("play page 1 idx 2");
-    bufferLoader.playBuffer(1, 2);
+fad2.oninput = function() {
+    console.log("got fader2");
+    console.log(this.value);
+    document.querySelector('#volume2').value = this.value;
+    faderToAmp(2, this.value);
 }
-play31.onclick = function() {
-    console.log("play page 1 idx 3");
-    bufferLoader.playBuffer(1, 3);
-}
-
-play02.onclick = function() {
-    console.log("play page 2 idx 0");
-    bufferLoader.playBuffer(2, 0);
-}
-play12.onclick = function() {
-    console.log("play page 2 idx 1");
-    bufferLoader.playBuffer(2, 1);
-}
-play22.onclick = function() {
-    console.log("play page 2 idx 2");
-    bufferLoader.playBuffer(2, 2);
-}
-play32.onclick = function() {
-    console.log("play page 2 idx 3");
-    bufferLoader.playBuffer(2, 3);
-}
-
-play03.onclick = function() {
-    console.log("play page 3 idx 0");
-    bufferLoader.playBuffer(3, 0);
-}
-play13.onclick = function() {
-    console.log("play page 3 idx 1");
-    bufferLoader.playBuffer(3, 1);
-}
-play23.onclick = function() {
-    console.log("play page 3 idx 2");
-    bufferLoader.playBuffer(3, 2);
-}
-play33.onclick = function() {
-    console.log("play page 3 idx 3");
-    bufferLoader.playBuffer(3, 3);
+fad3.oninput = function() {
+    console.log("got fader3");
+    console.log(this.value);
+    document.querySelector('#volume3').value = this.value;
+    faderToAmp(3, this.value);
 }
 
