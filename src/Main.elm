@@ -35,6 +35,10 @@ type alias Model =
     }
 
 
+config =
+    { scrollInc = 0.1, transitionDur = 1 }
+
+
 parseIndices : Url -> PageIndices
 parseIndices url =
     let
@@ -85,18 +89,41 @@ type Msg
     | UrlChanged Url.Url
     | SetPage PageIndices
     | SetEditor Author String
-    | GotWheel Wheel.Event
+    | Scroll Float Author
+
+
+incOrDec : Wheel.Event -> Float
+incOrDec wheelEvent =
+    if wheelEvent.deltaY > 0 then
+        -1.0
+
+    else
+        1.0
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        GotWheel e ->
+        Scroll incDec author ->
             let
                 _ =
                     Debug.log "got wheel event" e
+
+                newIndices =
+                    PageIndices.incIndex author
+                        (config.scrollInc * incDec)
+                        (Texts.length model.texts)
+                        (Animator.current model.pageIndices)
             in
-            ( model, Cmd.none )
+            ( { model
+                | pageIndices =
+                    model.pageIndices
+                        |> Animator.go
+                            (Animator.seconds config.transitionDur)
+                            newIndices
+              }
+            , Cmd.none
+            )
 
         SetEditor author str ->
             let
@@ -130,7 +157,7 @@ update msg model =
                 | pageIndices =
                     model.pageIndices
                         |> Animator.go
-                            (Animator.seconds 5)
+                            (Animator.seconds config.transitionDur)
                             (parseIndices url)
               }
             , Cmd.none
@@ -192,7 +219,7 @@ textColumn timeline author index maxIdx entry =
                             |> Animator.at
                 ]
                 []
-                [ pre [ Wheel.onWheel GotWheel ]
+                [ pre [ Wheel.onWheel (\ev -> Scroll (incOrDec ev) author) ]
                     [ Html.text (Texts.entryString entry) ]
                 ]
             )

@@ -7166,6 +7166,7 @@ var $mdgriffith$elm_animator$Animator$toSubscription = F3(
 		var isRunning = _v0.a;
 		return isRunning(model) ? $elm$browser$Browser$Events$onAnimationFrame(toMsg) : $elm$core$Platform$Sub$none;
 	});
+var $author$project$Main$config = {scrollInc: 0.1, transitionDur: 1};
 var $ianmackenzie$elm_units$Quantity$greaterThan = F2(
 	function (_v0, _v1) {
 		var y = _v0.a;
@@ -7556,6 +7557,7 @@ var $mdgriffith$elm_animator$Internal$Timeline$current = function (timeline) {
 		timeline);
 };
 var $mdgriffith$elm_animator$Animator$current = $mdgriffith$elm_animator$Internal$Timeline$current;
+var $elm$core$Basics$e = _Basics_e;
 var $author$project$Texts$Editor = function (a) {
 	return {$: 'Editor', a: a};
 };
@@ -7732,6 +7734,82 @@ var $mdgriffith$elm_animator$Animator$go = F3(
 				]),
 			timeline);
 	});
+var $elm_community$basics_extra$Basics$Extra$fractionalModBy = F2(
+	function (modulus, x) {
+		return x - (modulus * $elm$core$Basics$floor(x / modulus));
+	});
+var $author$project$PageIndices$getIndex = F2(
+	function (author, indices) {
+		switch (author.$) {
+			case 'Luc':
+				return indices.ld;
+			case 'Gerhard':
+				return indices.ge;
+			case 'David':
+				return indices.dp;
+			default:
+				return indices.le;
+		}
+	});
+var $elm$core$Basics$round = _Basics_round;
+var $author$project$PageIndices$roundFloat = function (f) {
+	return function (i) {
+		return i / 1000;
+	}(
+		$elm$core$Basics$round(f * 1000));
+};
+var $author$project$PageIndices$setIndex = F3(
+	function (author, f, indices) {
+		switch (author.$) {
+			case 'Luc':
+				return _Utils_update(
+					indices,
+					{ld: f});
+			case 'Gerhard':
+				return _Utils_update(
+					indices,
+					{ge: f});
+			case 'David':
+				return _Utils_update(
+					indices,
+					{dp: f});
+			default:
+				return _Utils_update(
+					indices,
+					{le: f});
+		}
+	});
+var $author$project$PageIndices$incIndex = F4(
+	function (author, inc, max, indices) {
+		var newIdx = $author$project$PageIndices$roundFloat(
+			A2(
+				$elm_community$basics_extra$Basics$Extra$fractionalModBy,
+				max,
+				inc + A2($author$project$PageIndices$getIndex, author, indices)));
+		return A3($author$project$PageIndices$setIndex, author, newIdx, indices);
+	});
+var $elm$core$List$maximum = function (list) {
+	if (list.b) {
+		var x = list.a;
+		var xs = list.b;
+		return $elm$core$Maybe$Just(
+			A3($elm$core$List$foldl, $elm$core$Basics$max, x, xs));
+	} else {
+		return $elm$core$Maybe$Nothing;
+	}
+};
+var $author$project$Texts$maxLength = function (lsts) {
+	return A2(
+		$elm$core$Maybe$withDefault,
+		0,
+		$elm$core$List$maximum(
+			A2($elm$core$List$map, $elm$core$List$length, lsts)));
+};
+var $author$project$Texts$length = function (p) {
+	return $author$project$Texts$maxLength(
+		_List_fromArray(
+			[p.ge, p.dp, p.ld, p.le]));
+};
 var $author$project$Texts$emptyLine = A3(
 	$elm$core$String$padRight,
 	40,
@@ -7962,19 +8040,6 @@ var $author$project$Texts$formatPrinting = function (s) {
 var $author$project$Texts$printEntry = A2($elm$core$Basics$composeL, $author$project$Texts$formatPrinting, $author$project$Texts$entryString);
 var $elm$browser$Browser$Navigation$pushUrl = _Browser_pushUrl;
 var $mdgriffith$elm_animator$Animator$seconds = $ianmackenzie$elm_units$Duration$seconds;
-var $author$project$PageIndices$getIndex = F2(
-	function (author, indices) {
-		switch (author.$) {
-			case 'Luc':
-				return indices.ld;
-			case 'Gerhard':
-				return indices.ge;
-			case 'David':
-				return indices.dp;
-			default:
-				return indices.le;
-		}
-	});
 var $author$project$Texts$getText = F2(
 	function (author, texts) {
 		switch (author.$) {
@@ -7988,7 +8053,6 @@ var $author$project$Texts$getText = F2(
 				return texts.le;
 		}
 	});
-var $elm$core$Basics$round = _Basics_round;
 var $elm$core$List$drop = F2(
 	function (n, list) {
 		drop:
@@ -8133,10 +8197,27 @@ var $mdgriffith$elm_animator$Animator$update = F3(
 var $author$project$Main$update = F2(
 	function (msg, model) {
 		switch (msg.$) {
-			case 'GotWheel':
-				var e = msg.a;
-				var _v1 = A2($elm$core$Debug$log, 'got wheel event', e);
-				return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
+			case 'Scroll':
+				var incDec = msg.a;
+				var author = msg.b;
+				var newIndices = A4(
+					$author$project$PageIndices$incIndex,
+					author,
+					$author$project$Main$config.scrollInc * incDec,
+					$author$project$Texts$length(model.texts),
+					$mdgriffith$elm_animator$Animator$current(model.pageIndices));
+				var _v1 = A2($elm$core$Debug$log, 'got wheel event', $elm$core$Basics$e);
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{
+							pageIndices: A3(
+								$mdgriffith$elm_animator$Animator$go,
+								$mdgriffith$elm_animator$Animator$seconds($author$project$Main$config.transitionDur),
+								newIndices,
+								model.pageIndices)
+						}),
+					$elm$core$Platform$Cmd$none);
 			case 'SetEditor':
 				var author = msg.a;
 				var str = msg.b;
@@ -8172,7 +8253,7 @@ var $author$project$Main$update = F2(
 						{
 							pageIndices: A3(
 								$mdgriffith$elm_animator$Animator$go,
-								$mdgriffith$elm_animator$Animator$seconds(5),
+								$mdgriffith$elm_animator$Animator$seconds($author$project$Main$config.transitionDur),
 								$author$project$Main$parseIndices(url),
 								model.pageIndices)
 						}),
@@ -11518,16 +11599,6 @@ var $mdgriffith$elm_ui$Internal$Model$adjust = F3(
 	function (size, height, vertical) {
 		return {height: height / size, size: size, vertical: vertical};
 	});
-var $elm$core$List$maximum = function (list) {
-	if (list.b) {
-		var x = list.a;
-		var xs = list.b;
-		return $elm$core$Maybe$Just(
-			A3($elm$core$List$foldl, $elm$core$Basics$max, x, xs));
-	} else {
-		return $elm$core$Maybe$Nothing;
-	}
-};
 var $elm$core$List$minimum = function (list) {
 	if (list.b) {
 		var x = list.a;
@@ -13838,39 +13909,6 @@ var $author$project$Main$buttonStyling = _List_fromArray(
 		$mdgriffith$elm_ui$Element$padding(10),
 		$mdgriffith$elm_ui$Element$centerX
 	]);
-var $elm_community$basics_extra$Basics$Extra$fractionalModBy = F2(
-	function (modulus, x) {
-		return x - (modulus * $elm$core$Basics$floor(x / modulus));
-	});
-var $author$project$PageIndices$setIndex = F3(
-	function (author, f, indices) {
-		switch (author.$) {
-			case 'Luc':
-				return _Utils_update(
-					indices,
-					{ld: f});
-			case 'Gerhard':
-				return _Utils_update(
-					indices,
-					{ge: f});
-			case 'David':
-				return _Utils_update(
-					indices,
-					{dp: f});
-			default:
-				return _Utils_update(
-					indices,
-					{le: f});
-		}
-	});
-var $author$project$PageIndices$incIndex = F4(
-	function (author, inc, max, indices) {
-		var newIdx = A2(
-			$elm_community$basics_extra$Basics$Extra$fractionalModBy,
-			max,
-			inc + A2($author$project$PageIndices$getIndex, author, indices));
-		return A3($author$project$PageIndices$setIndex, author, newIdx, indices);
-	});
 var $mdgriffith$elm_ui$Internal$Model$AsRow = {$: 'AsRow'};
 var $mdgriffith$elm_ui$Internal$Model$asRow = $mdgriffith$elm_ui$Internal$Model$AsRow;
 var $mdgriffith$elm_ui$Element$row = F2(
@@ -14105,9 +14143,10 @@ var $mdgriffith$elm_ui$Internal$Model$Fill = function (a) {
 	return {$: 'Fill', a: a};
 };
 var $mdgriffith$elm_ui$Element$fill = $mdgriffith$elm_ui$Internal$Model$Fill(1);
-var $author$project$Main$GotWheel = function (a) {
-	return {$: 'GotWheel', a: a};
-};
+var $author$project$Main$Scroll = F2(
+	function (a, b) {
+		return {$: 'Scroll', a: a, b: b};
+	});
 var $mdgriffith$elm_animator$Internal$Interpolate$FullDefault = {$: 'FullDefault'};
 var $mdgriffith$elm_animator$Internal$Interpolate$Position = F2(
 	function (a, b) {
@@ -15195,7 +15234,6 @@ var $mdgriffith$elm_animator$Internal$Spring$criticalDamping = F2(
 	function (k, m) {
 		return 2 * $elm$core$Basics$sqrt(k * m);
 	});
-var $elm$core$Basics$e = _Basics_e;
 var $mdgriffith$elm_animator$Internal$Spring$toleranceForSpringSettleTimeCalculation = (-1) * A2($elm$core$Basics$logBase, $elm$core$Basics$e, 0.005);
 var $mdgriffith$elm_animator$Internal$Spring$settlesAt = function (_v0) {
 	var stiffness = _v0.stiffness;
@@ -16213,6 +16251,9 @@ var $mdgriffith$elm_animator$Animator$Css$node = F5(
 					children)));
 	});
 var $mdgriffith$elm_animator$Animator$Css$div = $mdgriffith$elm_animator$Animator$Css$node('div');
+var $author$project$Main$incOrDec = function (wheelEvent) {
+	return (wheelEvent.deltaY > 0) ? (-1.0) : 1.0;
+};
 var $mpizenberg$elm_pointer_events$Html$Events$Extra$Wheel$defaultOptions = {preventDefault: true, stopPropagation: false};
 var $elm$virtual_dom$VirtualDom$Custom = function (a) {
 	return {$: 'Custom', a: a};
@@ -16386,7 +16427,13 @@ var $author$project$Main$textColumn = F5(
 							$elm$html$Html$pre,
 							_List_fromArray(
 								[
-									$mpizenberg$elm_pointer_events$Html$Events$Extra$Wheel$onWheel($author$project$Main$GotWheel)
+									$mpizenberg$elm_pointer_events$Html$Events$Extra$Wheel$onWheel(
+									function (ev) {
+										return A2(
+											$author$project$Main$Scroll,
+											$author$project$Main$incOrDec(ev),
+											author);
+									})
 								]),
 							_List_fromArray(
 								[
@@ -16641,18 +16688,6 @@ var $mdgriffith$elm_ui$Element$layoutWith = F3(
 	});
 var $mdgriffith$elm_ui$Element$layout = $mdgriffith$elm_ui$Element$layoutWith(
 	{options: _List_Nil});
-var $author$project$Texts$maxLength = function (lsts) {
-	return A2(
-		$elm$core$Maybe$withDefault,
-		0,
-		$elm$core$List$maximum(
-			A2($elm$core$List$map, $elm$core$List$length, lsts)));
-};
-var $author$project$Texts$length = function (p) {
-	return $author$project$Texts$maxLength(
-		_List_fromArray(
-			[p.ge, p.dp, p.ld, p.le]));
-};
 var $mdgriffith$elm_ui$Internal$Model$InFront = {$: 'InFront'};
 var $mdgriffith$elm_ui$Internal$Model$Nearby = F2(
 	function (a, b) {

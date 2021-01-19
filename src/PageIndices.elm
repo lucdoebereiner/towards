@@ -36,11 +36,19 @@ default =
     PageIndices 0.0 0.0 0.0 0.0
 
 
+roundFloat : Float -> Float
+roundFloat f =
+    round (f * 1000)
+        |> toFloat
+        |> (\i -> i / 1000)
+
+
 incIndex : Author -> Float -> Int -> PageIndices -> PageIndices
 incIndex author inc max indices =
     let
         newIdx =
             fractionalModBy (toFloat max) (inc + getIndex author indices)
+                |> roundFloat
     in
     setIndex author newIdx indices
 
