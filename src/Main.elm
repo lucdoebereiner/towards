@@ -104,7 +104,9 @@ update msg model =
             ( { model
                 | pageIndices =
                     model.pageIndices
-                        |> Animator.go (Animator.seconds 5) newIndices
+                        |> Animator.go Animator.immediately
+                            --(Animator.seconds 5)
+                            newIndices
               }
             , Cmd.none
             )
@@ -153,7 +155,7 @@ calcDistance : Float -> Int -> Int -> Float
 calcDistance currentIdx textIdx maxIdx =
     let
         distance =
-            abs (toFloat textIdx) - currentIdx
+            abs (toFloat textIdx - currentIdx)
 
         reverseDistance =
             toFloat maxIdx - distance
@@ -187,9 +189,23 @@ textColumn timeline author index maxIdx t =
             (Animator.Css.div timeline
                 [ Animator.Css.opacity <|
                     \indices ->
-                        calcDistance (PageIndices.getIndex author indices) index maxIdx
-                            |> distanceToOpacity
-                            |> Animator.at
+                        let
+                            distance =
+                                calcDistance (PageIndices.getIndex author indices) index maxIdx
+
+                            opacity =
+                                distanceToOpacity distance
+
+                            _ =
+                                Debug.log "page index" (PageIndices.getIndex author indices)
+
+                            _ =
+                                Debug.log "maxidx" maxIdx
+
+                            _ =
+                                Debug.log "dist, index opacity" ( distance, index, opacity )
+                        in
+                        Animator.at opacity
                 ]
                 []
                 [ pre []
