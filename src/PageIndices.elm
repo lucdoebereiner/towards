@@ -5,10 +5,14 @@ module PageIndices exposing
     , fromTuples
     , getIndex
     , incIndex
+    , parsePageIndices
     , setIndex
     )
 
 import Basics.Extra exposing (fractionalModBy)
+import Url
+import Url.Parser exposing ((<?>), Parser)
+import Url.Parser.Query as Query
 
 
 type alias PageIndices =
@@ -74,3 +78,33 @@ setIndex author f indices =
 fromTuples : List ( Author, Float ) -> PageIndices
 fromTuples pairs =
     List.foldl (\( author, index ) indices -> setIndex author index indices) default pairs
+
+
+
+-- url parsing
+
+
+parseFloat : String -> Query.Parser Float
+parseFloat key =
+    Query.map (Maybe.withDefault 0.0) <|
+        Query.custom
+            key
+        <|
+            \stringList ->
+                case stringList of
+                    [ str ] ->
+                        String.toFloat str
+
+                    _ ->
+                        Nothing
+
+
+parsePageIndices : Parser (PageIndices -> a) a
+parsePageIndices =
+    Url.Parser.map PageIndices
+        (Url.Parser.top
+            <?> parseFloat "ludvig"
+            <?> parseFloat "david"
+            <?> parseFloat "gerhard"
+            <?> parseFloat "luc"
+        )

@@ -5,7 +5,11 @@ by Döbereiner, Eckel, Elblaus, Pirrò
 - Elm https://guide.elm-lang.org/install/elm.html
 
 ## Building
-There are several ways to build and serve, e.g.:
+Build using the script
 
-`$ elm reactor`
-Browse to the displayed url and open `src/Main.elm`
+`$ ./build.sh`
+
+Serve, e.g.
+
+`$ http-server .`
+

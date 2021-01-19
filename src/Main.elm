@@ -22,7 +22,8 @@ import Texts.Gerhard as Gerhard
 import Texts.Luc as Luc
 import Texts.Ludvig as Ludvig
 import Time
-import Url
+import Url exposing (Url)
+import Url.Parser
 
 
 type alias Model =
@@ -33,11 +34,26 @@ type alias Model =
     }
 
 
+parseIndices : Url -> PageIndices
+parseIndices url =
+    let
+        _ =
+            Debug.log "url" url
+
+        _ =
+            Debug.log "parse result" (Url.Parser.parse PageIndices.parsePageIndices url)
+    in
+    Maybe.withDefault
+        PageIndices.default
+        (Url.Parser.parse PageIndices.parsePageIndices url)
+
+
 main =
     Browser.application
         { init =
             \() url navKey ->
-                ( { pageIndices = Animator.init PageIndices.default
+                ( { pageIndices =
+                        Animator.init (parseIndices url)
                   , navKey = navKey
                   , needsUpdate = False
                   , texts =
@@ -100,15 +116,24 @@ update msg model =
         ClickedLink _ ->
             ( model, Cmd.none )
 
-        UrlChanged _ ->
-            ( model, Cmd.none )
+        UrlChanged url ->
+            ( { model
+                | pageIndices =
+                    model.pageIndices
+                        |> Animator.go
+                            (Animator.seconds 5)
+                            (parseIndices url)
+              }
+            , Cmd.none
+            )
 
+        -- todo change url
         SetPage newIndices ->
             ( { model
                 | pageIndices =
                     model.pageIndices
-                        |> Animator.go Animator.immediately
-                            --(Animator.seconds 5)
+                        |> Animator.go
+                            (Animator.seconds 5)
                             newIndices
               }
             , Cmd.none
