@@ -2,13 +2,16 @@ module Texts exposing
     ( Entry
     , Texts
     , entryString
+    , fromEditor
     , getText
     , indexTexts
     , length
     , nlClip
     , noNl
+    , padOrNl
     , printEntry
     , setAuthorTextAt
+    , toEditor
     , transposedTexts
     )
 
@@ -142,9 +145,35 @@ formatPrinting s =
         |> String.padRight (40 * 30) ' '
 
 
+padOrNl : String -> List String
+padOrNl s =
+    let
+        withoutNl =
+            String.replace "\n" "" s
+    in
+    if String.length withoutNl < 40 then
+        [ String.padRight 40 ' ' withoutNl ]
+
+    else
+        List.filter (\str -> String.length str > 0) <|
+            String.lines <|
+                insertNewlinesEveryN 40 withoutNl
+
+
+formatEditor : String -> String
+formatEditor s =
+    s
+        |> String.lines
+        |> List.concatMap padOrNl
+        |> ensureLength 30 emptyLine
+        |> String.join "\n"
+        |> String.left (40 * 30)
+
+
 type Entry
     = NoNl String
     | NlClip String
+    | Editor String
 
 
 noNl : String -> Entry
@@ -157,6 +186,24 @@ nlClip s =
     NlClip (formatNlClip s)
 
 
+fromEditor : String -> Entry
+fromEditor s =
+    Editor s
+
+
+toEditor : Entry -> String
+toEditor e =
+    case e of
+        NoNl s ->
+            s
+
+        NlClip s ->
+            s
+
+        Editor s ->
+            s
+
+
 entryString : Entry -> String
 entryString e =
     case e of
@@ -165,6 +212,9 @@ entryString e =
 
         NlClip s ->
             s
+
+        Editor s ->
+            formatEditor s
 
 
 printEntry : Entry -> String

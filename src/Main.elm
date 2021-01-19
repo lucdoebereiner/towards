@@ -76,7 +76,7 @@ update msg model =
         SetEditor author str ->
             let
                 entry =
-                    Texts.noNl str
+                    Texts.fromEditor str
 
                 _ =
                     Debug.log "Text:" (Texts.printEntry entry)
@@ -279,7 +279,8 @@ editColumn content msg =
     Input.multiline
         [ width (px 370)
         , height (px 833)
-        , htmlAttribute (Attributes.style "line-height" "2")
+        , htmlAttribute
+            (Attributes.style "line-height" "2")
         , clip
         , htmlAttribute (Attributes.cols 40)
         , htmlAttribute (Attributes.rows 30)
@@ -300,7 +301,7 @@ viewEditable m =
             Animator.current m.pageIndices
 
         extractString =
-            Maybe.withDefault " " << Maybe.map Texts.entryString
+            Maybe.withDefault " " << Maybe.map Texts.toEditor
 
         david =
             Texts.indexTexts David indices m.texts
