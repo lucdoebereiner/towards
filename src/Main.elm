@@ -6,7 +6,7 @@ import Animator.Inline
 import Basics.Extra exposing (fractionalModBy)
 import Browser
 import Browser.Events
-import Browser.Navigation
+import Browser.Navigation as Nav
 import Element exposing (..)
 import Element.Border as Border
 import Element.Font as Font
@@ -28,7 +28,7 @@ import Url.Parser
 
 type alias Model =
     { pageIndices : Animator.Timeline PageIndices
-    , navKey : Browser.Navigation.Key
+    , navKey : Nav.Key
     , needsUpdate : Bool
     , texts : Texts
     }
@@ -127,17 +127,8 @@ update msg model =
             , Cmd.none
             )
 
-        -- todo change url
         SetPage newIndices ->
-            ( { model
-                | pageIndices =
-                    model.pageIndices
-                        |> Animator.go
-                            (Animator.seconds 5)
-                            newIndices
-              }
-            , Cmd.none
-            )
+            ( model, Nav.pushUrl model.navKey (PageIndices.toUrl newIndices) )
 
 
 animator : Animator.Animator Model

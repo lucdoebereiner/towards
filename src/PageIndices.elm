@@ -7,10 +7,12 @@ module PageIndices exposing
     , incIndex
     , parsePageIndices
     , setIndex
+    , toUrl
     )
 
 import Basics.Extra exposing (fractionalModBy)
 import Url
+import Url.Builder as Builder
 import Url.Parser exposing ((<?>), Parser)
 import Url.Parser.Query as Query
 
@@ -108,3 +110,13 @@ parsePageIndices =
             <?> parseFloat "gerhard"
             <?> parseFloat "luc"
         )
+
+
+toUrl : PageIndices -> String
+toUrl p =
+    Builder.absolute []
+        [ Builder.string "david" (String.fromFloat p.dp)
+        , Builder.string "luc" (String.fromFloat p.ld)
+        , Builder.string "gerhard" (String.fromFloat p.ge)
+        , Builder.string "ludvig" (String.fromFloat p.le)
+        ]

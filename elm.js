@@ -7960,6 +7960,7 @@ var $author$project$Texts$formatPrinting = function (s) {
 			A3($elm$core$String$replace, '\n', '', s)));
 };
 var $author$project$Texts$printEntry = A2($elm$core$Basics$composeL, $author$project$Texts$formatPrinting, $author$project$Texts$entryString);
+var $elm$browser$Browser$Navigation$pushUrl = _Browser_pushUrl;
 var $mdgriffith$elm_animator$Animator$seconds = $ianmackenzie$elm_units$Duration$seconds;
 var $author$project$PageIndices$getIndex = F2(
 	function (author, indices) {
@@ -8068,6 +8069,62 @@ var $author$project$Texts$setAuthorTextAt = F4(
 			A2($author$project$Texts$getText, author, texts));
 		return A3($author$project$Texts$setText, author, newLst, texts);
 	});
+var $elm$url$Url$Builder$toQueryPair = function (_v0) {
+	var key = _v0.a;
+	var value = _v0.b;
+	return key + ('=' + value);
+};
+var $elm$url$Url$Builder$toQuery = function (parameters) {
+	if (!parameters.b) {
+		return '';
+	} else {
+		return '?' + A2(
+			$elm$core$String$join,
+			'&',
+			A2($elm$core$List$map, $elm$url$Url$Builder$toQueryPair, parameters));
+	}
+};
+var $elm$url$Url$Builder$absolute = F2(
+	function (pathSegments, parameters) {
+		return '/' + (A2($elm$core$String$join, '/', pathSegments) + $elm$url$Url$Builder$toQuery(parameters));
+	});
+var $elm$core$String$fromFloat = _String_fromNumber;
+var $elm$url$Url$Builder$QueryParameter = F2(
+	function (a, b) {
+		return {$: 'QueryParameter', a: a, b: b};
+	});
+var $elm$url$Url$percentEncode = _Url_percentEncode;
+var $elm$url$Url$Builder$string = F2(
+	function (key, value) {
+		return A2(
+			$elm$url$Url$Builder$QueryParameter,
+			$elm$url$Url$percentEncode(key),
+			$elm$url$Url$percentEncode(value));
+	});
+var $author$project$PageIndices$toUrl = function (p) {
+	return A2(
+		$elm$url$Url$Builder$absolute,
+		_List_Nil,
+		_List_fromArray(
+			[
+				A2(
+				$elm$url$Url$Builder$string,
+				'david',
+				$elm$core$String$fromFloat(p.dp)),
+				A2(
+				$elm$url$Url$Builder$string,
+				'luc',
+				$elm$core$String$fromFloat(p.ld)),
+				A2(
+				$elm$url$Url$Builder$string,
+				'gerhard',
+				$elm$core$String$fromFloat(p.ge)),
+				A2(
+				$elm$url$Url$Builder$string,
+				'ludvig',
+				$elm$core$String$fromFloat(p.le))
+			]));
+};
 var $mdgriffith$elm_animator$Animator$update = F3(
 	function (newTime, _v0, model) {
 		var updateModel = _v0.b;
@@ -8119,16 +8176,11 @@ var $author$project$Main$update = F2(
 			default:
 				var newIndices = msg.a;
 				return _Utils_Tuple2(
-					_Utils_update(
-						model,
-						{
-							pageIndices: A3(
-								$mdgriffith$elm_animator$Animator$go,
-								$mdgriffith$elm_animator$Animator$seconds(5),
-								newIndices,
-								model.pageIndices)
-						}),
-					$elm$core$Platform$Cmd$none);
+					model,
+					A2(
+						$elm$browser$Browser$Navigation$pushUrl,
+						model.navKey,
+						$author$project$PageIndices$toUrl(newIndices)));
 		}
 	});
 var $author$project$PageIndices$David = {$: 'David'};
@@ -8479,7 +8531,6 @@ var $elm$core$List$filterMap = F2(
 			_List_Nil,
 			xs);
 	});
-var $elm$core$String$fromFloat = _String_fromNumber;
 var $mdgriffith$elm_ui$Internal$Model$formatColor = function (_v0) {
 	var red = _v0.a;
 	var green = _v0.b;
