@@ -16,7 +16,7 @@ import Html.Attributes as Attributes
 import Html.Events
 import List.Extra as L
 import PageIndices exposing (Author(..), PageIndices)
-import Texts exposing (Texts)
+import Texts exposing (Entry, Texts)
 import Texts.David as David
 import Texts.Gerhard as Gerhard
 import Texts.Luc as Luc
@@ -41,10 +41,10 @@ main =
                   , navKey = navKey
                   , needsUpdate = False
                   , texts =
-                        { ge = List.map format Gerhard.texts
-                        , le = List.map format Ludvig.texts
-                        , dp = List.map format David.texts
-                        , ld = List.map format Luc.texts
+                        { ge = Gerhard.texts
+                        , le = Ludvig.texts
+                        , dp = David.texts
+                        , ld = Luc.texts
                         }
                   }
                 , Cmd.none
@@ -75,15 +75,18 @@ update msg model =
     case msg of
         SetEditor author str ->
             let
+                entry =
+                    Texts.noNl str
+
                 _ =
-                    Debug.log "Text:" (formatPrinting str)
+                    Debug.log "Text:" (Texts.printEntry entry)
             in
             ( { model
                 | texts =
                     Texts.setAuthorTextAt
                         author
                         (Animator.current model.pageIndices)
-                        str
+                        entry
                         model.texts
               }
             , Cmd.none
@@ -121,36 +124,6 @@ animator =
             )
 
 
-insertNewlinesEveryN : Int -> String -> String
-insertNewlinesEveryN n s =
-    case s of
-        "" ->
-            ""
-
-        str ->
-            String.left n str
-                ++ "\n"
-                ++ insertNewlinesEveryN n
-                    (String.dropLeft n str)
-
-
-format : String -> String
-format s =
-    s
-        |> String.replace "\n" ""
-        |> String.left (40 * 30)
-        |> String.padRight (40 * 30) ' '
-        |> insertNewlinesEveryN 40
-
-
-formatPrinting : String -> String
-formatPrinting s =
-    s
-        |> String.replace "\n" ""
-        |> String.left (40 * 30)
-        |> String.padRight (40 * 30) ' '
-
-
 calcDistance : Float -> Int -> Int -> Float
 calcDistance currentIdx textIdx maxIdx =
     let
@@ -177,9 +150,9 @@ textColumn :
     -> Author
     -> Int
     -> Int
-    -> String
+    -> Entry
     -> Element msg
-textColumn timeline author index maxIdx t =
+textColumn timeline author index maxIdx entry =
     el
         [ width shrink
         , htmlAttribute (Attributes.style "line-height" "2")
@@ -189,27 +162,13 @@ textColumn timeline author index maxIdx t =
             (Animator.Css.div timeline
                 [ Animator.Css.opacity <|
                     \indices ->
-                        let
-                            distance =
-                                calcDistance (PageIndices.getIndex author indices) index maxIdx
-
-                            opacity =
-                                distanceToOpacity distance
-
-                            _ =
-                                Debug.log "page index" (PageIndices.getIndex author indices)
-
-                            _ =
-                                Debug.log "maxidx" maxIdx
-
-                            _ =
-                                Debug.log "dist, index opacity" ( distance, index, opacity )
-                        in
-                        Animator.at opacity
+                        calcDistance (PageIndices.getIndex author indices) index maxIdx
+                            |> distanceToOpacity
+                            |> Animator.at
                 ]
                 []
                 [ pre []
-                    [ Html.text t ]
+                    [ Html.text (Texts.entryString entry) ]
                 ]
             )
 
@@ -231,49 +190,19 @@ iteration :
     Animator.Timeline PageIndices
     -> Int
     -> Int
-    -> String
-    -> String
-    -> String
-    -> String
+    -> Entry
+    -> Entry
+    -> Entry
+    -> Entry
     -> Element msg
 iteration timeline index maxIdx david gerhard luc ludvig =
     row [ centerX, centerY ] <|
         List.intersperse (emptyColumn 1)
-            [ textColumn timeline David index maxIdx (format david)
-            , textColumn timeline Gerhard index maxIdx (format gerhard)
-            , textColumn timeline Luc index maxIdx (format luc)
-            , textColumn timeline Ludvig index maxIdx (format ludvig)
+            [ textColumn timeline David index maxIdx david
+            , textColumn timeline Gerhard index maxIdx gerhard
+            , textColumn timeline Luc index maxIdx luc
+            , textColumn timeline Ludvig index maxIdx ludvig
             ]
-
-
-repeatLastN : Int -> List String -> List String
-repeatLastN n lst =
-    let
-        lack =
-            n - List.length lst
-    in
-    if lack > 0 then
-        case L.last lst of
-            Just l ->
-                lst ++ List.repeat n l
-
-            Nothing ->
-                lst ++ List.repeat n " "
-
-    else
-        lst
-
-
-maxLength lsts =
-    List.map List.length lsts
-        |> List.maximum
-
-
-padLists : List (List String) -> List (List String)
-padLists lsts =
-    maxLength lsts
-        |> Maybe.map (\n -> List.map (repeatLastN n) lsts)
-        |> Maybe.withDefault lsts
 
 
 matryoshka : List (Element msg) -> Element msg
@@ -347,7 +276,15 @@ buttons indices maxIdx =
 
 editColumn : String -> (String -> msg) -> Element msg
 editColumn content msg =
-    Input.multiline [ width (px 370), height (px 833), htmlAttribute (Attributes.style "line-height" "2"), clip ]
+    Input.multiline
+        [ width (px 370)
+        , height (px 833)
+        , htmlAttribute (Attributes.style "line-height" "2")
+        , clip
+        , htmlAttribute (Attributes.cols 40)
+        , htmlAttribute (Attributes.rows 30)
+        , htmlAttribute (Attributes.wrap "hard")
+        ]
         { onChange = msg
         , text = content
         , placeholder = Nothing
@@ -362,17 +299,24 @@ viewEditable m =
         indices =
             Animator.current m.pageIndices
 
+        extractString =
+            Maybe.withDefault " " << Maybe.map Texts.entryString
+
         david =
             Texts.indexTexts David indices m.texts
+                |> extractString
 
         gerhard =
             Texts.indexTexts Gerhard indices m.texts
+                |> extractString
 
         luc =
             Texts.indexTexts Luc indices m.texts
+                |> extractString
 
         ludvig =
             Texts.indexTexts Ludvig indices m.texts
+                |> extractString
     in
     row [ centerX, centerY ] <|
         List.intersperse (emptyColumn 1)
@@ -402,7 +346,13 @@ view model =
                         (\i l ->
                             case l of
                                 [ d, g, luc, ludvig ] ->
-                                    iteration model.pageIndices i (Texts.length model.texts) d g luc ludvig
+                                    iteration model.pageIndices
+                                        i
+                                        (Texts.length model.texts)
+                                        d
+                                        g
+                                        luc
+                                        ludvig
 
                                 _ ->
                                     let
@@ -411,15 +361,7 @@ view model =
                                     in
                                     text "Problem"
                         )
-                        -- todo: make opaque and move to texts module
-                        (padLists
-                            [ model.texts.dp
-                            , model.texts.ge
-                            , model.texts.ld
-                            , model.texts.le
-                            ]
-                            |> L.transpose
-                        )
+                        (Texts.transposedTexts model.texts)
                 , buttons (Animator.current model.pageIndices) (Texts.length model.texts)
                 , viewEditable model
                 ]
