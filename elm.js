@@ -8133,11 +8133,15 @@ var $mdgriffith$elm_animator$Animator$update = F3(
 var $author$project$Main$update = F2(
 	function (msg, model) {
 		switch (msg.$) {
+			case 'GotWheel':
+				var e = msg.a;
+				var _v1 = A2($elm$core$Debug$log, 'got wheel event', e);
+				return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
 			case 'SetEditor':
 				var author = msg.a;
 				var str = msg.b;
 				var entry = $author$project$Texts$fromEditor(str);
-				var _v1 = A2(
+				var _v2 = A2(
 					$elm$core$Debug$log,
 					'Text:',
 					$author$project$Texts$printEntry(entry));
@@ -14101,6 +14105,9 @@ var $mdgriffith$elm_ui$Internal$Model$Fill = function (a) {
 	return {$: 'Fill', a: a};
 };
 var $mdgriffith$elm_ui$Element$fill = $mdgriffith$elm_ui$Internal$Model$Fill(1);
+var $author$project$Main$GotWheel = function (a) {
+	return {$: 'GotWheel', a: a};
+};
 var $mdgriffith$elm_animator$Internal$Interpolate$FullDefault = {$: 'FullDefault'};
 var $mdgriffith$elm_animator$Internal$Interpolate$Position = F2(
 	function (a, b) {
@@ -16206,6 +16213,138 @@ var $mdgriffith$elm_animator$Animator$Css$node = F5(
 					children)));
 	});
 var $mdgriffith$elm_animator$Animator$Css$div = $mdgriffith$elm_animator$Animator$Css$node('div');
+var $mpizenberg$elm_pointer_events$Html$Events$Extra$Wheel$defaultOptions = {preventDefault: true, stopPropagation: false};
+var $elm$virtual_dom$VirtualDom$Custom = function (a) {
+	return {$: 'Custom', a: a};
+};
+var $elm$html$Html$Events$custom = F2(
+	function (event, decoder) {
+		return A2(
+			$elm$virtual_dom$VirtualDom$on,
+			event,
+			$elm$virtual_dom$VirtualDom$Custom(decoder));
+	});
+var $mpizenberg$elm_pointer_events$Html$Events$Extra$Wheel$Event = F3(
+	function (mouseEvent, deltaY, deltaMode) {
+		return {deltaMode: deltaMode, deltaY: deltaY, mouseEvent: mouseEvent};
+	});
+var $mpizenberg$elm_pointer_events$Html$Events$Extra$Wheel$DeltaLine = {$: 'DeltaLine'};
+var $mpizenberg$elm_pointer_events$Html$Events$Extra$Wheel$DeltaPage = {$: 'DeltaPage'};
+var $mpizenberg$elm_pointer_events$Html$Events$Extra$Wheel$DeltaPixel = {$: 'DeltaPixel'};
+var $elm$json$Json$Decode$int = _Json_decodeInt;
+var $mpizenberg$elm_pointer_events$Html$Events$Extra$Wheel$deltaModeDecoder = function () {
+	var intToMode = function (_int) {
+		switch (_int) {
+			case 1:
+				return $mpizenberg$elm_pointer_events$Html$Events$Extra$Wheel$DeltaLine;
+			case 2:
+				return $mpizenberg$elm_pointer_events$Html$Events$Extra$Wheel$DeltaPage;
+			default:
+				return $mpizenberg$elm_pointer_events$Html$Events$Extra$Wheel$DeltaPixel;
+		}
+	};
+	return A2($elm$json$Json$Decode$map, intToMode, $elm$json$Json$Decode$int);
+}();
+var $mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$Event = F6(
+	function (keys, button, clientPos, offsetPos, pagePos, screenPos) {
+		return {button: button, clientPos: clientPos, keys: keys, offsetPos: offsetPos, pagePos: pagePos, screenPos: screenPos};
+	});
+var $mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$BackButton = {$: 'BackButton'};
+var $mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$ErrorButton = {$: 'ErrorButton'};
+var $mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$ForwardButton = {$: 'ForwardButton'};
+var $mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$MainButton = {$: 'MainButton'};
+var $mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$MiddleButton = {$: 'MiddleButton'};
+var $mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$SecondButton = {$: 'SecondButton'};
+var $mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$buttonFromId = function (id) {
+	switch (id) {
+		case 0:
+			return $mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$MainButton;
+		case 1:
+			return $mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$MiddleButton;
+		case 2:
+			return $mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$SecondButton;
+		case 3:
+			return $mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$BackButton;
+		case 4:
+			return $mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$ForwardButton;
+		default:
+			return $mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$ErrorButton;
+	}
+};
+var $mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$buttonDecoder = A2(
+	$elm$json$Json$Decode$map,
+	$mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$buttonFromId,
+	A2($elm$json$Json$Decode$field, 'button', $elm$json$Json$Decode$int));
+var $elm$json$Json$Decode$float = _Json_decodeFloat;
+var $mpizenberg$elm_pointer_events$Internal$Decode$clientPos = A3(
+	$elm$json$Json$Decode$map2,
+	F2(
+		function (a, b) {
+			return _Utils_Tuple2(a, b);
+		}),
+	A2($elm$json$Json$Decode$field, 'clientX', $elm$json$Json$Decode$float),
+	A2($elm$json$Json$Decode$field, 'clientY', $elm$json$Json$Decode$float));
+var $mpizenberg$elm_pointer_events$Internal$Decode$Keys = F3(
+	function (alt, ctrl, shift) {
+		return {alt: alt, ctrl: ctrl, shift: shift};
+	});
+var $elm$json$Json$Decode$bool = _Json_decodeBool;
+var $elm$json$Json$Decode$map3 = _Json_map3;
+var $mpizenberg$elm_pointer_events$Internal$Decode$keys = A4(
+	$elm$json$Json$Decode$map3,
+	$mpizenberg$elm_pointer_events$Internal$Decode$Keys,
+	A2($elm$json$Json$Decode$field, 'altKey', $elm$json$Json$Decode$bool),
+	A2($elm$json$Json$Decode$field, 'ctrlKey', $elm$json$Json$Decode$bool),
+	A2($elm$json$Json$Decode$field, 'shiftKey', $elm$json$Json$Decode$bool));
+var $elm$json$Json$Decode$map6 = _Json_map6;
+var $mpizenberg$elm_pointer_events$Internal$Decode$offsetPos = A3(
+	$elm$json$Json$Decode$map2,
+	F2(
+		function (a, b) {
+			return _Utils_Tuple2(a, b);
+		}),
+	A2($elm$json$Json$Decode$field, 'offsetX', $elm$json$Json$Decode$float),
+	A2($elm$json$Json$Decode$field, 'offsetY', $elm$json$Json$Decode$float));
+var $mpizenberg$elm_pointer_events$Internal$Decode$pagePos = A3(
+	$elm$json$Json$Decode$map2,
+	F2(
+		function (a, b) {
+			return _Utils_Tuple2(a, b);
+		}),
+	A2($elm$json$Json$Decode$field, 'pageX', $elm$json$Json$Decode$float),
+	A2($elm$json$Json$Decode$field, 'pageY', $elm$json$Json$Decode$float));
+var $mpizenberg$elm_pointer_events$Internal$Decode$screenPos = A3(
+	$elm$json$Json$Decode$map2,
+	F2(
+		function (a, b) {
+			return _Utils_Tuple2(a, b);
+		}),
+	A2($elm$json$Json$Decode$field, 'screenX', $elm$json$Json$Decode$float),
+	A2($elm$json$Json$Decode$field, 'screenY', $elm$json$Json$Decode$float));
+var $mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$eventDecoder = A7($elm$json$Json$Decode$map6, $mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$Event, $mpizenberg$elm_pointer_events$Internal$Decode$keys, $mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$buttonDecoder, $mpizenberg$elm_pointer_events$Internal$Decode$clientPos, $mpizenberg$elm_pointer_events$Internal$Decode$offsetPos, $mpizenberg$elm_pointer_events$Internal$Decode$pagePos, $mpizenberg$elm_pointer_events$Internal$Decode$screenPos);
+var $mpizenberg$elm_pointer_events$Html$Events$Extra$Wheel$eventDecoder = A4(
+	$elm$json$Json$Decode$map3,
+	$mpizenberg$elm_pointer_events$Html$Events$Extra$Wheel$Event,
+	$mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$eventDecoder,
+	A2($elm$json$Json$Decode$field, 'deltaY', $elm$json$Json$Decode$float),
+	A2($elm$json$Json$Decode$field, 'deltaMode', $mpizenberg$elm_pointer_events$Html$Events$Extra$Wheel$deltaModeDecoder));
+var $mpizenberg$elm_pointer_events$Html$Events$Extra$Wheel$onWithOptions = F2(
+	function (options, tag) {
+		return A2(
+			$elm$html$Html$Events$custom,
+			'wheel',
+			A2(
+				$elm$json$Json$Decode$map,
+				function (ev) {
+					return {
+						message: tag(ev),
+						preventDefault: options.preventDefault,
+						stopPropagation: options.stopPropagation
+					};
+				},
+				$mpizenberg$elm_pointer_events$Html$Events$Extra$Wheel$eventDecoder));
+	});
+var $mpizenberg$elm_pointer_events$Html$Events$Extra$Wheel$onWheel = $mpizenberg$elm_pointer_events$Html$Events$Extra$Wheel$onWithOptions($mpizenberg$elm_pointer_events$Html$Events$Extra$Wheel$defaultOptions);
 var $mdgriffith$elm_animator$Animator$Css$Linear = F3(
 	function (a, b, c) {
 		return {$: 'Linear', a: a, b: b, c: c};
@@ -16245,7 +16384,10 @@ var $author$project$Main$textColumn = F5(
 						[
 							A2(
 							$elm$html$Html$pre,
-							_List_Nil,
+							_List_fromArray(
+								[
+									$mpizenberg$elm_pointer_events$Html$Events$Extra$Wheel$onWheel($author$project$Main$GotWheel)
+								]),
 							_List_fromArray(
 								[
 									$elm$html$Html$text(

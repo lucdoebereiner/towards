@@ -14,6 +14,7 @@ import Element.Input as Input
 import Html exposing (pre)
 import Html.Attributes as Attributes
 import Html.Events
+import Html.Events.Extra.Wheel as Wheel
 import List.Extra as L
 import PageIndices exposing (Author(..), PageIndices)
 import Texts exposing (Entry, Texts)
@@ -84,11 +85,19 @@ type Msg
     | UrlChanged Url.Url
     | SetPage PageIndices
     | SetEditor Author String
+    | GotWheel Wheel.Event
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        GotWheel e ->
+            let
+                _ =
+                    Debug.log "got wheel event" e
+            in
+            ( model, Cmd.none )
+
         SetEditor author str ->
             let
                 entry =
@@ -167,7 +176,7 @@ textColumn :
     -> Int
     -> Int
     -> Entry
-    -> Element msg
+    -> Element Msg
 textColumn timeline author index maxIdx entry =
     el
         [ width shrink
@@ -183,7 +192,7 @@ textColumn timeline author index maxIdx entry =
                             |> Animator.at
                 ]
                 []
-                [ pre []
+                [ pre [ Wheel.onWheel GotWheel ]
                     [ Html.text (Texts.entryString entry) ]
                 ]
             )
@@ -210,7 +219,7 @@ iteration :
     -> Entry
     -> Entry
     -> Entry
-    -> Element msg
+    -> Element Msg
 iteration timeline index maxIdx david gerhard luc ludvig =
     row [ centerX, centerY ] <|
         List.intersperse (emptyColumn 1)
