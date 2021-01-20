@@ -264,14 +264,14 @@ buttonStyling =
     [ Border.width 1, padding 10, centerX ]
 
 
-columnButtons : Author -> Int -> Float -> PageIndices -> Element Msg
-columnButtons author maxIdx inc indices =
+columnButtons : Author -> Int -> PageIndices -> Element Msg
+columnButtons author maxIdx indices =
     let
         back =
-            PageIndices.incIndex author (inc * -1.0) maxIdx indices
+            PageIndices.previousIndex author maxIdx indices
 
         forward =
-            PageIndices.incIndex author inc maxIdx indices
+            PageIndices.nextIndex author maxIdx indices
 
         idx =
             PageIndices.getIndex author indices
@@ -295,10 +295,6 @@ columnButtons author maxIdx inc indices =
 
 buttons : PageIndices -> Int -> Element Msg
 buttons indices maxIdx =
-    let
-        inc =
-            0.5
-    in
     row [ centerX ] <|
         List.intersperse (emptyColumn 1) <|
             List.map
@@ -308,10 +304,10 @@ buttons indices maxIdx =
                         , b
                         ]
                 )
-                [ columnButtons David maxIdx inc indices
-                , columnButtons Gerhard maxIdx inc indices
-                , columnButtons Luc maxIdx inc indices
-                , columnButtons Ludvig maxIdx inc indices
+                [ columnButtons David maxIdx indices
+                , columnButtons Gerhard maxIdx indices
+                , columnButtons Luc maxIdx indices
+                , columnButtons Ludvig maxIdx indices
                 ]
 
 

@@ -14017,6 +14017,26 @@ var $author$project$Main$buttonStyling = _List_fromArray(
 		$mdgriffith$elm_ui$Element$padding(10),
 		$mdgriffith$elm_ui$Element$centerX
 	]);
+var $author$project$PageIndices$nextIndex = F3(
+	function (author, max, indices) {
+		var newIdx = $author$project$PageIndices$roundFloat(
+			A2(
+				$elm_community$basics_extra$Basics$Extra$fractionalModBy,
+				max,
+				$elm$core$Basics$floor(
+					A2($author$project$PageIndices$getIndex, author, indices)) + 1));
+		return A3($author$project$PageIndices$setIndex, author, newIdx, indices);
+	});
+var $author$project$PageIndices$previousIndex = F3(
+	function (author, max, indices) {
+		var newIdx = $author$project$PageIndices$roundFloat(
+			A2(
+				$elm_community$basics_extra$Basics$Extra$fractionalModBy,
+				max,
+				$elm$core$Basics$ceiling(
+					A2($author$project$PageIndices$getIndex, author, indices)) - 1));
+		return A3($author$project$PageIndices$setIndex, author, newIdx, indices);
+	});
 var $mdgriffith$elm_ui$Internal$Model$AsRow = {$: 'AsRow'};
 var $mdgriffith$elm_ui$Internal$Model$asRow = $mdgriffith$elm_ui$Internal$Model$AsRow;
 var $mdgriffith$elm_ui$Element$row = F2(
@@ -14062,11 +14082,11 @@ var $mdgriffith$elm_ui$Internal$Model$Text = function (a) {
 var $mdgriffith$elm_ui$Element$text = function (content) {
 	return $mdgriffith$elm_ui$Internal$Model$Text(content);
 };
-var $author$project$Main$columnButtons = F4(
-	function (author, maxIdx, inc, indices) {
+var $author$project$Main$columnButtons = F3(
+	function (author, maxIdx, indices) {
 		var idx = A2($author$project$PageIndices$getIndex, author, indices);
-		var forward = A4($author$project$PageIndices$incIndex, author, inc, maxIdx, indices);
-		var back = A4($author$project$PageIndices$incIndex, author, inc * (-1.0), maxIdx, indices);
+		var forward = A3($author$project$PageIndices$nextIndex, author, maxIdx, indices);
+		var back = A3($author$project$PageIndices$previousIndex, author, maxIdx, indices);
 		return A2(
 			$mdgriffith$elm_ui$Element$row,
 			_List_fromArray(
@@ -14158,7 +14178,6 @@ var $elm$core$List$intersperse = F2(
 	});
 var $author$project$Main$buttons = F2(
 	function (indices, maxIdx) {
-		var inc = 0.5;
 		return A2(
 			$mdgriffith$elm_ui$Element$row,
 			_List_fromArray(
@@ -14183,10 +14202,10 @@ var $author$project$Main$buttons = F2(
 					},
 					_List_fromArray(
 						[
-							A4($author$project$Main$columnButtons, $author$project$PageIndices$David, maxIdx, inc, indices),
-							A4($author$project$Main$columnButtons, $author$project$PageIndices$Gerhard, maxIdx, inc, indices),
-							A4($author$project$Main$columnButtons, $author$project$PageIndices$Luc, maxIdx, inc, indices),
-							A4($author$project$Main$columnButtons, $author$project$PageIndices$Ludvig, maxIdx, inc, indices)
+							A3($author$project$Main$columnButtons, $author$project$PageIndices$David, maxIdx, indices),
+							A3($author$project$Main$columnButtons, $author$project$PageIndices$Gerhard, maxIdx, indices),
+							A3($author$project$Main$columnButtons, $author$project$PageIndices$Luc, maxIdx, indices),
+							A3($author$project$Main$columnButtons, $author$project$PageIndices$Ludvig, maxIdx, indices)
 						]))));
 	});
 var $mdgriffith$elm_ui$Internal$Model$AlignY = function (a) {
