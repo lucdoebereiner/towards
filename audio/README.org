@@ -7,16 +7,16 @@ Use the sync.sh script to synchronize with the server. The script uses rsync:
 it first downloads the new files from the server and then synchronizes
 the local 'files' directory with the server.
 
+The script ffmpeg_convert.sh can be used to batch convert all the
+*.wav files (not containing "_" as these files are the old ones) to
+*.mp3 files with give rate. For instance run:
 
-Audio files in each 'page*' directory should be named 
 #+BEGIN_SRC
-david.mp3
-gerhard.mp3
-luc.mp3
-ludvig.mp3
+./ffmpeg_convert.sh 192k
 #+END_SRC
 
-the js function:
+
+The js function:
 
 #+BEGIN_SRC
 bufferLoader.loadAll( );
