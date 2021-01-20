@@ -12,6 +12,8 @@ class BufferLoader {
 	this.loadCount = 0;
 	this.names = ["david", "gerhard", "luc", "ludvig"];
 	this.shBuf = [];
+	this.page2l = 0;
+	this.index2l = 0;
 	for (var i = 0; i < 4; ++i) {
 	    this.shBuf[i] = [];
 	    for (var j = 0; j < pageNum; ++j) {
@@ -40,7 +42,7 @@ class BufferLoader {
 	this.node.port.postMessage({pan: [index, pan]});
     }
 
-    async loadBuffer(page, index, firstCall) {
+    loadBuffer(page, index) {
 	// Load buffer asynchronously
 	var request = new XMLHttpRequest();
 	var url = "files/page" + page + "/" + this.names[index] + ".mp3";
@@ -65,6 +67,15 @@ class BufferLoader {
 			loader.shArray[index][page][i] = chdata[i];
 		    };
 		    loader.sendBuffer(page, index);
+		    loader.index2l = loader.index2l + 1;
+		    if (loader.index2l == 4) {
+			loader.index2l = 0;
+			loader.page2l = loader.page2l + 1;
+		    }
+		    if (loader.page2l < 50) {
+			// console.log("calling next");
+			loader.loadBuffer(loader.page2l, loader.index2l);
+		    }
 		},
 		function(error) {
 		    console.error('decodeAudioData error', error);
@@ -76,17 +87,18 @@ class BufferLoader {
 	    alert('BufferLoader: XHR error');
 	}
 
-	await request.send();
+	request.send();
     }
 
-    async loadAll( ) {
+    loadAll( ) {
 	// console.log("not yet loaded");
 	this.node.port.postMessage({init: pageNum});
-	for (var page = 0; page < pageNum; ++page) {
-	    for (var i = 0; i < 4; ++i) {
-		await this.loadBuffer(page, i);
-	    }
-	}
+	this.loadBuffer(this.page2l, this.index2l);
+	// for (var page = 0; page < pageNum; ++page) {
+	//     for (var i = 0; i < 4; ++i) {
+	// 	this.loadBuffer(page, i);
+	//     }
+	// }
 
     }
 }
