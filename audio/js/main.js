@@ -9,23 +9,32 @@ class BufferLoader {
 	this.context = context;
 	this.node = node;
 	this.onload = callback;
-	this.bufferList = [];
 	this.loadCount = 0;
 	this.names = ["david", "gerhard", "luc", "ludvig"];
+	this.shBuf = [];
+	for (var i = 0; i < 4; ++i) {
+	    this.shBuf[i] = [];
+	    for (var j = 0; j < pageNum; ++j) {
+		this.shBuf[i][j] = new SharedArrayBuffer(4 * 48000 * 60); // 32 bit floats
+	    }
+	}
+	this.shArray = [];
+	for (var i = 0; i < 4; ++i) {
+	    this.shArray[i] = [];
+	    for (var j = 0; j < pageNum; ++j) {
+		this.shArray[i][j] = new Float32Array(this.shBuf[i][j]); // 32 bit floats
+	    }
+	}
+	
     }
 
-    // playBuffer(page, index){
-    // 	// console.log([page, index, this.bufferList[page][index]]);
-    // 	this.node.port.postMessage({load: [index, this.bufferList[page][index]]});
-    // }
-
     sendBuffer(page, index){
-	// console.log([page, index, this.bufferList[page][index]]);
-	this.node.port.postMessage({load: [page, index, this.bufferList[page][index]]});
+	this.node.port.postMessage({load: [page, index, this.shBuf[index][page]]});
     }
 
     sendAmps(index, amps) {
 	this.node.port.postMessage({amps: [index, amps]});
+	console.log(this.shArray);
     }
     
     loadBuffer(page, index, firstCall) {
@@ -48,12 +57,10 @@ class BufferLoader {
 			alert('error decoding file data: ' + url);
 			return;
 		    }
-		    loader.bufferList[page][index] = [];
-		    loader.bufferList[page][index][0] = buffer.getChannelData(0);
-		    loader.bufferList[page][index][1] = buffer.getChannelData(1);
-		    // if (firstCall) {
-		    // 	loader.playBuffer(page, index);
-		    // }
+		    var chdata = buffer.getChannelData(0);
+		    for (var i = 0; i<48000 * 60; ++i) {
+			loader.shArray[index][page][i] = chdata[i];
+		    };
 		    loader.sendBuffer(page, index);
 		},
 		function(error) {
@@ -69,31 +76,16 @@ class BufferLoader {
 	request.send();
     }
 
-    load(page, firstCall) {
-	if (!this.bufferList[page]) {
-	    console.log("page not yet loaded");
-	    this.bufferList[page] = [];
-	    for (var i = 0; i < 4; ++i) {
-		this.loadBuffer(page, i, firstCall);
-	    }
-	} else {
-	    console.log("page already loaded :: nothing to be done");
-	}	    
-    }
 
     loadAll( ) {
-	if (this.bufferList[page]) {
-	    alert('erro : buffer list is not empty');
-	} else {
-	    console.log("not yet loaded");
-	    this.node.port.postMessage({pages: pageNum});
-	    for (var page = 0; page < pageNum; ++page) {
-		this.bufferList[page] = [];
-		for (var i = 0; i < 4; ++i) {
-		    this.loadBuffer(page, i);
-		}
+	// console.log("not yet loaded");
+	this.node.port.postMessage({init: pageNum});
+	for (var page = 0; page < pageNum; ++page) {
+	    for (var i = 0; i < 4; ++i) {
+		this.loadBuffer(page, i);
 	    }
-	} 	    
+	}
+
     }
 }
 
