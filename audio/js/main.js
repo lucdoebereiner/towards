@@ -1,7 +1,7 @@
 
 // import { BufferLoader } from 'js/bufferloader.js'; // doesn't work : hate
 
-const pageNum = 4;
+const pageNum = 50;
 
 class BufferLoader {
 
@@ -143,7 +143,7 @@ initButton.onclick = function() {
 
 
 faderToAmp = function(idx, value) {
-    var ta = [0.0, 0.0, 0.0, 0.0];
+    var ta = new Float32Array(pageNum);
     var v = value;
     var fv = Math.floor(value);
     var cv = fv + 1;
