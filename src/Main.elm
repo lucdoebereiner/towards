@@ -39,26 +39,12 @@ type alias Model =
     }
 
 
-parseIndices : Url -> PageIndices
-parseIndices url =
-    let
-        _ =
-            Debug.log "url" url
-
-        _ =
-            Debug.log "parse result" (Url.Parser.parse PageIndices.parsePageIndices url)
-    in
-    Maybe.withDefault
-        PageIndices.default
-        (Url.Parser.parse PageIndices.parsePageIndices url)
-
-
 main =
     Browser.application
         { init =
             \() url navKey ->
                 ( { pageIndices =
-                        Animator.init (parseIndices url)
+                        Animator.init (PageIndices.fromUrl url)
                   , navKey = navKey
                   , needsUpdate = False
                   , texts =
@@ -147,7 +133,7 @@ update msg model =
                     model.pageIndices
                         |> Animator.go
                             (Animator.seconds config.transitionDur)
-                            (parseIndices url)
+                            (PageIndices.fromUrl url)
               }
             , Cmd.none
             )
@@ -231,19 +217,20 @@ iteration :
     Animator.Timeline PageIndices
     -> Int
     -> Int
-    -> Entry
-    -> Entry
-    -> Entry
-    -> Entry
+    -> Texts.CurrentEntries
     -> Element Msg
-iteration timeline index maxIdx david gerhard luc ludvig =
+iteration timeline index maxIdx current =
     row [ centerX, centerY ] <|
-        List.intersperse (emptyColumn 1)
-            [ textColumn timeline David index maxIdx david
-            , textColumn timeline Gerhard index maxIdx gerhard
-            , textColumn timeline Luc index maxIdx luc
-            , textColumn timeline Ludvig index maxIdx ludvig
-            ]
+        List.intersperse (emptyColumn 1) <|
+            List.map
+                (\author ->
+                    textColumn timeline
+                        author
+                        index
+                        maxIdx
+                        (Texts.getText author current)
+                )
+                (PageIndices.authorsInOrder (Animator.current timeline))
 
 
 matryoshka : List (Element msg) -> Element msg
@@ -387,10 +374,7 @@ view model =
                                     iteration model.pageIndices
                                         i
                                         (Texts.length model.texts)
-                                        d
-                                        g
-                                        luc
-                                        ludvig
+                                        { ld = luc, dp = d, ge = g, le = ludvig }
 
                                 _ ->
                                     let

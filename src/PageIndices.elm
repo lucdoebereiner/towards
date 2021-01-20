@@ -1,19 +1,20 @@
 module PageIndices exposing
     ( Author(..)
     , PageIndices
+    , authorsInOrder
     , default
     , fromTuples
+    , fromUrl
     , getIndex
     , incIndex
     , nextIndex
-    , parsePageIndices
     , previousIndex
     , setIndex
     , toUrl
     )
 
 import Basics.Extra exposing (fractionalModBy)
-import Url
+import Url exposing (Url)
 import Url.Builder as Builder
 import Url.Parser exposing ((<?>), Parser)
 import Url.Parser.Query as Query
@@ -24,6 +25,7 @@ type alias PageIndices =
     , dp : Float
     , ge : Float
     , ld : Float
+    , rotation : Int
     }
 
 
@@ -34,12 +36,26 @@ type Author
     | Ludvig
 
 
+rotate : Int -> List a -> List a
+rotate n l =
+    let
+        modN =
+            modBy (List.length l) n
+    in
+    List.drop modN l ++ List.take modN l
+
+
 columnOrder =
     [ David, Gerhard, Luc, Ludvig ]
 
 
+authorsInOrder : PageIndices -> List Author
+authorsInOrder i =
+    rotate i.rotation columnOrder
+
+
 default =
-    PageIndices 0.0 0.0 0.0 0.0
+    PageIndices 0.0 0.0 0.0 0.0 0
 
 
 roundFloat : Float -> Float
@@ -145,6 +161,7 @@ parsePageIndices =
             <?> parseFloat "david"
             <?> parseFloat "gerhard"
             <?> parseFloat "luc"
+            <?> (Query.map (Maybe.withDefault 0) <| Query.int "rotation")
         )
 
 
@@ -155,4 +172,12 @@ toUrl p =
         , Builder.string "luc" (String.fromFloat p.ld)
         , Builder.string "gerhard" (String.fromFloat p.ge)
         , Builder.string "ludvig" (String.fromFloat p.le)
+        , Builder.string "rotation" (String.fromInt p.rotation)
         ]
+
+
+fromUrl : Url -> PageIndices
+fromUrl url =
+    Maybe.withDefault
+        default
+        (Url.Parser.parse parsePageIndices url)

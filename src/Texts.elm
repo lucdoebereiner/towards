@@ -1,5 +1,6 @@
 module Texts exposing
-    ( Entry
+    ( CurrentEntries
+    , Entry
     , EntryWithIndex
     , Texts
     , entryString
@@ -46,7 +47,14 @@ length p =
         |> maxLength
 
 
-getText : Author -> Texts -> List Entry
+type alias CurrentEntries =
+    { ge : Entry, dp : Entry, ld : Entry, le : Entry }
+
+
+
+--getText : Author -> Texts -> List Entry
+
+
 getText author texts =
     case author of
         Luc ->

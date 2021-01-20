@@ -5,7 +5,7 @@ import Texts
 
 texts : List Texts.EntryWithIndex
 texts =
-    [ ( 0, Texts.noNl "test1" )
+    [ ( 0, Texts.noNl "test1 luc" )
     , ( 9, Texts.noNl "test2" )
     ]
 

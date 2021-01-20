@@ -6122,30 +6122,11 @@ var $elm$core$Task$perform = F2(
 	});
 var $elm$browser$Browser$application = _Browser_application;
 var $elm$core$Platform$Sub$batch = _Platform_batch;
-var $elm$time$Time$Posix = function (a) {
-	return {$: 'Posix', a: a};
-};
-var $elm$time$Time$millisToPosix = $elm$time$Time$Posix;
-var $mdgriffith$elm_animator$Animator$init = function (first) {
-	return $mdgriffith$elm_animator$Internal$Timeline$Timeline(
-		{
-			events: $mdgriffith$elm_animator$Internal$Timeline$Timetable(_List_Nil),
-			initial: first,
-			interruption: _List_Nil,
-			now: $mdgriffith$elm_animator$Internal$Time$absolute(
-				$elm$time$Time$millisToPosix(0)),
-			queued: $elm$core$Maybe$Nothing,
-			running: true
-		});
-};
-var $elm$core$Platform$Cmd$batch = _Platform_batch;
-var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
-var $author$project$PageIndices$PageIndices = F4(
-	function (le, dp, ge, ld) {
-		return {dp: dp, ge: ge, ld: ld, le: le};
+var $author$project$PageIndices$PageIndices = F5(
+	function (le, dp, ge, ld, rotation) {
+		return {dp: dp, ge: ge, ld: ld, le: le, rotation: rotation};
 	});
-var $author$project$PageIndices$default = A4($author$project$PageIndices$PageIndices, 0.0, 0.0, 0.0, 0.0);
-var $elm$core$Debug$log = _Debug_log;
+var $author$project$PageIndices$default = A5($author$project$PageIndices$PageIndices, 0.0, 0.0, 0.0, 0.0, 0);
 var $elm$url$Url$Parser$State = F5(
 	function (visited, unvisited, params, frag, value) {
 		return {frag: frag, params: params, unvisited: unvisited, value: value, visited: visited};
@@ -6780,6 +6761,33 @@ var $elm$url$Url$Parser$parse = F2(
 					url.fragment,
 					$elm$core$Basics$identity)));
 	});
+var $elm$url$Url$Parser$Internal$Parser = function (a) {
+	return {$: 'Parser', a: a};
+};
+var $elm$url$Url$Parser$Query$custom = F2(
+	function (key, func) {
+		return $elm$url$Url$Parser$Internal$Parser(
+			function (dict) {
+				return func(
+					A2(
+						$elm$core$Maybe$withDefault,
+						_List_Nil,
+						A2($elm$core$Dict$get, key, dict)));
+			});
+	});
+var $elm$url$Url$Parser$Query$int = function (key) {
+	return A2(
+		$elm$url$Url$Parser$Query$custom,
+		key,
+		function (stringList) {
+			if (stringList.b && (!stringList.b.b)) {
+				var str = stringList.a;
+				return $elm$core$String$toInt(str);
+			} else {
+				return $elm$core$Maybe$Nothing;
+			}
+		});
+};
 var $elm$url$Url$Parser$Parser = function (a) {
 	return {$: 'Parser', a: a};
 };
@@ -6813,20 +6821,6 @@ var $elm$url$Url$Parser$map = F2(
 					$elm$url$Url$Parser$mapState(value),
 					parseArg(
 						A5($elm$url$Url$Parser$State, visited, unvisited, params, frag, subValue)));
-			});
-	});
-var $elm$url$Url$Parser$Internal$Parser = function (a) {
-	return {$: 'Parser', a: a};
-};
-var $elm$url$Url$Parser$Query$custom = F2(
-	function (key, func) {
-		return $elm$url$Url$Parser$Internal$Parser(
-			function (dict) {
-				return func(
-					A2(
-						$elm$core$Maybe$withDefault,
-						_List_Nil,
-						A2($elm$core$Dict$get, key, dict)));
 			});
 	});
 var $elm$url$Url$Parser$Query$map = F2(
@@ -6928,22 +6922,41 @@ var $author$project$PageIndices$parsePageIndices = A2(
 				$elm$url$Url$Parser$questionMark,
 				A2(
 					$elm$url$Url$Parser$questionMark,
-					$elm$url$Url$Parser$top,
-					$author$project$PageIndices$parseFloat('ludvig')),
-				$author$project$PageIndices$parseFloat('david')),
-			$author$project$PageIndices$parseFloat('gerhard')),
-		$author$project$PageIndices$parseFloat('luc')));
-var $author$project$Main$parseIndices = function (url) {
-	var _v0 = A2($elm$core$Debug$log, 'url', url);
-	var _v1 = A2(
-		$elm$core$Debug$log,
-		'parse result',
-		A2($elm$url$Url$Parser$parse, $author$project$PageIndices$parsePageIndices, url));
+					A2(
+						$elm$url$Url$Parser$questionMark,
+						$elm$url$Url$Parser$top,
+						$author$project$PageIndices$parseFloat('ludvig')),
+					$author$project$PageIndices$parseFloat('david')),
+				$author$project$PageIndices$parseFloat('gerhard')),
+			$author$project$PageIndices$parseFloat('luc')),
+		A2(
+			$elm$url$Url$Parser$Query$map,
+			$elm$core$Maybe$withDefault(0),
+			$elm$url$Url$Parser$Query$int('rotation'))));
+var $author$project$PageIndices$fromUrl = function (url) {
 	return A2(
 		$elm$core$Maybe$withDefault,
 		$author$project$PageIndices$default,
 		A2($elm$url$Url$Parser$parse, $author$project$PageIndices$parsePageIndices, url));
 };
+var $elm$time$Time$Posix = function (a) {
+	return {$: 'Posix', a: a};
+};
+var $elm$time$Time$millisToPosix = $elm$time$Time$Posix;
+var $mdgriffith$elm_animator$Animator$init = function (first) {
+	return $mdgriffith$elm_animator$Internal$Timeline$Timeline(
+		{
+			events: $mdgriffith$elm_animator$Internal$Timeline$Timetable(_List_Nil),
+			initial: first,
+			interruption: _List_Nil,
+			now: $mdgriffith$elm_animator$Internal$Time$absolute(
+				$elm$time$Time$millisToPosix(0)),
+			queued: $elm$core$Maybe$Nothing,
+			running: true
+		});
+};
+var $elm$core$Platform$Cmd$batch = _Platform_batch;
+var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
 var $author$project$Texts$NoNl = function (a) {
 	return {$: 'NoNl', a: a};
 };
@@ -7014,7 +7027,7 @@ var $author$project$Texts$David$texts = _List_fromArray(
 	[
 		_Utils_Tuple2(
 		0,
-		$author$project$Texts$noNl('test1')),
+		$author$project$Texts$noNl('test1 david')),
 		_Utils_Tuple2(
 		9,
 		$author$project$Texts$noNl('test2'))
@@ -7023,7 +7036,7 @@ var $author$project$Texts$Gerhard$texts = _List_fromArray(
 	[
 		_Utils_Tuple2(
 		0,
-		$author$project$Texts$noNl('test1')),
+		$author$project$Texts$noNl('test1 gerhard')),
 		_Utils_Tuple2(
 		9,
 		$author$project$Texts$noNl('test2'))
@@ -7032,7 +7045,7 @@ var $author$project$Texts$Luc$texts = _List_fromArray(
 	[
 		_Utils_Tuple2(
 		0,
-		$author$project$Texts$noNl('test1')),
+		$author$project$Texts$noNl('test1 luc')),
 		_Utils_Tuple2(
 		9,
 		$author$project$Texts$noNl('test2'))
@@ -7232,7 +7245,7 @@ var $author$project$Texts$Ludvig$texts = _List_fromArray(
 	[
 		_Utils_Tuple2(
 		0,
-		$author$project$Texts$noNl('test1')),
+		$author$project$Texts$noNl('test1 ludvig')),
 		_Utils_Tuple2(
 		9,
 		$author$project$Texts$nlClip('test2\nanother line\n\nand another one'))
@@ -8085,6 +8098,7 @@ var $author$project$Texts$length = function (p) {
 		_List_fromArray(
 			[p.ge, p.dp, p.ld, p.le]));
 };
+var $elm$core$Debug$log = _Debug_log;
 var $elm$core$List$filter = F2(
 	function (isGood, list) {
 		return A3(
@@ -8301,7 +8315,11 @@ var $author$project$PageIndices$toUrl = function (p) {
 				A2(
 				$elm$url$Url$Builder$string,
 				'ludvig',
-				$elm$core$String$fromFloat(p.le))
+				$elm$core$String$fromFloat(p.le)),
+				A2(
+				$elm$url$Url$Builder$string,
+				'rotation',
+				$elm$core$String$fromInt(p.rotation))
 			]));
 };
 var $mdgriffith$elm_animator$Animator$update = F3(
@@ -8363,7 +8381,7 @@ var $author$project$Main$update = F2(
 							pageIndices: A3(
 								$mdgriffith$elm_animator$Animator$go,
 								$mdgriffith$elm_animator$Animator$seconds($author$project$Main$config.transitionDur),
-								$author$project$Main$parseIndices(url),
+								$author$project$PageIndices$fromUrl(url),
 								model.pageIndices)
 						}),
 					$elm$core$Platform$Cmd$none);
@@ -14270,6 +14288,22 @@ var $mdgriffith$elm_ui$Internal$Model$Fill = function (a) {
 	return {$: 'Fill', a: a};
 };
 var $mdgriffith$elm_ui$Element$fill = $mdgriffith$elm_ui$Internal$Model$Fill(1);
+var $author$project$PageIndices$columnOrder = _List_fromArray(
+	[$author$project$PageIndices$David, $author$project$PageIndices$Gerhard, $author$project$PageIndices$Luc, $author$project$PageIndices$Ludvig]);
+var $elm$core$Basics$modBy = _Basics_modBy;
+var $author$project$PageIndices$rotate = F2(
+	function (n, l) {
+		var modN = A2(
+			$elm$core$Basics$modBy,
+			$elm$core$List$length(l),
+			n);
+		return _Utils_ap(
+			A2($elm$core$List$drop, modN, l),
+			A2($elm$core$List$take, modN, l));
+	});
+var $author$project$PageIndices$authorsInOrder = function (i) {
+	return A2($author$project$PageIndices$rotate, i.rotation, $author$project$PageIndices$columnOrder);
+};
 var $author$project$Main$Scroll = F2(
 	function (a, b) {
 		return {$: 'Scroll', a: a, b: b};
@@ -15568,7 +15602,6 @@ var $mdgriffith$elm_animator$Internal$Time$earliest = F2(
 		var two = twoQty.a;
 		return ((one - two) >= 0) ? twoQty : oneQty;
 	});
-var $elm$core$Basics$modBy = _Basics_modBy;
 var $mdgriffith$elm_animator$Internal$Interpolate$wrapUnitAfter = F2(
 	function (dur, total) {
 		var totalDuration = $elm$core$Basics$round(
@@ -16570,8 +16603,8 @@ var $author$project$Main$textColumn = F5(
 								]))
 						]))));
 	});
-var $author$project$Main$iteration = F7(
-	function (timeline, index, maxIdx, david, gerhard, luc, ludvig) {
+var $author$project$Main$iteration = F4(
+	function (timeline, index, maxIdx, current) {
 		return A2(
 			$mdgriffith$elm_ui$Element$row,
 			_List_fromArray(
@@ -16579,13 +16612,19 @@ var $author$project$Main$iteration = F7(
 			A2(
 				$elm$core$List$intersperse,
 				$author$project$Main$emptyColumn(1),
-				_List_fromArray(
-					[
-						A5($author$project$Main$textColumn, timeline, $author$project$PageIndices$David, index, maxIdx, david),
-						A5($author$project$Main$textColumn, timeline, $author$project$PageIndices$Gerhard, index, maxIdx, gerhard),
-						A5($author$project$Main$textColumn, timeline, $author$project$PageIndices$Luc, index, maxIdx, luc),
-						A5($author$project$Main$textColumn, timeline, $author$project$PageIndices$Ludvig, index, maxIdx, ludvig)
-					])));
+				A2(
+					$elm$core$List$map,
+					function (author) {
+						return A5(
+							$author$project$Main$textColumn,
+							timeline,
+							author,
+							index,
+							maxIdx,
+							A2($author$project$Texts$getText, author, current));
+					},
+					$author$project$PageIndices$authorsInOrder(
+						$mdgriffith$elm_animator$Animator$current(timeline)))));
 	});
 var $mdgriffith$elm_ui$Internal$Model$OnlyDynamic = F2(
 	function (a, b) {
@@ -18018,15 +18057,12 @@ var $author$project$Main$view = function (model) {
 											var luc = _v2.a;
 											var _v3 = _v2.b;
 											var ludvig = _v3.a;
-											return A7(
+											return A4(
 												$author$project$Main$iteration,
 												model.pageIndices,
 												i,
 												$author$project$Texts$length(model.texts),
-												d,
-												g,
-												luc,
-												ludvig);
+												{dp: d, ge: g, ld: luc, le: ludvig});
 										} else {
 											var _v4 = A2($elm$core$Debug$log, 'l', l);
 											return $mdgriffith$elm_ui$Element$text('Problem');
@@ -18052,7 +18088,7 @@ var $author$project$Main$main = $elm$browser$Browser$application(
 						navKey: navKey,
 						needsUpdate: false,
 						pageIndices: $mdgriffith$elm_animator$Animator$init(
-							$author$project$Main$parseIndices(url)),
+							$author$project$PageIndices$fromUrl(url)),
 						texts: {
 							dp: $author$project$Texts$textsToList($author$project$Texts$David$texts),
 							ge: $author$project$Texts$textsToList($author$project$Texts$Gerhard$texts),
