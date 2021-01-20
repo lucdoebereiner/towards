@@ -40,7 +40,7 @@ class BufferLoader {
 	this.node.port.postMessage({pan: [index, pan]});
     }
 
-    loadBuffer(page, index, firstCall) {
+    async loadBuffer(page, index, firstCall) {
 	// Load buffer asynchronously
 	var request = new XMLHttpRequest();
 	var url = "files/page" + page + "/" + this.names[index] + ".mp3";
@@ -76,7 +76,7 @@ class BufferLoader {
 	    alert('BufferLoader: XHR error');
 	}
 
-	request.send();
+	await request.send();
     }
 
     async loadAll( ) {
