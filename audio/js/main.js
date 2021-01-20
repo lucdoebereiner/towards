@@ -34,9 +34,12 @@ class BufferLoader {
 
     sendAmps(index, amps) {
 	this.node.port.postMessage({amps: [index, amps]});
-	console.log(this.shArray);
     }
-    
+
+    sendPan(index, pan) {
+	this.node.port.postMessage({pan: [index, pan]});
+    }
+
     loadBuffer(page, index, firstCall) {
 	// Load buffer asynchronously
 	var request = new XMLHttpRequest();
@@ -75,7 +78,6 @@ class BufferLoader {
 
 	request.send();
     }
-
 
     loadAll( ) {
 	// console.log("not yet loaded");

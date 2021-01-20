@@ -1,17 +1,14 @@
 
-For testing directory with audiofiles should be linked in into the js directory:
+For testing locally, directory with audiofiles should be in the 'audio'
+folder in the in 'files' directory. This directory will be ignored by
+git. 
 
-e.g.
+Use the sync.sh script to synchronize with the server. The script uses rsync:
+it first downloads the new files from the server and then synchronizes
+the local 'files' directory with the server.
 
-#+BEGIN_SRC
-$ cd js
-$ ln -s /home/david/ownCloud/towards/page0 ./page0
-$ ln -s /home/david/ownCloud/towards/page1 ./page1
-$ ln -s /home/david/ownCloud/towards/page2 ./page2
-$ ln -s /home/david/ownCloud/towards/page3 ./page3
-#+END_SRC
 
-Audio files in each directory should be named 
+Audio files in each 'page*' directory should be named 
 #+BEGIN_SRC
 david.mp3
 gerhard.mp3
@@ -37,7 +34,16 @@ sends an array of amplitude values for all files over all pages
 associated with index 2. The array length should be equal to the
 number of pages (4 in this testingv ersion).
 
-test with:
+The js function
+
+#+BEGIN_SRC
+bufferLoader.sendPan(2, -0.4);
+#+END_SRC
+
+sets the panorama for index 2. Panorama values should range from -1.0 (left),
+to 1.0 (right).
+
+test locally with:
 
 #+BEGIN_SRC
 $ http-server .
