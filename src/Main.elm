@@ -291,11 +291,14 @@ buttons indices maxIdx =
                         , b
                         ]
                 )
-                [ columnButtons David maxIdx indices
-                , columnButtons Gerhard maxIdx indices
-                , columnButtons Luc maxIdx indices
-                , columnButtons Ludvig maxIdx indices
-                ]
+                (List.map
+                    (\author ->
+                        columnButtons author
+                            maxIdx
+                            indices
+                    )
+                    (PageIndices.authorsInOrder indices)
+                )
 
 
 editColumn : String -> (String -> msg) -> Element msg

@@ -8399,6 +8399,22 @@ var $author$project$PageIndices$David = {$: 'David'};
 var $author$project$PageIndices$Gerhard = {$: 'Gerhard'};
 var $author$project$PageIndices$Luc = {$: 'Luc'};
 var $author$project$PageIndices$Ludvig = {$: 'Ludvig'};
+var $author$project$PageIndices$columnOrder = _List_fromArray(
+	[$author$project$PageIndices$David, $author$project$PageIndices$Gerhard, $author$project$PageIndices$Luc, $author$project$PageIndices$Ludvig]);
+var $elm$core$Basics$modBy = _Basics_modBy;
+var $author$project$PageIndices$rotate = F2(
+	function (n, l) {
+		var modN = A2(
+			$elm$core$Basics$modBy,
+			$elm$core$List$length(l),
+			n);
+		return _Utils_ap(
+			A2($elm$core$List$drop, modN, l),
+			A2($elm$core$List$take, modN, l));
+	});
+var $author$project$PageIndices$authorsInOrder = function (i) {
+	return A2($author$project$PageIndices$rotate, i.rotation, $author$project$PageIndices$columnOrder);
+};
 var $mdgriffith$elm_ui$Internal$Model$AlignX = function (a) {
 	return {$: 'AlignX', a: a};
 };
@@ -14218,13 +14234,12 @@ var $author$project$Main$buttons = F2(
 									b
 								]));
 					},
-					_List_fromArray(
-						[
-							A3($author$project$Main$columnButtons, $author$project$PageIndices$David, maxIdx, indices),
-							A3($author$project$Main$columnButtons, $author$project$PageIndices$Gerhard, maxIdx, indices),
-							A3($author$project$Main$columnButtons, $author$project$PageIndices$Luc, maxIdx, indices),
-							A3($author$project$Main$columnButtons, $author$project$PageIndices$Ludvig, maxIdx, indices)
-						]))));
+					A2(
+						$elm$core$List$map,
+						function (author) {
+							return A3($author$project$Main$columnButtons, author, maxIdx, indices);
+						},
+						$author$project$PageIndices$authorsInOrder(indices)))));
 	});
 var $mdgriffith$elm_ui$Internal$Model$AlignY = function (a) {
 	return {$: 'AlignY', a: a};
@@ -14288,22 +14303,6 @@ var $mdgriffith$elm_ui$Internal$Model$Fill = function (a) {
 	return {$: 'Fill', a: a};
 };
 var $mdgriffith$elm_ui$Element$fill = $mdgriffith$elm_ui$Internal$Model$Fill(1);
-var $author$project$PageIndices$columnOrder = _List_fromArray(
-	[$author$project$PageIndices$David, $author$project$PageIndices$Gerhard, $author$project$PageIndices$Luc, $author$project$PageIndices$Ludvig]);
-var $elm$core$Basics$modBy = _Basics_modBy;
-var $author$project$PageIndices$rotate = F2(
-	function (n, l) {
-		var modN = A2(
-			$elm$core$Basics$modBy,
-			$elm$core$List$length(l),
-			n);
-		return _Utils_ap(
-			A2($elm$core$List$drop, modN, l),
-			A2($elm$core$List$take, modN, l));
-	});
-var $author$project$PageIndices$authorsInOrder = function (i) {
-	return A2($author$project$PageIndices$rotate, i.rotation, $author$project$PageIndices$columnOrder);
-};
 var $author$project$Main$Scroll = F2(
 	function (a, b) {
 		return {$: 'Scroll', a: a, b: b};
