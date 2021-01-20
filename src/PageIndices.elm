@@ -5,7 +5,9 @@ module PageIndices exposing
     , fromTuples
     , getIndex
     , incIndex
+    , nextIndex
     , parsePageIndices
+    , previousIndex
     , setIndex
     , toUrl
     )
@@ -48,6 +50,28 @@ incIndex author inc max indices =
     let
         newIdx =
             fractionalModBy (toFloat max) (inc + getIndex author indices)
+                |> roundFloat
+    in
+    setIndex author newIdx indices
+
+
+nextIndex : Author -> Int -> PageIndices -> PageIndices
+nextIndex author max indices =
+    let
+        newIdx =
+            fractionalModBy (toFloat max)
+                (toFloat <| floor (getIndex author indices) + 1)
+                |> roundFloat
+    in
+    setIndex author newIdx indices
+
+
+previousIndex : Author -> Int -> PageIndices -> PageIndices
+previousIndex author max indices =
+    let
+        newIdx =
+            fractionalModBy (toFloat max)
+                (toFloat <| ceiling (getIndex author indices) - 1)
                 |> roundFloat
     in
     setIndex author newIdx indices

@@ -27,16 +27,16 @@ import Url exposing (Url)
 import Url.Parser
 
 
+config =
+    { scrollInc = 0.1, transitionDur = 1, transitionDepth = 1.0 }
+
+
 type alias Model =
     { pageIndices : Animator.Timeline PageIndices
     , navKey : Nav.Key
     , needsUpdate : Bool
     , texts : Texts
     }
-
-
-config =
-    { scrollInc = 0.1, transitionDur = 1 }
 
 
 parseIndices : Url -> PageIndices
@@ -62,10 +62,10 @@ main =
                   , navKey = navKey
                   , needsUpdate = False
                   , texts =
-                        { ge = Gerhard.texts
-                        , le = Ludvig.texts
-                        , dp = David.texts
-                        , ld = Luc.texts
+                        { ge = Texts.textsToList Gerhard.texts
+                        , le = Texts.textsToList Ludvig.texts
+                        , dp = Texts.textsToList David.texts
+                        , ld = Texts.textsToList Luc.texts
                         }
                   }
                 , Cmd.none
@@ -106,24 +106,13 @@ update msg model =
     case msg of
         Scroll incDec author ->
             let
-                _ =
-                    Debug.log "got wheel event" e
-
                 newIndices =
                     PageIndices.incIndex author
                         (config.scrollInc * incDec)
                         (Texts.length model.texts)
                         (Animator.current model.pageIndices)
             in
-            ( { model
-                | pageIndices =
-                    model.pageIndices
-                        |> Animator.go
-                            (Animator.seconds config.transitionDur)
-                            newIndices
-              }
-            , Cmd.none
-            )
+            ( model, Nav.pushUrl model.navKey (PageIndices.toUrl newIndices) )
 
         SetEditor author str ->
             let
@@ -190,11 +179,11 @@ calcDistance currentIdx textIdx maxIdx =
 
 distanceToOpacity : Float -> Float
 distanceToOpacity d =
-    if d >= 1.0 then
+    if d >= config.transitionDepth then
         0.0
 
     else
-        1.0 - d
+        (config.transitionDepth - d) / config.transitionDepth
 
 
 textColumn :
@@ -275,14 +264,14 @@ buttonStyling =
     [ Border.width 1, padding 10, centerX ]
 
 
-columnButtons : Author -> Int -> Float -> PageIndices -> Element Msg
-columnButtons author maxIdx inc indices =
+columnButtons : Author -> Int -> PageIndices -> Element Msg
+columnButtons author maxIdx indices =
     let
         back =
-            PageIndices.incIndex author (inc * -1.0) maxIdx indices
+            PageIndices.previousIndex author maxIdx indices
 
         forward =
-            PageIndices.incIndex author inc maxIdx indices
+            PageIndices.nextIndex author maxIdx indices
 
         idx =
             PageIndices.getIndex author indices
@@ -306,10 +295,6 @@ columnButtons author maxIdx inc indices =
 
 buttons : PageIndices -> Int -> Element Msg
 buttons indices maxIdx =
-    let
-        inc =
-            0.5
-    in
     row [ centerX ] <|
         List.intersperse (emptyColumn 1) <|
             List.map
@@ -319,10 +304,10 @@ buttons indices maxIdx =
                         , b
                         ]
                 )
-                [ columnButtons David maxIdx inc indices
-                , columnButtons Gerhard maxIdx inc indices
-                , columnButtons Luc maxIdx inc indices
-                , columnButtons Ludvig maxIdx inc indices
+                [ columnButtons David maxIdx indices
+                , columnButtons Gerhard maxIdx indices
+                , columnButtons Luc maxIdx indices
+                , columnButtons Ludvig maxIdx indices
                 ]
 
 

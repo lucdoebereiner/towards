@@ -1,5 +1,6 @@
 module Texts exposing
     ( Entry
+    , EntryWithIndex
     , Texts
     , entryString
     , fromEditor
@@ -11,10 +12,12 @@ module Texts exposing
     , padOrNl
     , printEntry
     , setAuthorTextAt
+    , textsToList
     , toEditor
     , transposedTexts
     )
 
+import Array
 import List.Extra as L
 import PageIndices exposing (Author(..), PageIndices)
 
@@ -87,7 +90,7 @@ setAuthorTextAt author indices str texts =
 
 
 
--- Formating
+-- Formating and Entries
 
 
 insertNewlinesEveryN : Int -> String -> String
@@ -117,6 +120,11 @@ ensureLength n elem lst =
 
 emptyLine =
     String.padRight 40 ' ' " "
+
+
+emptyEntry : Entry
+emptyEntry =
+    noNl <| String.repeat (40 * 30) " "
 
 
 formatNoNl : String -> String
@@ -220,6 +228,22 @@ entryString e =
 printEntry : Entry -> String
 printEntry =
     formatPrinting << entryString
+
+
+type alias EntryWithIndex =
+    ( Int, Entry )
+
+
+textsToList : List EntryWithIndex -> List Entry
+textsToList lst =
+    List.foldl (\( idx, entry ) array -> Array.set idx entry array)
+        (Array.repeat 50 emptyEntry)
+        lst
+        |> Array.toList
+
+
+
+-- padding and display
 
 
 repeatLastN : Int -> List a -> List a
