@@ -66,11 +66,14 @@ class BufferLoader {
 		    for (var i = 0; i<48000 * 60; ++i) {
 			loader.shArray[index][page][i] = chdata[i];
 		    };
-		    loader.sendBuffer(page, index);
 		    loader.index2l = loader.index2l + 1;
 		    if (loader.index2l == 4) {
 			loader.index2l = 0;
 			loader.page2l = loader.page2l + 1;
+			loader.sendBuffer(loader.page2l - 1, 0);
+			loader.sendBuffer(loader.page2l - 1, 1);
+			loader.sendBuffer(loader.page2l - 1, 2);
+			loader.sendBuffer(loader.page2l - 1, 3);
 		    }
 		    if (loader.page2l < 50) {
 			// console.log("calling next");
