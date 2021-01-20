@@ -27,16 +27,16 @@ import Url exposing (Url)
 import Url.Parser
 
 
+config =
+    { scrollInc = 0.1, transitionDur = 1, transitionDepth = 1.0 }
+
+
 type alias Model =
     { pageIndices : Animator.Timeline PageIndices
     , navKey : Nav.Key
     , needsUpdate : Bool
     , texts : Texts
     }
-
-
-config =
-    { scrollInc = 0.1, transitionDur = 1 }
 
 
 parseIndices : Url -> PageIndices
@@ -62,10 +62,10 @@ main =
                   , navKey = navKey
                   , needsUpdate = False
                   , texts =
-                        { ge = Gerhard.texts
-                        , le = Ludvig.texts
-                        , dp = David.texts
-                        , ld = Luc.texts
+                        { ge = Texts.textsToList Gerhard.texts
+                        , le = Texts.textsToList Ludvig.texts
+                        , dp = Texts.textsToList David.texts
+                        , ld = Texts.textsToList Luc.texts
                         }
                   }
                 , Cmd.none
@@ -106,24 +106,13 @@ update msg model =
     case msg of
         Scroll incDec author ->
             let
-                _ =
-                    Debug.log "got wheel event" e
-
                 newIndices =
                     PageIndices.incIndex author
                         (config.scrollInc * incDec)
                         (Texts.length model.texts)
                         (Animator.current model.pageIndices)
             in
-            ( { model
-                | pageIndices =
-                    model.pageIndices
-                        |> Animator.go
-                            (Animator.seconds config.transitionDur)
-                            newIndices
-              }
-            , Cmd.none
-            )
+            ( model, Nav.pushUrl model.navKey (PageIndices.toUrl newIndices) )
 
         SetEditor author str ->
             let
@@ -190,11 +179,11 @@ calcDistance currentIdx textIdx maxIdx =
 
 distanceToOpacity : Float -> Float
 distanceToOpacity d =
-    if d >= 1.0 then
+    if d >= config.transitionDepth then
         0.0
 
     else
-        1.0 - d
+        (config.transitionDepth - d) / config.transitionDepth
 
 
 textColumn :

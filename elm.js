@@ -7010,26 +7010,307 @@ var $author$project$Texts$noNl = function (s) {
 	return $author$project$Texts$NoNl(
 		$author$project$Texts$formatNoNl(s));
 };
-var $author$project$Texts$David$texts = A2(
-	$elm$core$List$map,
-	$author$project$Texts$noNl,
-	_List_fromArray(
-		['                                                                                     Artistic research is in its essence a collective and collaborative endeavour.                                                             Artistic research is situated, particular and subjective. It is neither valid nor objective.                                                                                                                                   Artistic research does not produce nor transport knowledge.                                                                                                                                                       Artistic research stages the conditions for aesthetic thinking.                                                                                                                                                                                               Formal and material practices are interwoven to each other, nevertheless maintainingha an incompressible difference. This difference is where the generative potential for aesthetic research lies. Artistic research explores and exposes this gap.   ', 'The method becomes the object.          The object becomes the method.                                                                                                                                  Method and object do not become the same, they maintain a safe distance.                                                Object and method oscillate, exchange positions, function, texture and materiality.                                                                                                                     Method and object cannot be though of as in other sciences: the one does not simply apply to the other.                                                         Object and method have a complex and mutual retro-action.                                                                                                       Method and object exchange positions: this movement gives the main rhythm articulating artistic research.                                                                                          There                                   is no                               knowledge                             production.']));
-var $author$project$Texts$Gerhard$texts = A2(
-	$elm$core$List$map,
-	$author$project$Texts$noNl,
-	_List_fromArray(
-		['Artistic research is a radical form of aesthetic practice. It critically engages with the roots of the artist’s doing and thinking.                                                                                                                                                                                                                                                                                               Artistic research does not rival any other form of research but will use whatever existing research paradigms adapted or adaptable to the aesthetic practice at hand.                                                                                                                                                                                                                                                                                 Artistic research critically engages with research paradigms, which is its contribution to the general discourse and conceptual development of research                                                                                                                                                        .', '                                        Artistic research is a radical form of aesthetic practice. It critically engages with the roots of the artist’s doing and thinking.                                                                                                                                                                                                                                                                                               Artistic research does not rival any other form of research but will use whatever existing research paradigms adapted or adaptable to the aesthetic practice at hand.                                                                                                                                                                                                                                                                                 Artistic research critically engages with research paradigms, which is its contribution to the general discourse and conceptual development of research.                                                                                                                ']));
-var $author$project$Texts$Luc$texts = A2(
-	$elm$core$List$map,
-	$author$project$Texts$noNl,
-	_List_fromArray(
-		['Artistic practice has a conceptual and an aesthetic dimension. Their irreconcilability is a prerequisite.                                                                                                                     Aesthetic thought demonstrates that thought is not tied to language, but that there are unconscious, bodily, felt, material, and practiced forms of thought. Aesthetic thought does not reflect its object at a distance but it is a speculative action that transforms and interacts with material.                                                                                                                                                                                                         There is no method. This is not because artistic practice is based on turmoil, inspiration or whim, but because no abstract scheme of operation can be subtracted from its material entanglement.', 'The irreconcilability is a prerequisite.                                                                                                                                                     Speculative practice works at a distance. Materialist artistic practice does not consist in reconciling thought and matter, but in recognizing the productive distances between matter and thoughts themselves.                                                                                                                                                                                                          No abstract scheme of operation can be subtracted from arts material entanglement.                                                                                                                                 We work with appearances.']));
-var $author$project$Texts$Ludvig$texts = A2(
-	$elm$core$List$map,
-	$author$project$Texts$noNl,
-	_List_fromArray(
-		['Artistic research is a more narrow term than art.                                                                                                                                                           Artistic research encompasses a subset of artistic activities.                                                                                                                                                                                      Artistic research does not      require aesthetic adaptation,           but certain aesthetic approaches are    more compatible with the superficial traits of traditional modes of research.                                                                                                                                                                   The idea of Artistic Research is a childof its time, it could not have existed  50 years ago, and it might not exist 50 years from now.', '                                                               Artistic Research evokes directionality,                              spatial relationships with art. Such as                   through                    towards                      in                 about                      .                                                                                                                                  Perhaps thinkingin terms of directions and becomings    is more generative than trying to pin-  point a position on the map where       artistic research is supposed to be     located.                                                                                                                                                                                                                                                                                                                                           ']));
+var $author$project$Texts$David$texts = _List_fromArray(
+	[
+		_Utils_Tuple2(
+		0,
+		$author$project$Texts$noNl('test1')),
+		_Utils_Tuple2(
+		9,
+		$author$project$Texts$noNl('test2'))
+	]);
+var $author$project$Texts$Gerhard$texts = _List_fromArray(
+	[
+		_Utils_Tuple2(
+		0,
+		$author$project$Texts$noNl('test1')),
+		_Utils_Tuple2(
+		9,
+		$author$project$Texts$noNl('test2'))
+	]);
+var $author$project$Texts$Luc$texts = _List_fromArray(
+	[
+		_Utils_Tuple2(
+		0,
+		$author$project$Texts$noNl('test1')),
+		_Utils_Tuple2(
+		9,
+		$author$project$Texts$noNl('test2'))
+	]);
+var $author$project$Texts$NlClip = function (a) {
+	return {$: 'NlClip', a: a};
+};
+var $elm$core$Basics$composeL = F3(
+	function (g, f, x) {
+		return g(
+			f(x));
+	});
+var $author$project$Texts$emptyLine = A3(
+	$elm$core$String$padRight,
+	40,
+	_Utils_chr(' '),
+	' ');
+var $elm$core$List$takeReverse = F3(
+	function (n, list, kept) {
+		takeReverse:
+		while (true) {
+			if (n <= 0) {
+				return kept;
+			} else {
+				if (!list.b) {
+					return kept;
+				} else {
+					var x = list.a;
+					var xs = list.b;
+					var $temp$n = n - 1,
+						$temp$list = xs,
+						$temp$kept = A2($elm$core$List$cons, x, kept);
+					n = $temp$n;
+					list = $temp$list;
+					kept = $temp$kept;
+					continue takeReverse;
+				}
+			}
+		}
+	});
+var $elm$core$List$takeTailRec = F2(
+	function (n, list) {
+		return $elm$core$List$reverse(
+			A3($elm$core$List$takeReverse, n, list, _List_Nil));
+	});
+var $elm$core$List$takeFast = F3(
+	function (ctr, n, list) {
+		if (n <= 0) {
+			return _List_Nil;
+		} else {
+			var _v0 = _Utils_Tuple2(n, list);
+			_v0$1:
+			while (true) {
+				_v0$5:
+				while (true) {
+					if (!_v0.b.b) {
+						return list;
+					} else {
+						if (_v0.b.b.b) {
+							switch (_v0.a) {
+								case 1:
+									break _v0$1;
+								case 2:
+									var _v2 = _v0.b;
+									var x = _v2.a;
+									var _v3 = _v2.b;
+									var y = _v3.a;
+									return _List_fromArray(
+										[x, y]);
+								case 3:
+									if (_v0.b.b.b.b) {
+										var _v4 = _v0.b;
+										var x = _v4.a;
+										var _v5 = _v4.b;
+										var y = _v5.a;
+										var _v6 = _v5.b;
+										var z = _v6.a;
+										return _List_fromArray(
+											[x, y, z]);
+									} else {
+										break _v0$5;
+									}
+								default:
+									if (_v0.b.b.b.b && _v0.b.b.b.b.b) {
+										var _v7 = _v0.b;
+										var x = _v7.a;
+										var _v8 = _v7.b;
+										var y = _v8.a;
+										var _v9 = _v8.b;
+										var z = _v9.a;
+										var _v10 = _v9.b;
+										var w = _v10.a;
+										var tl = _v10.b;
+										return (ctr > 1000) ? A2(
+											$elm$core$List$cons,
+											x,
+											A2(
+												$elm$core$List$cons,
+												y,
+												A2(
+													$elm$core$List$cons,
+													z,
+													A2(
+														$elm$core$List$cons,
+														w,
+														A2($elm$core$List$takeTailRec, n - 4, tl))))) : A2(
+											$elm$core$List$cons,
+											x,
+											A2(
+												$elm$core$List$cons,
+												y,
+												A2(
+													$elm$core$List$cons,
+													z,
+													A2(
+														$elm$core$List$cons,
+														w,
+														A3($elm$core$List$takeFast, ctr + 1, n - 4, tl)))));
+									} else {
+										break _v0$5;
+									}
+							}
+						} else {
+							if (_v0.a === 1) {
+								break _v0$1;
+							} else {
+								break _v0$5;
+							}
+						}
+					}
+				}
+				return list;
+			}
+			var _v1 = _v0.b;
+			var x = _v1.a;
+			return _List_fromArray(
+				[x]);
+		}
+	});
+var $elm$core$List$take = F2(
+	function (n, list) {
+		return A3($elm$core$List$takeFast, 0, n, list);
+	});
+var $author$project$Texts$ensureLength = F3(
+	function (n, elem, lst) {
+		ensureLength:
+		while (true) {
+			if (_Utils_cmp(
+				$elm$core$List$length(lst),
+				n) < 0) {
+				var $temp$n = n,
+					$temp$elem = elem,
+					$temp$lst = _Utils_ap(
+					lst,
+					_List_fromArray(
+						[elem]));
+				n = $temp$n;
+				elem = $temp$elem;
+				lst = $temp$lst;
+				continue ensureLength;
+			} else {
+				if (_Utils_eq(
+					$elm$core$List$length(lst),
+					n)) {
+					return lst;
+				} else {
+					return A2($elm$core$List$take, n, lst);
+				}
+			}
+		}
+	});
+var $elm$core$String$lines = _String_lines;
+var $author$project$Texts$formatNlClip = function (s) {
+	return A2(
+		$elm$core$String$join,
+		'\n',
+		A3(
+			$author$project$Texts$ensureLength,
+			30,
+			$author$project$Texts$emptyLine,
+			A2(
+				$elm$core$List$map,
+				A2(
+					$elm$core$Basics$composeL,
+					$elm$core$String$left(40),
+					A2(
+						$elm$core$String$padRight,
+						40,
+						_Utils_chr(' '))),
+				$elm$core$String$lines(s))));
+};
+var $author$project$Texts$nlClip = function (s) {
+	return $author$project$Texts$NlClip(
+		$author$project$Texts$formatNlClip(s));
+};
+var $author$project$Texts$Ludvig$texts = _List_fromArray(
+	[
+		_Utils_Tuple2(
+		0,
+		$author$project$Texts$noNl('test1')),
+		_Utils_Tuple2(
+		9,
+		$author$project$Texts$nlClip('test2\nanother line\n\nand another one'))
+	]);
+var $author$project$Texts$emptyEntry = $author$project$Texts$noNl(
+	A2($elm$core$String$repeat, 40 * 30, ' '));
+var $elm$core$Array$repeat = F2(
+	function (n, e) {
+		return A2(
+			$elm$core$Array$initialize,
+			n,
+			function (_v0) {
+				return e;
+			});
+	});
+var $elm$core$Bitwise$shiftRightZfBy = _Bitwise_shiftRightZfBy;
+var $elm$core$Array$bitMask = 4294967295 >>> (32 - $elm$core$Array$shiftStep);
+var $elm$core$Elm$JsArray$unsafeGet = _JsArray_unsafeGet;
+var $elm$core$Elm$JsArray$unsafeSet = _JsArray_unsafeSet;
+var $elm$core$Array$setHelp = F4(
+	function (shift, index, value, tree) {
+		var pos = $elm$core$Array$bitMask & (index >>> shift);
+		var _v0 = A2($elm$core$Elm$JsArray$unsafeGet, pos, tree);
+		if (_v0.$ === 'SubTree') {
+			var subTree = _v0.a;
+			var newSub = A4($elm$core$Array$setHelp, shift - $elm$core$Array$shiftStep, index, value, subTree);
+			return A3(
+				$elm$core$Elm$JsArray$unsafeSet,
+				pos,
+				$elm$core$Array$SubTree(newSub),
+				tree);
+		} else {
+			var values = _v0.a;
+			var newLeaf = A3($elm$core$Elm$JsArray$unsafeSet, $elm$core$Array$bitMask & index, value, values);
+			return A3(
+				$elm$core$Elm$JsArray$unsafeSet,
+				pos,
+				$elm$core$Array$Leaf(newLeaf),
+				tree);
+		}
+	});
+var $elm$core$Bitwise$shiftLeftBy = _Bitwise_shiftLeftBy;
+var $elm$core$Array$tailIndex = function (len) {
+	return (len >>> 5) << 5;
+};
+var $elm$core$Array$set = F3(
+	function (index, value, array) {
+		var len = array.a;
+		var startShift = array.b;
+		var tree = array.c;
+		var tail = array.d;
+		return ((index < 0) || (_Utils_cmp(index, len) > -1)) ? array : ((_Utils_cmp(
+			index,
+			$elm$core$Array$tailIndex(len)) > -1) ? A4(
+			$elm$core$Array$Array_elm_builtin,
+			len,
+			startShift,
+			tree,
+			A3($elm$core$Elm$JsArray$unsafeSet, $elm$core$Array$bitMask & index, value, tail)) : A4(
+			$elm$core$Array$Array_elm_builtin,
+			len,
+			startShift,
+			A4($elm$core$Array$setHelp, startShift, index, value, tree),
+			tail));
+	});
+var $author$project$Texts$textsToList = function (lst) {
+	return $elm$core$Array$toList(
+		A3(
+			$elm$core$List$foldl,
+			F2(
+				function (_v0, array) {
+					var idx = _v0.a;
+					var entry = _v0.b;
+					return A3($elm$core$Array$set, idx, entry, array);
+				}),
+			A2($elm$core$Array$repeat, 50, $author$project$Texts$emptyEntry),
+			lst));
+};
 var $elm$core$Platform$Sub$none = $elm$core$Platform$Sub$batch(_List_Nil);
 var $elm$browser$Browser$AnimationManager$Time = function (a) {
 	return {$: 'Time', a: a};
@@ -7137,11 +7418,6 @@ var $elm$browser$Browser$AnimationManager$onSelfMsg = F3(
 var $elm$browser$Browser$AnimationManager$Delta = function (a) {
 	return {$: 'Delta', a: a};
 };
-var $elm$core$Basics$composeL = F3(
-	function (g, f, x) {
-		return g(
-			f(x));
-	});
 var $elm$browser$Browser$AnimationManager$subMap = F2(
 	function (func, sub) {
 		if (sub.$ === 'Time') {
@@ -7166,7 +7442,7 @@ var $mdgriffith$elm_animator$Animator$toSubscription = F3(
 		var isRunning = _v0.a;
 		return isRunning(model) ? $elm$browser$Browser$Events$onAnimationFrame(toMsg) : $elm$core$Platform$Sub$none;
 	});
-var $author$project$Main$config = {scrollInc: 0.1, transitionDur: 1};
+var $author$project$Main$config = {scrollInc: 0.1, transitionDepth: 1.0, transitionDur: 1};
 var $ianmackenzie$elm_units$Quantity$greaterThan = F2(
 	function (_v0, _v1) {
 		var y = _v0.a;
@@ -7557,7 +7833,6 @@ var $mdgriffith$elm_animator$Internal$Timeline$current = function (timeline) {
 		timeline);
 };
 var $mdgriffith$elm_animator$Animator$current = $mdgriffith$elm_animator$Internal$Timeline$current;
-var $elm$core$Basics$e = _Basics_e;
 var $author$project$Texts$Editor = function (a) {
 	return {$: 'Editor', a: a};
 };
@@ -7810,166 +8085,6 @@ var $author$project$Texts$length = function (p) {
 		_List_fromArray(
 			[p.ge, p.dp, p.ld, p.le]));
 };
-var $author$project$Texts$emptyLine = A3(
-	$elm$core$String$padRight,
-	40,
-	_Utils_chr(' '),
-	' ');
-var $elm$core$List$takeReverse = F3(
-	function (n, list, kept) {
-		takeReverse:
-		while (true) {
-			if (n <= 0) {
-				return kept;
-			} else {
-				if (!list.b) {
-					return kept;
-				} else {
-					var x = list.a;
-					var xs = list.b;
-					var $temp$n = n - 1,
-						$temp$list = xs,
-						$temp$kept = A2($elm$core$List$cons, x, kept);
-					n = $temp$n;
-					list = $temp$list;
-					kept = $temp$kept;
-					continue takeReverse;
-				}
-			}
-		}
-	});
-var $elm$core$List$takeTailRec = F2(
-	function (n, list) {
-		return $elm$core$List$reverse(
-			A3($elm$core$List$takeReverse, n, list, _List_Nil));
-	});
-var $elm$core$List$takeFast = F3(
-	function (ctr, n, list) {
-		if (n <= 0) {
-			return _List_Nil;
-		} else {
-			var _v0 = _Utils_Tuple2(n, list);
-			_v0$1:
-			while (true) {
-				_v0$5:
-				while (true) {
-					if (!_v0.b.b) {
-						return list;
-					} else {
-						if (_v0.b.b.b) {
-							switch (_v0.a) {
-								case 1:
-									break _v0$1;
-								case 2:
-									var _v2 = _v0.b;
-									var x = _v2.a;
-									var _v3 = _v2.b;
-									var y = _v3.a;
-									return _List_fromArray(
-										[x, y]);
-								case 3:
-									if (_v0.b.b.b.b) {
-										var _v4 = _v0.b;
-										var x = _v4.a;
-										var _v5 = _v4.b;
-										var y = _v5.a;
-										var _v6 = _v5.b;
-										var z = _v6.a;
-										return _List_fromArray(
-											[x, y, z]);
-									} else {
-										break _v0$5;
-									}
-								default:
-									if (_v0.b.b.b.b && _v0.b.b.b.b.b) {
-										var _v7 = _v0.b;
-										var x = _v7.a;
-										var _v8 = _v7.b;
-										var y = _v8.a;
-										var _v9 = _v8.b;
-										var z = _v9.a;
-										var _v10 = _v9.b;
-										var w = _v10.a;
-										var tl = _v10.b;
-										return (ctr > 1000) ? A2(
-											$elm$core$List$cons,
-											x,
-											A2(
-												$elm$core$List$cons,
-												y,
-												A2(
-													$elm$core$List$cons,
-													z,
-													A2(
-														$elm$core$List$cons,
-														w,
-														A2($elm$core$List$takeTailRec, n - 4, tl))))) : A2(
-											$elm$core$List$cons,
-											x,
-											A2(
-												$elm$core$List$cons,
-												y,
-												A2(
-													$elm$core$List$cons,
-													z,
-													A2(
-														$elm$core$List$cons,
-														w,
-														A3($elm$core$List$takeFast, ctr + 1, n - 4, tl)))));
-									} else {
-										break _v0$5;
-									}
-							}
-						} else {
-							if (_v0.a === 1) {
-								break _v0$1;
-							} else {
-								break _v0$5;
-							}
-						}
-					}
-				}
-				return list;
-			}
-			var _v1 = _v0.b;
-			var x = _v1.a;
-			return _List_fromArray(
-				[x]);
-		}
-	});
-var $elm$core$List$take = F2(
-	function (n, list) {
-		return A3($elm$core$List$takeFast, 0, n, list);
-	});
-var $author$project$Texts$ensureLength = F3(
-	function (n, elem, lst) {
-		ensureLength:
-		while (true) {
-			if (_Utils_cmp(
-				$elm$core$List$length(lst),
-				n) < 0) {
-				var $temp$n = n,
-					$temp$elem = elem,
-					$temp$lst = _Utils_ap(
-					lst,
-					_List_fromArray(
-						[elem]));
-				n = $temp$n;
-				elem = $temp$elem;
-				lst = $temp$lst;
-				continue ensureLength;
-			} else {
-				if (_Utils_eq(
-					$elm$core$List$length(lst),
-					n)) {
-					return lst;
-				} else {
-					return A2($elm$core$List$take, n, lst);
-				}
-			}
-		}
-	});
-var $elm$core$String$lines = _String_lines;
 var $elm$core$List$filter = F2(
 	function (isGood, list) {
 		return A3(
@@ -8206,23 +8321,17 @@ var $author$project$Main$update = F2(
 					$author$project$Main$config.scrollInc * incDec,
 					$author$project$Texts$length(model.texts),
 					$mdgriffith$elm_animator$Animator$current(model.pageIndices));
-				var _v1 = A2($elm$core$Debug$log, 'got wheel event', $elm$core$Basics$e);
 				return _Utils_Tuple2(
-					_Utils_update(
-						model,
-						{
-							pageIndices: A3(
-								$mdgriffith$elm_animator$Animator$go,
-								$mdgriffith$elm_animator$Animator$seconds($author$project$Main$config.transitionDur),
-								newIndices,
-								model.pageIndices)
-						}),
-					$elm$core$Platform$Cmd$none);
+					model,
+					A2(
+						$elm$browser$Browser$Navigation$pushUrl,
+						model.navKey,
+						$author$project$PageIndices$toUrl(newIndices)));
 			case 'SetEditor':
 				var author = msg.a;
 				var str = msg.b;
 				var entry = $author$project$Texts$fromEditor(str);
-				var _v2 = A2(
+				var _v1 = A2(
 					$elm$core$Debug$log,
 					'Text:',
 					$author$project$Texts$printEntry(entry));
@@ -8392,7 +8501,6 @@ var $mdgriffith$elm_ui$Internal$Flag$Flag = function (a) {
 var $mdgriffith$elm_ui$Internal$Flag$Second = function (a) {
 	return {$: 'Second', a: a};
 };
-var $elm$core$Bitwise$shiftLeftBy = _Bitwise_shiftLeftBy;
 var $mdgriffith$elm_ui$Internal$Flag$flag = function (i) {
 	return (i > 31) ? $mdgriffith$elm_ui$Internal$Flag$Second(1 << (i - 32)) : $mdgriffith$elm_ui$Internal$Flag$Flag(1 << i);
 };
@@ -14160,7 +14268,7 @@ var $author$project$Main$calcDistance = F3(
 		return A2($elm$core$Basics$min, distance, reverseDistance);
 	});
 var $author$project$Main$distanceToOpacity = function (d) {
-	return (d >= 1.0) ? 0.0 : (1.0 - d);
+	return (_Utils_cmp(d, $author$project$Main$config.transitionDepth) > -1) ? 0.0 : (($author$project$Main$config.transitionDepth - d) / $author$project$Main$config.transitionDepth);
 };
 var $mdgriffith$elm_animator$Animator$Css$Center = {$: 'Center'};
 var $mdgriffith$elm_animator$Animator$Css$defaultTransformOptions = {
@@ -15234,6 +15342,7 @@ var $mdgriffith$elm_animator$Internal$Spring$criticalDamping = F2(
 	function (k, m) {
 		return 2 * $elm$core$Basics$sqrt(k * m);
 	});
+var $elm$core$Basics$e = _Basics_e;
 var $mdgriffith$elm_animator$Internal$Spring$toleranceForSpringSettleTimeCalculation = (-1) * A2($elm$core$Basics$logBase, $elm$core$Basics$e, 0.005);
 var $mdgriffith$elm_animator$Internal$Spring$settlesAt = function (_v0) {
 	var stiffness = _v0.stiffness;
@@ -17925,7 +18034,12 @@ var $author$project$Main$main = $elm$browser$Browser$application(
 						needsUpdate: false,
 						pageIndices: $mdgriffith$elm_animator$Animator$init(
 							$author$project$Main$parseIndices(url)),
-						texts: {dp: $author$project$Texts$David$texts, ge: $author$project$Texts$Gerhard$texts, ld: $author$project$Texts$Luc$texts, le: $author$project$Texts$Ludvig$texts}
+						texts: {
+							dp: $author$project$Texts$textsToList($author$project$Texts$David$texts),
+							ge: $author$project$Texts$textsToList($author$project$Texts$Gerhard$texts),
+							ld: $author$project$Texts$textsToList($author$project$Texts$Luc$texts),
+							le: $author$project$Texts$textsToList($author$project$Texts$Ludvig$texts)
+						}
 					},
 					$elm$core$Platform$Cmd$none);
 			}),
