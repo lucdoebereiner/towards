@@ -6,58 +6,53 @@ class PlayBufProcessor extends AudioWorkletProcessor {
 	super(...args);
 	this.phase = 0;
 	this.length = 48000 * 60;
-	// this.bufswitch = Array(4).fill(0);
-	this.bufamps = [];
-	this.bufs = [];
+	this.amps = [];
+	this.pan = [[0.9, 0.1], [0.65, 0.35], [0.35, 0.65], [0.1, 0.9]];
 	this.pageNum = 0;
-
-	// for (var i =0; i < 4; ++i) {
-	//     this.bufs[i] = [];
-	//     this.bufs[i][0] = [];
-	//     this.bufs[i][1] = [];	    
-	//     this.bufs[i][0][0] = new Float32Array(48000 * 60);
-	//     this.bufs[i][0][1] = new Float32Array(48000 * 60);	    
-	//     this.bufs[i][1][0] = new Float32Array(48000 * 60);
-	//     this.bufs[i][1][1] = new Float32Array(48000 * 60);	    
-	// }
+	this.counter = 0;
+	this.shArray = [];
+	this.init = false;
 	
 	this.port.onmessage = (e) => {
-	    // console.log(e.data)
-	    if (e.data.pages) {
-		console.log("gotpages");
-		console.log(e.data.pages);
-		this.pageNum = e.data.pages;
+	    if (e.data.init) {
+		// console.log("gotinit");
+		// console.log(e.data.init);
+		this.pageNum = e.data.init;
 		for (var i = 0;  i < 4; ++i) {
-		    this.bufs[i] = []
-		    this.bufamps[i] = [];
+		    this.shArray[i] = [];
+		    this.amps[i] = [];
 		    for (var j = 0;  j < this.pageNum; ++j) {
-			this.bufs[i][j] = [];
-			this.bufs[i][j][0] = new Float32Array(48000 * 60);
-			this.bufs[i][j][1] = new Float32Array(48000 * 60);
-			this.bufamps[i][j] = 0.0;
+			this.shArray[i][j] = new Float32Array(48000 * 60);
+			this.amps[i][j] = 0.0;
 		    }
 		}
-		this.bufamps[0] = [1.0, 1.0, 1.0, 1.0];
+		this.amps[0][0] = 1.0;
+		this.amps[1][0] = 1.0;
+		this.amps[2][0] = 1.0;
+		this.amps[3][0] = 1.0;
+		this.init = true;
 	    }
 	    if (e.data.load) {
-		console.log("gotload");
-		console.log(e.data.load);
+		// console.log("gotload");
+		// console.log(e.data.load);
 		var pp = e.data.load[0];
 		var idx = e.data.load[1];
-		// var sw = this.bufswitch[idx];
-		// sw = sw + 1;
-		// sw = sw % 2;
-		this.bufs[pp][idx][0] = e.data.load[2][0];
-		this.bufs[pp][idx][1] = e.data.load[2][1];
-		// this.bufswitch[idx] = sw;
+		this.shArray[idx][pp] = new Float32Array(e.data.load[2]);
 	    }
 	    if (e.data.amps) {
-		console.log("gotamps");
-		console.log(e.data.amps);
+		// console.log("gotamps");
+		// console.log(e.data.amps);
 		var idx = e.data.amps[0];
 		for (let pp = 0; pp<this.pageNum; ++pp) {
-		    this.bufamps[pp][idx] = e.data.amps[1][pp];
-		}
+		    this.amps[idx][pp] = e.data.amps[1][pp];
+		}	
+	    }
+	    if (e.data.pan) {
+		// console.log("gotpan");
+		// console.log(e.data.pan);
+		var idx = e.data.pan[0];
+		var pan = e.data.pan[1];
+		this.pan[idx] = [(1.0 - pan) * 0.5, (pan + 1) * 0.5];
 	    }
 
 	}	 
@@ -66,22 +61,36 @@ class PlayBufProcessor extends AudioWorkletProcessor {
     process (inputs, outputs, parameters) {
         const output = outputs[0];
         const input = inputs[0];
-	
-        for (let s = 0; s < output[0].length; s++) {
-	    this.phase = this.phase + 1;
-	    this.phase = this.phase % this.length;
-            for (let ch = 0; ch < output.length; ch++) {
-		output[ch][s] = 0.0;
+	if (this.init) {
+            for (let s = 0; s < output[0].length; s++) {
+		let so = [0.0, 0.0, 0.0, 0.0];
+		this.phase = this.phase + 1;
+		this.phase = this.phase % this.length;
 		for (let pp = 0; pp<this.pageNum; ++pp) {
-		    output[ch][s] = output[ch][s] +
-			this.bufs[pp][0][ch][this.phase] * this.bufamps[pp][0] +
-			 this.bufs[pp][1][ch][this.phase] * this.bufamps[pp][1] +
-			 this.bufs[pp][2][ch][this.phase] * this.bufamps[pp][2] +
-			 this.bufs[pp][3][ch][this.phase] * this.bufamps[pp][3];
+		    so[0] = so[0] + this.shArray[0][pp][this.phase] * this.amps[0][pp];
+		    so[1] = so[1] + this.shArray[1][pp][this.phase] * this.amps[1][pp];
+		    so[2] = so[2] + this.shArray[2][pp][this.phase] * this.amps[2][pp];
+		    so[3] = so[3] + this.shArray[3][pp][this.phase] * this.amps[3][pp];
 		}
-		output[ch][s] = output[ch][s] * 0.25;
+		output[0][s] = so[0] * this.pan[0][0] + 
+		    so[1] * this.pan[1][0] +
+		    so[2] * this.pan[2][0] +
+		    so[3] * this.pan[3][0];
+		output[1][s] = so[0] * this.pan[0][1] + 
+		    so[1] * this.pan[1][1] +
+		    so[2] * this.pan[2][1] +
+		    so[3] * this.pan[3][1];
+		// if (this.counter > 4096) { // for debugging 
+		//     // console.log(so);
+		//     // // console.log(this.bufs);
+		//     // console.log(this.amps);
+		//     // console.log(this.shArray);
+		//     this.counter = 0;
+		// } else {
+		//     this.counter = this.counter + 1;
+		// }
             }
-        }
+	}
         return true
     }
 }
