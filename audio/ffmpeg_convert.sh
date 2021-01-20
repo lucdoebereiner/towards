@@ -2,7 +2,7 @@
 
 rate=$1
 
-ins=$(find "files/" -name '*.wav')
+ins=$(find "files/" -not -iname '*_*' | grep wav)
 
 for i in $ins; do
     basePath=${i%.*}
