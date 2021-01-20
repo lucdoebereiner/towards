@@ -34,6 +34,10 @@ type Author
     | Ludvig
 
 
+columnOrder =
+    [ David, Gerhard, Luc, Ludvig ]
+
+
 default =
     PageIndices 0.0 0.0 0.0 0.0
 
