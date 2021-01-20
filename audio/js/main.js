@@ -79,12 +79,12 @@ class BufferLoader {
 	request.send();
     }
 
-    loadAll( ) {
+    async loadAll( ) {
 	// console.log("not yet loaded");
 	this.node.port.postMessage({init: pageNum});
 	for (var page = 0; page < pageNum; ++page) {
 	    for (var i = 0; i < 4; ++i) {
-		this.loadBuffer(page, i);
+		await this.loadBuffer(page, i);
 	    }
 	}
 
