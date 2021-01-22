@@ -6126,73 +6126,13 @@ var $author$project$PageIndices$PageIndices = F5(
 	function (le, dp, ge, ld, rotation) {
 		return {dp: dp, ge: ge, ld: ld, le: le, rotation: rotation};
 	});
-var $author$project$PageIndices$default = A5($author$project$PageIndices$PageIndices, 0.0, 0.0, 0.0, 0.0, 0);
-var $elm$url$Url$Parser$State = F5(
-	function (visited, unvisited, params, frag, value) {
-		return {frag: frag, params: params, unvisited: unvisited, value: value, visited: visited};
+var $author$project$Pages$Root = F2(
+	function (a, b) {
+		return {$: 'Root', a: a, b: b};
 	});
-var $elm$url$Url$Parser$getFirstMatch = function (states) {
-	getFirstMatch:
-	while (true) {
-		if (!states.b) {
-			return $elm$core$Maybe$Nothing;
-		} else {
-			var state = states.a;
-			var rest = states.b;
-			var _v1 = state.unvisited;
-			if (!_v1.b) {
-				return $elm$core$Maybe$Just(state.value);
-			} else {
-				if ((_v1.a === '') && (!_v1.b.b)) {
-					return $elm$core$Maybe$Just(state.value);
-				} else {
-					var $temp$states = rest;
-					states = $temp$states;
-					continue getFirstMatch;
-				}
-			}
-		}
-	}
+var $elm$url$Url$Parser$Internal$Parser = function (a) {
+	return {$: 'Parser', a: a};
 };
-var $elm$url$Url$Parser$removeFinalEmpty = function (segments) {
-	if (!segments.b) {
-		return _List_Nil;
-	} else {
-		if ((segments.a === '') && (!segments.b.b)) {
-			return _List_Nil;
-		} else {
-			var segment = segments.a;
-			var rest = segments.b;
-			return A2(
-				$elm$core$List$cons,
-				segment,
-				$elm$url$Url$Parser$removeFinalEmpty(rest));
-		}
-	}
-};
-var $elm$url$Url$Parser$preparePath = function (path) {
-	var _v0 = A2($elm$core$String$split, '/', path);
-	if (_v0.b && (_v0.a === '')) {
-		var segments = _v0.b;
-		return $elm$url$Url$Parser$removeFinalEmpty(segments);
-	} else {
-		var segments = _v0;
-		return $elm$url$Url$Parser$removeFinalEmpty(segments);
-	}
-};
-var $elm$url$Url$Parser$addToParametersHelp = F2(
-	function (value, maybeList) {
-		if (maybeList.$ === 'Nothing') {
-			return $elm$core$Maybe$Just(
-				_List_fromArray(
-					[value]));
-		} else {
-			var list = maybeList.a;
-			return $elm$core$Maybe$Just(
-				A2($elm$core$List$cons, value, list));
-		}
-	});
-var $elm$url$Url$percentDecode = _Url_percentDecode;
 var $elm$core$Basics$compare = _Utils_compare;
 var $elm$core$Dict$get = F2(
 	function (targetKey, dict) {
@@ -6225,12 +6165,38 @@ var $elm$core$Dict$get = F2(
 			}
 		}
 	});
+var $elm$url$Url$Parser$Query$custom = F2(
+	function (key, func) {
+		return $elm$url$Url$Parser$Internal$Parser(
+			function (dict) {
+				return func(
+					A2(
+						$elm$core$Maybe$withDefault,
+						_List_Nil,
+						A2($elm$core$Dict$get, key, dict)));
+			});
+	});
+var $elm$url$Url$Parser$Query$enum = F2(
+	function (key, dict) {
+		return A2(
+			$elm$url$Url$Parser$Query$custom,
+			key,
+			function (stringList) {
+				if (stringList.b && (!stringList.b.b)) {
+					var str = stringList.a;
+					return A2($elm$core$Dict$get, str, dict);
+				} else {
+					return $elm$core$Maybe$Nothing;
+				}
+			});
+	});
+var $elm$core$Dict$RBEmpty_elm_builtin = {$: 'RBEmpty_elm_builtin'};
+var $elm$core$Dict$empty = $elm$core$Dict$RBEmpty_elm_builtin;
 var $elm$core$Dict$Black = {$: 'Black'};
 var $elm$core$Dict$RBNode_elm_builtin = F5(
 	function (a, b, c, d, e) {
 		return {$: 'RBNode_elm_builtin', a: a, b: b, c: c, d: d, e: e};
 	});
-var $elm$core$Dict$RBEmpty_elm_builtin = {$: 'RBEmpty_elm_builtin'};
 var $elm$core$Dict$Red = {$: 'Red'};
 var $elm$core$Dict$balance = F5(
 	function (color, key, value, left, right) {
@@ -6334,6 +6300,252 @@ var $elm$core$Dict$insert = F3(
 			return x;
 		}
 	});
+var $elm$core$Dict$fromList = function (assocs) {
+	return A3(
+		$elm$core$List$foldl,
+		F2(
+			function (_v0, dict) {
+				var key = _v0.a;
+				var value = _v0.b;
+				return A3($elm$core$Dict$insert, key, value, dict);
+			}),
+		$elm$core$Dict$empty,
+		assocs);
+};
+var $elm$url$Url$Parser$Query$map = F2(
+	function (func, _v0) {
+		var a = _v0.a;
+		return $elm$url$Url$Parser$Internal$Parser(
+			function (dict) {
+				return func(
+					a(dict));
+			});
+	});
+var $author$project$Pages$audio = A2(
+	$elm$url$Url$Parser$Query$map,
+	$elm$core$Maybe$withDefault(true),
+	A2(
+		$elm$url$Url$Parser$Query$enum,
+		'audio',
+		$elm$core$Dict$fromList(
+			_List_fromArray(
+				[
+					_Utils_Tuple2('true', true),
+					_Utils_Tuple2('false', false)
+				]))));
+var $author$project$PageIndices$default = A5($author$project$PageIndices$PageIndices, 0.0, 0.0, 0.0, 0.0, 0);
+var $elm$url$Url$Parser$Query$int = function (key) {
+	return A2(
+		$elm$url$Url$Parser$Query$custom,
+		key,
+		function (stringList) {
+			if (stringList.b && (!stringList.b.b)) {
+				var str = stringList.a;
+				return $elm$core$String$toInt(str);
+			} else {
+				return $elm$core$Maybe$Nothing;
+			}
+		});
+};
+var $elm$core$String$toFloat = _String_toFloat;
+var $author$project$PageIndices$parseFloat = function (key) {
+	return A2(
+		$elm$url$Url$Parser$Query$map,
+		$elm$core$Maybe$withDefault(0.0),
+		A2(
+			$elm$url$Url$Parser$Query$custom,
+			key,
+			function (stringList) {
+				if (stringList.b && (!stringList.b.b)) {
+					var str = stringList.a;
+					return $elm$core$String$toFloat(str);
+				} else {
+					return $elm$core$Maybe$Nothing;
+				}
+			}));
+};
+var $elm$url$Url$Parser$Parser = function (a) {
+	return {$: 'Parser', a: a};
+};
+var $elm$url$Url$Parser$State = F5(
+	function (visited, unvisited, params, frag, value) {
+		return {frag: frag, params: params, unvisited: unvisited, value: value, visited: visited};
+	});
+var $elm$url$Url$Parser$query = function (_v0) {
+	var queryParser = _v0.a;
+	return $elm$url$Url$Parser$Parser(
+		function (_v1) {
+			var visited = _v1.visited;
+			var unvisited = _v1.unvisited;
+			var params = _v1.params;
+			var frag = _v1.frag;
+			var value = _v1.value;
+			return _List_fromArray(
+				[
+					A5(
+					$elm$url$Url$Parser$State,
+					visited,
+					unvisited,
+					params,
+					frag,
+					value(
+						queryParser(params)))
+				]);
+		});
+};
+var $elm$core$List$append = F2(
+	function (xs, ys) {
+		if (!ys.b) {
+			return xs;
+		} else {
+			return A3($elm$core$List$foldr, $elm$core$List$cons, ys, xs);
+		}
+	});
+var $elm$core$List$concat = function (lists) {
+	return A3($elm$core$List$foldr, $elm$core$List$append, _List_Nil, lists);
+};
+var $elm$core$List$concatMap = F2(
+	function (f, list) {
+		return $elm$core$List$concat(
+			A2($elm$core$List$map, f, list));
+	});
+var $elm$url$Url$Parser$slash = F2(
+	function (_v0, _v1) {
+		var parseBefore = _v0.a;
+		var parseAfter = _v1.a;
+		return $elm$url$Url$Parser$Parser(
+			function (state) {
+				return A2(
+					$elm$core$List$concatMap,
+					parseAfter,
+					parseBefore(state));
+			});
+	});
+var $elm$url$Url$Parser$questionMark = F2(
+	function (parser, queryParser) {
+		return A2(
+			$elm$url$Url$Parser$slash,
+			parser,
+			$elm$url$Url$Parser$query(queryParser));
+	});
+var $elm$url$Url$Parser$top = $elm$url$Url$Parser$Parser(
+	function (state) {
+		return _List_fromArray(
+			[state]);
+	});
+var $author$project$PageIndices$indicesParser = A2(
+	$elm$url$Url$Parser$questionMark,
+	A2(
+		$elm$url$Url$Parser$questionMark,
+		A2(
+			$elm$url$Url$Parser$questionMark,
+			A2(
+				$elm$url$Url$Parser$questionMark,
+				A2(
+					$elm$url$Url$Parser$questionMark,
+					$elm$url$Url$Parser$top,
+					$author$project$PageIndices$parseFloat('ludvig')),
+				$author$project$PageIndices$parseFloat('david')),
+			$author$project$PageIndices$parseFloat('gerhard')),
+		$author$project$PageIndices$parseFloat('luc')),
+	A2(
+		$elm$url$Url$Parser$Query$map,
+		$elm$core$Maybe$withDefault(0),
+		$elm$url$Url$Parser$Query$int('rotation')));
+var $elm$url$Url$Parser$mapState = F2(
+	function (func, _v0) {
+		var visited = _v0.visited;
+		var unvisited = _v0.unvisited;
+		var params = _v0.params;
+		var frag = _v0.frag;
+		var value = _v0.value;
+		return A5(
+			$elm$url$Url$Parser$State,
+			visited,
+			unvisited,
+			params,
+			frag,
+			func(value));
+	});
+var $elm$url$Url$Parser$map = F2(
+	function (subValue, _v0) {
+		var parseArg = _v0.a;
+		return $elm$url$Url$Parser$Parser(
+			function (_v1) {
+				var visited = _v1.visited;
+				var unvisited = _v1.unvisited;
+				var params = _v1.params;
+				var frag = _v1.frag;
+				var value = _v1.value;
+				return A2(
+					$elm$core$List$map,
+					$elm$url$Url$Parser$mapState(value),
+					parseArg(
+						A5($elm$url$Url$Parser$State, visited, unvisited, params, frag, subValue)));
+			});
+	});
+var $elm$url$Url$Parser$getFirstMatch = function (states) {
+	getFirstMatch:
+	while (true) {
+		if (!states.b) {
+			return $elm$core$Maybe$Nothing;
+		} else {
+			var state = states.a;
+			var rest = states.b;
+			var _v1 = state.unvisited;
+			if (!_v1.b) {
+				return $elm$core$Maybe$Just(state.value);
+			} else {
+				if ((_v1.a === '') && (!_v1.b.b)) {
+					return $elm$core$Maybe$Just(state.value);
+				} else {
+					var $temp$states = rest;
+					states = $temp$states;
+					continue getFirstMatch;
+				}
+			}
+		}
+	}
+};
+var $elm$url$Url$Parser$removeFinalEmpty = function (segments) {
+	if (!segments.b) {
+		return _List_Nil;
+	} else {
+		if ((segments.a === '') && (!segments.b.b)) {
+			return _List_Nil;
+		} else {
+			var segment = segments.a;
+			var rest = segments.b;
+			return A2(
+				$elm$core$List$cons,
+				segment,
+				$elm$url$Url$Parser$removeFinalEmpty(rest));
+		}
+	}
+};
+var $elm$url$Url$Parser$preparePath = function (path) {
+	var _v0 = A2($elm$core$String$split, '/', path);
+	if (_v0.b && (_v0.a === '')) {
+		var segments = _v0.b;
+		return $elm$url$Url$Parser$removeFinalEmpty(segments);
+	} else {
+		var segments = _v0;
+		return $elm$url$Url$Parser$removeFinalEmpty(segments);
+	}
+};
+var $elm$url$Url$Parser$addToParametersHelp = F2(
+	function (value, maybeList) {
+		if (maybeList.$ === 'Nothing') {
+			return $elm$core$Maybe$Just(
+				_List_fromArray(
+					[value]));
+		} else {
+			var list = maybeList.a;
+			return $elm$core$Maybe$Just(
+				A2($elm$core$List$cons, value, list));
+		}
+	});
+var $elm$url$Url$percentDecode = _Url_percentDecode;
 var $elm$core$Dict$getMin = function (dict) {
 	getMin:
 	while (true) {
@@ -6735,7 +6947,6 @@ var $elm$url$Url$Parser$addParam = F2(
 			return dict;
 		}
 	});
-var $elm$core$Dict$empty = $elm$core$Dict$RBEmpty_elm_builtin;
 var $elm$url$Url$Parser$prepareQuery = function (maybeQuery) {
 	if (maybeQuery.$ === 'Nothing') {
 		return $elm$core$Dict$empty;
@@ -6761,183 +6972,27 @@ var $elm$url$Url$Parser$parse = F2(
 					url.fragment,
 					$elm$core$Basics$identity)));
 	});
-var $elm$url$Url$Parser$Internal$Parser = function (a) {
-	return {$: 'Parser', a: a};
-};
-var $elm$url$Url$Parser$Query$custom = F2(
-	function (key, func) {
-		return $elm$url$Url$Parser$Internal$Parser(
-			function (dict) {
-				return func(
-					A2(
-						$elm$core$Maybe$withDefault,
-						_List_Nil,
-						A2($elm$core$Dict$get, key, dict)));
-			});
-	});
-var $elm$url$Url$Parser$Query$int = function (key) {
-	return A2(
-		$elm$url$Url$Parser$Query$custom,
-		key,
-		function (stringList) {
-			if (stringList.b && (!stringList.b.b)) {
-				var str = stringList.a;
-				return $elm$core$String$toInt(str);
-			} else {
-				return $elm$core$Maybe$Nothing;
-			}
-		});
-};
-var $elm$url$Url$Parser$Parser = function (a) {
-	return {$: 'Parser', a: a};
-};
-var $elm$url$Url$Parser$mapState = F2(
-	function (func, _v0) {
-		var visited = _v0.visited;
-		var unvisited = _v0.unvisited;
-		var params = _v0.params;
-		var frag = _v0.frag;
-		var value = _v0.value;
-		return A5(
-			$elm$url$Url$Parser$State,
-			visited,
-			unvisited,
-			params,
-			frag,
-			func(value));
-	});
-var $elm$url$Url$Parser$map = F2(
-	function (subValue, _v0) {
-		var parseArg = _v0.a;
-		return $elm$url$Url$Parser$Parser(
-			function (_v1) {
-				var visited = _v1.visited;
-				var unvisited = _v1.unvisited;
-				var params = _v1.params;
-				var frag = _v1.frag;
-				var value = _v1.value;
-				return A2(
-					$elm$core$List$map,
-					$elm$url$Url$Parser$mapState(value),
-					parseArg(
-						A5($elm$url$Url$Parser$State, visited, unvisited, params, frag, subValue)));
-			});
-	});
-var $elm$url$Url$Parser$Query$map = F2(
-	function (func, _v0) {
-		var a = _v0.a;
-		return $elm$url$Url$Parser$Internal$Parser(
-			function (dict) {
-				return func(
-					a(dict));
-			});
-	});
-var $elm$core$String$toFloat = _String_toFloat;
-var $author$project$PageIndices$parseFloat = function (key) {
-	return A2(
-		$elm$url$Url$Parser$Query$map,
-		$elm$core$Maybe$withDefault(0.0),
-		A2(
-			$elm$url$Url$Parser$Query$custom,
-			key,
-			function (stringList) {
-				if (stringList.b && (!stringList.b.b)) {
-					var str = stringList.a;
-					return $elm$core$String$toFloat(str);
-				} else {
-					return $elm$core$Maybe$Nothing;
-				}
-			}));
-};
-var $elm$url$Url$Parser$query = function (_v0) {
-	var queryParser = _v0.a;
-	return $elm$url$Url$Parser$Parser(
-		function (_v1) {
-			var visited = _v1.visited;
-			var unvisited = _v1.unvisited;
-			var params = _v1.params;
-			var frag = _v1.frag;
-			var value = _v1.value;
-			return _List_fromArray(
-				[
-					A5(
-					$elm$url$Url$Parser$State,
-					visited,
-					unvisited,
-					params,
-					frag,
-					value(
-						queryParser(params)))
-				]);
-		});
-};
-var $elm$core$List$append = F2(
-	function (xs, ys) {
-		if (!ys.b) {
-			return xs;
-		} else {
-			return A3($elm$core$List$foldr, $elm$core$List$cons, ys, xs);
-		}
-	});
-var $elm$core$List$concat = function (lists) {
-	return A3($elm$core$List$foldr, $elm$core$List$append, _List_Nil, lists);
-};
-var $elm$core$List$concatMap = F2(
-	function (f, list) {
-		return $elm$core$List$concat(
-			A2($elm$core$List$map, f, list));
-	});
-var $elm$url$Url$Parser$slash = F2(
-	function (_v0, _v1) {
-		var parseBefore = _v0.a;
-		var parseAfter = _v1.a;
-		return $elm$url$Url$Parser$Parser(
-			function (state) {
-				return A2(
-					$elm$core$List$concatMap,
-					parseAfter,
-					parseBefore(state));
-			});
-	});
-var $elm$url$Url$Parser$questionMark = F2(
-	function (parser, queryParser) {
-		return A2(
-			$elm$url$Url$Parser$slash,
-			parser,
-			$elm$url$Url$Parser$query(queryParser));
-	});
-var $elm$url$Url$Parser$top = $elm$url$Url$Parser$Parser(
-	function (state) {
-		return _List_fromArray(
-			[state]);
-	});
-var $author$project$PageIndices$parsePageIndices = A2(
-	$elm$url$Url$Parser$map,
-	$author$project$PageIndices$PageIndices,
-	A2(
-		$elm$url$Url$Parser$questionMark,
-		A2(
-			$elm$url$Url$Parser$questionMark,
-			A2(
-				$elm$url$Url$Parser$questionMark,
-				A2(
-					$elm$url$Url$Parser$questionMark,
-					A2(
-						$elm$url$Url$Parser$questionMark,
-						$elm$url$Url$Parser$top,
-						$author$project$PageIndices$parseFloat('ludvig')),
-					$author$project$PageIndices$parseFloat('david')),
-				$author$project$PageIndices$parseFloat('gerhard')),
-			$author$project$PageIndices$parseFloat('luc')),
-		A2(
-			$elm$url$Url$Parser$Query$map,
-			$elm$core$Maybe$withDefault(0),
-			$elm$url$Url$Parser$Query$int('rotation'))));
-var $author$project$PageIndices$fromUrl = function (url) {
+var $author$project$Pages$fromUrl = function (url) {
 	return A2(
 		$elm$core$Maybe$withDefault,
-		$author$project$PageIndices$default,
-		A2($elm$url$Url$Parser$parse, $author$project$PageIndices$parsePageIndices, url));
+		A2($author$project$Pages$Root, $author$project$PageIndices$default, true),
+		A2(
+			$elm$url$Url$Parser$parse,
+			A2(
+				$elm$url$Url$Parser$map,
+				F6(
+					function (l, d, g, ld, r, a) {
+						return A2(
+							$author$project$Pages$Root,
+							A5($author$project$PageIndices$PageIndices, l, d, g, ld, r),
+							a);
+					}),
+				A2($elm$url$Url$Parser$questionMark, $author$project$PageIndices$indicesParser, $author$project$Pages$audio)),
+			url));
+};
+var $author$project$Pages$indices = function (_v0) {
+	var i = _v0.a;
+	return i;
 };
 var $elm$time$Time$Posix = function (a) {
 	return {$: 'Posix', a: a};
@@ -6961,6 +7016,8 @@ var $author$project$Main$initAudio = _Platform_outgoingPort(
 	function ($) {
 		return $elm$json$Json$Encode$null;
 	});
+var $elm$core$Platform$Cmd$batch = _Platform_batch;
+var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
 var $author$project$Texts$NoNl = function (a) {
 	return {$: 'NoNl', a: a};
 };
@@ -7856,6 +7913,13 @@ var $author$project$Texts$Editor = function (a) {
 var $author$project$Texts$fromEditor = function (s) {
 	return $author$project$Texts$Editor(s);
 };
+var $author$project$PageIndices$parsePageIndices = A2($elm$url$Url$Parser$map, $author$project$PageIndices$PageIndices, $author$project$PageIndices$indicesParser);
+var $author$project$PageIndices$fromUrl = function (url) {
+	return A2(
+		$elm$core$Maybe$withDefault,
+		$author$project$PageIndices$default,
+		A2($elm$url$Url$Parser$parse, $author$project$PageIndices$parsePageIndices, url));
+};
 var $mdgriffith$elm_animator$Animator$TransitionTo = F2(
 	function (a, b) {
 		return {$: 'TransitionTo', a: a, b: b};
@@ -8103,8 +8167,6 @@ var $author$project$Texts$length = function (p) {
 			[p.ge, p.dp, p.ld, p.le]));
 };
 var $elm$core$Debug$log = _Debug_log;
-var $elm$core$Platform$Cmd$batch = _Platform_batch;
-var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
 var $elm$core$List$filter = F2(
 	function (isGood, list) {
 		return A3(
@@ -18084,16 +18146,21 @@ var $author$project$Main$view = function (model) {
 		title: 'Towards'
 	};
 };
+var $author$project$Pages$withAudio = function (_v0) {
+	var a = _v0.b;
+	return a;
+};
 var $author$project$Main$main = $elm$browser$Browser$application(
 	{
 		init: F3(
 			function (_v0, url, navKey) {
+				var page = $author$project$Pages$fromUrl(url);
 				return _Utils_Tuple2(
 					{
 						navKey: navKey,
 						needsUpdate: false,
 						pageIndices: $mdgriffith$elm_animator$Animator$init(
-							$author$project$PageIndices$fromUrl(url)),
+							$author$project$Pages$indices(page)),
 						texts: {
 							dp: $author$project$Texts$textsToList($author$project$Texts$David$texts),
 							ge: $author$project$Texts$textsToList($author$project$Texts$Gerhard$texts),
@@ -18101,7 +18168,7 @@ var $author$project$Main$main = $elm$browser$Browser$application(
 							le: $author$project$Texts$textsToList($author$project$Texts$Ludvig$texts)
 						}
 					},
-					$author$project$Main$initAudio(_Utils_Tuple0));
+					$author$project$Pages$withAudio(page) ? $author$project$Main$initAudio(_Utils_Tuple0) : $elm$core$Platform$Cmd$none);
 			}),
 		onUrlChange: $author$project$Main$UrlChanged,
 		onUrlRequest: $author$project$Main$ClickedLink,

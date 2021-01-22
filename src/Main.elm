@@ -18,6 +18,7 @@ import Html.Events
 import Html.Events.Extra.Wheel as Wheel
 import List.Extra as L
 import PageIndices exposing (Author(..), PageIndices)
+import Pages
 import Texts exposing (Entry, Texts)
 import Texts.David as David
 import Texts.Gerhard as Gerhard
@@ -44,8 +45,12 @@ main =
     Browser.application
         { init =
             \() url navKey ->
+                let
+                    page =
+                        Pages.fromUrl url
+                in
                 ( { pageIndices =
-                        Animator.init (PageIndices.fromUrl url)
+                        Animator.init (Pages.indices page)
                   , navKey = navKey
                   , needsUpdate = False
                   , texts =
@@ -55,7 +60,11 @@ main =
                         , ld = Texts.textsToList Luc.texts
                         }
                   }
-                , initAudio ()
+                , if Pages.withAudio page then
+                    initAudio ()
+
+                  else
+                    Cmd.none
                 )
         , view = view
         , update = update

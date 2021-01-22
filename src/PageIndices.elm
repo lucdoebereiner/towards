@@ -7,6 +7,7 @@ module PageIndices exposing
     , fromUrl
     , getIndex
     , incIndex
+    , indicesParser
     , nextIndex
     , previousIndex
     , setIndex
@@ -153,16 +154,18 @@ parseFloat key =
                         Nothing
 
 
+indicesParser =
+    Url.Parser.top
+        <?> parseFloat "ludvig"
+        <?> parseFloat "david"
+        <?> parseFloat "gerhard"
+        <?> parseFloat "luc"
+        <?> (Query.map (Maybe.withDefault 0) <| Query.int "rotation")
+
+
 parsePageIndices : Parser (PageIndices -> a) a
 parsePageIndices =
-    Url.Parser.map PageIndices
-        (Url.Parser.top
-            <?> parseFloat "ludvig"
-            <?> parseFloat "david"
-            <?> parseFloat "gerhard"
-            <?> parseFloat "luc"
-            <?> (Query.map (Maybe.withDefault 0) <| Query.int "rotation")
-        )
+    Url.Parser.map PageIndices indicesParser
 
 
 toUrl : PageIndices -> String
