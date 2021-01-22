@@ -45,7 +45,7 @@ class BufferLoader {
     loadBuffer(page, index) {
 	// Load buffer asynchronously
 	var request = new XMLHttpRequest();
-	var url = "files/page" + page + "/" + this.names[index] + ".mp3";
+	var url = "audio/files/page" + page + "/" + this.names[index] + ".mp3";
 
 	console.log(url);
 	
