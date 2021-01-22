@@ -3,9 +3,26 @@ For testing locally, directory with audiofiles should be in the 'audio'
 folder in the in 'files' directory. This directory will be ignored by
 git. 
 
-Use the sync.sh script to synchronize with the server. The script uses rsync:
-it first downloads the new files from the server and then synchronizes
-the local 'files' directory with the server.
+The directory with all audio files lies in a git repository on a
+server. To clone the git repository:
+
+#+BEGIN_SRC
+git clone git@116.202.8.138:/home/git/towards_files.git
+#+END_SRC
+
+this will create the directory towards_files, containing all the page
+directories with the audio files. In order to make this work locally
+you need to link this directory into the towards/audio/ folder: the
+linked directory should be names "files" e.g on
+my system:
+
+#+BEGIN_SRC
+ln -s ../../towards_files ./files
+#+END_SRC
+
+As with the towards repository, the git repository containing the
+audio file will be pulled every 5 minutes on the server.
+
 
 The script ffmpeg_convert.sh can be used to batch convert all the
 *.wav files (not containing "_" as these files are the old ones) to
