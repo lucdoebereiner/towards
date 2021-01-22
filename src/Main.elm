@@ -1,8 +1,9 @@
-module Main exposing (main)
+port module Main exposing (main)
 
 import Animator
 import Animator.Css
 import Animator.Inline
+import Array exposing (Array)
 import Basics.Extra exposing (fractionalModBy)
 import Browser
 import Browser.Events
@@ -54,7 +55,7 @@ main =
                         , ld = Texts.textsToList Luc.texts
                         }
                   }
-                , Cmd.none
+                , initAudio ()
                 )
         , view = view
         , update = update
@@ -67,6 +68,23 @@ main =
         , onUrlRequest = ClickedLink
         , onUrlChange = UrlChanged
         }
+
+
+
+--
+
+
+port initAudio : () -> Cmd msg
+
+
+port setAmps : ( Int, Array Float ) -> Cmd msg
+
+
+port setPan : ( Int, Float ) -> Cmd msg
+
+
+
+--
 
 
 type Msg

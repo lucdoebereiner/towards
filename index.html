@@ -10,10 +10,18 @@
     <div id="app"></div>
     
     <script src="elm.js"></script>
+    <script src="audio/js/main.js"></script>
+
     <script>
      var app = Elm.Main.init({
 	 node: document.getElementById('app')
      });      
+     
+     app.ports.initAudio.subscribe(function() {
+	 init();
+     });
     </script>
+
   </body>
+
 </html>

@@ -6955,8 +6955,12 @@ var $mdgriffith$elm_animator$Animator$init = function (first) {
 			running: true
 		});
 };
-var $elm$core$Platform$Cmd$batch = _Platform_batch;
-var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
+var $elm$json$Json$Encode$null = _Json_encodeNull;
+var $author$project$Main$initAudio = _Platform_outgoingPort(
+	'initAudio',
+	function ($) {
+		return $elm$json$Json$Encode$null;
+	});
 var $author$project$Texts$NoNl = function (a) {
 	return {$: 'NoNl', a: a};
 };
@@ -8099,6 +8103,8 @@ var $author$project$Texts$length = function (p) {
 			[p.ge, p.dp, p.ld, p.le]));
 };
 var $elm$core$Debug$log = _Debug_log;
+var $elm$core$Platform$Cmd$batch = _Platform_batch;
+var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
 var $elm$core$List$filter = F2(
 	function (isGood, list) {
 		return A3(
@@ -18095,7 +18101,7 @@ var $author$project$Main$main = $elm$browser$Browser$application(
 							le: $author$project$Texts$textsToList($author$project$Texts$Ludvig$texts)
 						}
 					},
-					$elm$core$Platform$Cmd$none);
+					$author$project$Main$initAudio(_Utils_Tuple0));
 			}),
 		onUrlChange: $author$project$Main$UrlChanged,
 		onUrlRequest: $author$project$Main$ClickedLink,
