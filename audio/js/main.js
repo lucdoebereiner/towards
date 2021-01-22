@@ -27,7 +27,7 @@ class BufferLoader {
 		this.shArray[i][j] = new Float32Array(this.shBuf[i][j]); // 32 bit floats
 	    }
 	}
-	
+	this.node.port.postMessage({init: pageNum});
     }
 
     sendBuffer(page, index){
@@ -95,7 +95,6 @@ class BufferLoader {
 
     loadAll( ) {
 	// console.log("not yet loaded");
-	this.node.port.postMessage({init: pageNum});
 	this.loadBuffer(this.page2l, this.index2l);
 	// for (var page = 0; page < pageNum; ++page) {
 	//     for (var i = 0; i < 4; ++i) {
