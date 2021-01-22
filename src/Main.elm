@@ -199,6 +199,15 @@ distanceToOpacity d =
         (config.transitionDepth - d) / config.transitionDepth
 
 
+ampArray : PageIndices -> Author -> Int -> Array Float
+ampArray indices author maxIdx =
+    let
+        authorIdx =
+            PageIndices.getIndex author indices
+    in
+    Array.initialize maxIdx (\i -> calcDistance authorIdx i maxIdx |> distanceToOpacity)
+
+
 textColumn :
     Animator.Timeline PageIndices
     -> Author

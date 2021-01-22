@@ -1,6 +1,7 @@
 module PageIndices exposing
     ( Author(..)
     , PageIndices
+    , authorIndex
     , authorsInOrder
     , default
     , fromTuples
@@ -48,6 +49,21 @@ rotate n l =
 
 columnOrder =
     [ David, Gerhard, Luc, Ludvig ]
+
+
+authorIndex author =
+    case author of
+        David ->
+            0
+
+        Gerhard ->
+            1
+
+        Luc ->
+            2
+
+        Ludvig ->
+            3
 
 
 authorsInOrder : PageIndices -> List Author
