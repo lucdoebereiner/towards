@@ -129,7 +129,7 @@ async function init() {
                 audioCtx = new AudioContext();                      
                 source = audioCtx.createMediaStreamSource(stream);
                 
-                await audioCtx.audioWorklet.addModule('js/playbuf.js');
+                await audioCtx.audioWorklet.addModule('audio/js/playbuf.js');
 		
                 const playbuf = new AudioWorkletNode(audioCtx,'playbufprocessor');
 
