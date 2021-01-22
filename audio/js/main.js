@@ -106,12 +106,12 @@ class BufferLoader {
 }
 
 
-const initButton = document.querySelector('button');
+// const initButton = document.querySelector('button');
 
-const fad0 = document.getElementById("fader0");
-const fad1 = document.getElementById("fader1");
-const fad2 = document.getElementById("fader2");
-const fad3 = document.getElementById("fader3");
+// const fad0 = document.getElementById("fader0");
+// const fad1 = document.getElementById("fader1");
+// const fad2 = document.getElementById("fader2");
+// const fad3 = document.getElementById("fader3");
 
 // Create AudioContext and source
 let audioCtx;
@@ -120,7 +120,7 @@ let bufferLoader;
 
 async function init() {
 
-    console.log(fad0);
+//    console.log(fad0);
     
     if (navigator.mediaDevices) {
         navigator.mediaDevices.getUserMedia ({audio: true, video: false})
@@ -148,48 +148,48 @@ async function init() {
 
 }
 
-// wire up init and play buttons
-initButton.onclick = function() {
-    if(!audioCtx) {
-        init();
-    }
-}
+// // wire up init and play buttons
+// initButton.onclick = function() {
+//     if(!audioCtx) {
+//         init();
+//     }
+// }
 
 
-faderToAmp = function(idx, value) {
-    var ta = new Float32Array(pageNum);
-    var v = value;
-    var fv = Math.floor(value);
-    var cv = fv + 1;
-    ta[fv] = 1.0 - (v - fv);
-    if (cv < pageNum) {
-	ta[cv] = v - fv;
-    }
-    bufferLoader.sendAmps(idx, ta)
-}
+// faderToAmp = function(idx, value) {
+//     var ta = new Float32Array(pageNum);
+//     var v = value;
+//     var fv = Math.floor(value);
+//     var cv = fv + 1;
+//     ta[fv] = 1.0 - (v - fv);
+//     if (cv < pageNum) {
+// 	ta[cv] = v - fv;
+//     }
+//     bufferLoader.sendAmps(idx, ta)
+// }
 
-fad0.oninput = function() {
-    console.log("got fader0");
-    console.log(this.value);
-    document.querySelector('#volume0').value = this.value;
-    faderToAmp(0, this.value);
-}
-fad1.oninput = function() {
-    console.log("got fader1");
-    console.log(this.value);
-    document.querySelector('#volume1').value = this.value;
-    faderToAmp(1, this.value);
-}
-fad2.oninput = function() {
-    console.log("got fader2");
-    console.log(this.value);
-    document.querySelector('#volume2').value = this.value;
-    faderToAmp(2, this.value);
-}
-fad3.oninput = function() {
-    console.log("got fader3");
-    console.log(this.value);
-    document.querySelector('#volume3').value = this.value;
-    faderToAmp(3, this.value);
-}
+// fad0.oninput = function() {
+//     console.log("got fader0");
+//     console.log(this.value);
+//     document.querySelector('#volume0').value = this.value;
+//     faderToAmp(0, this.value);
+// }
+// fad1.oninput = function() {
+//     console.log("got fader1");
+//     console.log(this.value);
+//     document.querySelector('#volume1').value = this.value;
+//     faderToAmp(1, this.value);
+// }
+// fad2.oninput = function() {
+//     console.log("got fader2");
+//     console.log(this.value);
+//     document.querySelector('#volume2').value = this.value;
+//     faderToAmp(2, this.value);
+// }
+// fad3.oninput = function() {
+//     console.log("got fader3");
+//     console.log(this.value);
+//     document.querySelector('#volume3').value = this.value;
+//     faderToAmp(3, this.value);
+// }
 
