@@ -2,6 +2,7 @@ module PageIndices exposing
     ( Author(..)
     , PageIndices
     , authorIndex
+    , authors
     , authorsInOrder
     , default
     , fromTuples
@@ -47,7 +48,7 @@ rotate n l =
     List.drop modN l ++ List.take modN l
 
 
-columnOrder =
+authors =
     [ David, Gerhard, Luc, Ludvig ]
 
 
@@ -68,7 +69,7 @@ authorIndex author =
 
 authorsInOrder : PageIndices -> List Author
 authorsInOrder i =
-    rotate i.rotation columnOrder
+    rotate i.rotation authors
 
 
 default =

@@ -4489,6 +4489,9 @@ var $elm$core$Set$toList = function (_v0) {
 var $elm$core$Basics$EQ = {$: 'EQ'};
 var $elm$core$Basics$GT = {$: 'GT'};
 var $elm$core$Basics$LT = {$: 'LT'};
+var $author$project$Main$BufferLoaderCreated = function (a) {
+	return {$: 'BufferLoaderCreated', a: a};
+};
 var $author$project$Main$ClickedLink = function (a) {
 	return {$: 'ClickedLink', a: a};
 };
@@ -6122,6 +6125,10 @@ var $elm$core$Task$perform = F2(
 	});
 var $elm$browser$Browser$application = _Browser_application;
 var $elm$core$Platform$Sub$batch = _Platform_batch;
+var $elm$json$Json$Decode$null = _Json_decodeNull;
+var $author$project$Main$bufferLoaderCreated = _Platform_incomingPort(
+	'bufferLoaderCreated',
+	$elm$json$Json$Decode$null(_Utils_Tuple0));
 var $author$project$PageIndices$PageIndices = F5(
 	function (le, dp, ge, ld, rotation) {
 		return {dp: dp, ge: ge, ld: ld, le: le, rotation: rotation};
@@ -7516,7 +7523,61 @@ var $mdgriffith$elm_animator$Animator$toSubscription = F3(
 		var isRunning = _v0.a;
 		return isRunning(model) ? $elm$browser$Browser$Events$onAnimationFrame(toMsg) : $elm$core$Platform$Sub$none;
 	});
+var $author$project$Main$calcDistance = F3(
+	function (currentIdx, textIdx, maxIdx) {
+		var distance = $elm$core$Basics$abs(textIdx - currentIdx);
+		var reverseDistance = maxIdx - distance;
+		return A2($elm$core$Basics$min, distance, reverseDistance);
+	});
 var $author$project$Main$config = {scrollInc: 0.1, transitionDepth: 1.0, transitionDur: 1};
+var $author$project$Main$distanceToOpacity = function (d) {
+	return (_Utils_cmp(d, $author$project$Main$config.transitionDepth) > -1) ? 0.0 : (($author$project$Main$config.transitionDepth - d) / $author$project$Main$config.transitionDepth);
+};
+var $author$project$PageIndices$getIndex = F2(
+	function (author, indices) {
+		switch (author.$) {
+			case 'Luc':
+				return indices.ld;
+			case 'Gerhard':
+				return indices.ge;
+			case 'David':
+				return indices.dp;
+			default:
+				return indices.le;
+		}
+	});
+var $author$project$Main$ampArray = F3(
+	function (indices, author, maxIdx) {
+		var authorIdx = A2($author$project$PageIndices$getIndex, author, indices);
+		return A2(
+			$elm$core$Array$initialize,
+			maxIdx,
+			function (i) {
+				return $author$project$Main$distanceToOpacity(
+					A3($author$project$Main$calcDistance, authorIdx, i, maxIdx));
+			});
+	});
+var $author$project$PageIndices$authorIndex = function (author) {
+	switch (author.$) {
+		case 'David':
+			return 0;
+		case 'Gerhard':
+			return 1;
+		case 'Luc':
+			return 2;
+		default:
+			return 3;
+	}
+};
+var $author$project$Main$authorPan = function (author) {
+	return (-0.7) + ((1.4 / 3) * $author$project$PageIndices$authorIndex(author));
+};
+var $author$project$PageIndices$David = {$: 'David'};
+var $author$project$PageIndices$Gerhard = {$: 'Gerhard'};
+var $author$project$PageIndices$Luc = {$: 'Luc'};
+var $author$project$PageIndices$Ludvig = {$: 'Ludvig'};
+var $author$project$PageIndices$authors = _List_fromArray(
+	[$author$project$PageIndices$David, $author$project$PageIndices$Gerhard, $author$project$PageIndices$Luc, $author$project$PageIndices$Ludvig]);
 var $ianmackenzie$elm_units$Quantity$greaterThan = F2(
 	function (_v0, _v1) {
 		var y = _v0.a;
@@ -8094,19 +8155,6 @@ var $elm_community$basics_extra$Basics$Extra$fractionalModBy = F2(
 	function (modulus, x) {
 		return x - (modulus * $elm$core$Basics$floor(x / modulus));
 	});
-var $author$project$PageIndices$getIndex = F2(
-	function (author, indices) {
-		switch (author.$) {
-			case 'Luc':
-				return indices.ld;
-			case 'Gerhard':
-				return indices.ge;
-			case 'David':
-				return indices.dp;
-			default:
-				return indices.le;
-		}
-	});
 var $elm$core$Basics$round = _Basics_round;
 var $author$project$PageIndices$roundFloat = function (f) {
 	return function (i) {
@@ -8237,6 +8285,61 @@ var $author$project$Texts$formatPrinting = function (s) {
 var $author$project$Texts$printEntry = A2($elm$core$Basics$composeL, $author$project$Texts$formatPrinting, $author$project$Texts$entryString);
 var $elm$browser$Browser$Navigation$pushUrl = _Browser_pushUrl;
 var $mdgriffith$elm_animator$Animator$seconds = $ianmackenzie$elm_units$Duration$seconds;
+var $elm$core$Elm$JsArray$foldl = _JsArray_foldl;
+var $elm$core$Array$foldl = F3(
+	function (func, baseCase, _v0) {
+		var tree = _v0.c;
+		var tail = _v0.d;
+		var helper = F2(
+			function (node, acc) {
+				if (node.$ === 'SubTree') {
+					var subTree = node.a;
+					return A3($elm$core$Elm$JsArray$foldl, helper, acc, subTree);
+				} else {
+					var values = node.a;
+					return A3($elm$core$Elm$JsArray$foldl, func, acc, values);
+				}
+			});
+		return A3(
+			$elm$core$Elm$JsArray$foldl,
+			func,
+			A3($elm$core$Elm$JsArray$foldl, helper, baseCase, tree),
+			tail);
+	});
+var $elm$json$Json$Encode$array = F2(
+	function (func, entries) {
+		return _Json_wrap(
+			A3(
+				$elm$core$Array$foldl,
+				_Json_addEntry(func),
+				_Json_emptyArray(_Utils_Tuple0),
+				entries));
+	});
+var $elm$json$Json$Encode$float = _Json_wrap;
+var $elm$json$Json$Encode$int = _Json_wrap;
+var $elm$json$Json$Encode$list = F2(
+	function (func, entries) {
+		return _Json_wrap(
+			A3(
+				$elm$core$List$foldl,
+				_Json_addEntry(func),
+				_Json_emptyArray(_Utils_Tuple0),
+				entries));
+	});
+var $author$project$Main$setAmps = _Platform_outgoingPort(
+	'setAmps',
+	function ($) {
+		var a = $.a;
+		var b = $.b;
+		return A2(
+			$elm$json$Json$Encode$list,
+			$elm$core$Basics$identity,
+			_List_fromArray(
+				[
+					$elm$json$Json$Encode$int(a),
+					$elm$json$Json$Encode$array($elm$json$Json$Encode$float)(b)
+				]));
+	});
 var $author$project$Texts$getText = F2(
 	function (author, texts) {
 		switch (author.$) {
@@ -8330,6 +8433,20 @@ var $author$project$Texts$setAuthorTextAt = F4(
 			A2($author$project$Texts$getText, author, texts));
 		return A3($author$project$Texts$setText, author, newLst, texts);
 	});
+var $author$project$Main$setPan = _Platform_outgoingPort(
+	'setPan',
+	function ($) {
+		var a = $.a;
+		var b = $.b;
+		return A2(
+			$elm$json$Json$Encode$list,
+			$elm$core$Basics$identity,
+			_List_fromArray(
+				[
+					$elm$json$Json$Encode$int(a),
+					$elm$json$Json$Encode$float(b)
+				]));
+	});
 var $elm$url$Url$Builder$toQueryPair = function (_v0) {
 	var key = _v0.a;
 	var value = _v0.b;
@@ -8398,6 +8515,32 @@ var $mdgriffith$elm_animator$Animator$update = F3(
 var $author$project$Main$update = F2(
 	function (msg, model) {
 		switch (msg.$) {
+			case 'BufferLoaderCreated':
+				var panCmds = A2(
+					$elm$core$List$map,
+					function (author) {
+						return $author$project$Main$setPan(
+							_Utils_Tuple2(
+								$author$project$PageIndices$authorIndex(author),
+								$author$project$Main$authorPan(author)));
+					},
+					$author$project$PageIndices$authors);
+				var maxIdx = $author$project$Texts$length(model.texts);
+				var indices = $mdgriffith$elm_animator$Animator$current(model.pageIndices);
+				var ampsCmds = A2(
+					$elm$core$List$map,
+					function (author) {
+						return $author$project$Main$setAmps(
+							_Utils_Tuple2(
+								$author$project$PageIndices$authorIndex(author),
+								A3($author$project$Main$ampArray, indices, author, maxIdx)));
+					},
+					$author$project$PageIndices$authors);
+				var _v1 = A2($elm$core$Debug$log, 'buffer loader created', _Utils_Tuple0);
+				return _Utils_Tuple2(
+					model,
+					$elm$core$Platform$Cmd$batch(
+						_Utils_ap(ampsCmds, panCmds)));
 			case 'Scroll':
 				var incDec = msg.a;
 				var author = msg.b;
@@ -8417,7 +8560,7 @@ var $author$project$Main$update = F2(
 				var author = msg.a;
 				var str = msg.b;
 				var entry = $author$project$Texts$fromEditor(str);
-				var _v1 = A2(
+				var _v2 = A2(
 					$elm$core$Debug$log,
 					'Text:',
 					$author$project$Texts$printEntry(entry));
@@ -8463,12 +8606,6 @@ var $author$project$Main$update = F2(
 						$author$project$PageIndices$toUrl(newIndices)));
 		}
 	});
-var $author$project$PageIndices$David = {$: 'David'};
-var $author$project$PageIndices$Gerhard = {$: 'Gerhard'};
-var $author$project$PageIndices$Luc = {$: 'Luc'};
-var $author$project$PageIndices$Ludvig = {$: 'Ludvig'};
-var $author$project$PageIndices$columnOrder = _List_fromArray(
-	[$author$project$PageIndices$David, $author$project$PageIndices$Gerhard, $author$project$PageIndices$Luc, $author$project$PageIndices$Ludvig]);
 var $elm$core$Basics$modBy = _Basics_modBy;
 var $author$project$PageIndices$rotate = F2(
 	function (n, l) {
@@ -8481,7 +8618,7 @@ var $author$project$PageIndices$rotate = F2(
 			A2($elm$core$List$take, modN, l));
 	});
 var $author$project$PageIndices$authorsInOrder = function (i) {
-	return A2($author$project$PageIndices$rotate, i.rotation, $author$project$PageIndices$columnOrder);
+	return A2($author$project$PageIndices$rotate, i.rotation, $author$project$PageIndices$authors);
 };
 var $mdgriffith$elm_ui$Internal$Model$AlignX = function (a) {
 	return {$: 'AlignX', a: a};
@@ -11040,15 +11177,6 @@ var $mdgriffith$elm_ui$Internal$Model$staticRoot = function (opts) {
 				_List_Nil);
 	}
 };
-var $elm$json$Json$Encode$list = F2(
-	function (func, entries) {
-		return _Json_wrap(
-			A3(
-				$elm$core$List$foldl,
-				_Json_addEntry(func),
-				_Json_emptyArray(_Utils_Tuple0),
-				entries));
-	});
 var $elm$json$Json$Encode$object = function (pairs) {
 	return _Json_wrap(
 		A3(
@@ -14381,15 +14509,6 @@ var $mdgriffith$elm_animator$Internal$Interpolate$Position = F2(
 		return {$: 'Position', a: a, b: b};
 	});
 var $mdgriffith$elm_animator$Animator$at = $mdgriffith$elm_animator$Internal$Interpolate$Position($mdgriffith$elm_animator$Internal$Interpolate$FullDefault);
-var $author$project$Main$calcDistance = F3(
-	function (currentIdx, textIdx, maxIdx) {
-		var distance = $elm$core$Basics$abs(textIdx - currentIdx);
-		var reverseDistance = maxIdx - distance;
-		return A2($elm$core$Basics$min, distance, reverseDistance);
-	});
-var $author$project$Main$distanceToOpacity = function (d) {
-	return (_Utils_cmp(d, $author$project$Main$config.transitionDepth) > -1) ? 0.0 : (($author$project$Main$config.transitionDepth - d) / $author$project$Main$config.transitionDepth);
-};
 var $mdgriffith$elm_animator$Animator$Css$Center = {$: 'Center'};
 var $mdgriffith$elm_animator$Animator$Css$defaultTransformOptions = {
 	origin: $mdgriffith$elm_animator$Animator$Css$Center,
@@ -18154,6 +18273,12 @@ var $author$project$Main$main = $elm$browser$Browser$application(
 	{
 		init: F3(
 			function (_v0, url, navKey) {
+				var texts = {
+					dp: $author$project$Texts$textsToList($author$project$Texts$David$texts),
+					ge: $author$project$Texts$textsToList($author$project$Texts$Gerhard$texts),
+					ld: $author$project$Texts$textsToList($author$project$Texts$Luc$texts),
+					le: $author$project$Texts$textsToList($author$project$Texts$Ludvig$texts)
+				};
 				var page = $author$project$Pages$fromUrl(url);
 				return _Utils_Tuple2(
 					{
@@ -18161,12 +18286,7 @@ var $author$project$Main$main = $elm$browser$Browser$application(
 						needsUpdate: false,
 						pageIndices: $mdgriffith$elm_animator$Animator$init(
 							$author$project$Pages$indices(page)),
-						texts: {
-							dp: $author$project$Texts$textsToList($author$project$Texts$David$texts),
-							ge: $author$project$Texts$textsToList($author$project$Texts$Gerhard$texts),
-							ld: $author$project$Texts$textsToList($author$project$Texts$Luc$texts),
-							le: $author$project$Texts$textsToList($author$project$Texts$Ludvig$texts)
-						}
+						texts: texts
 					},
 					$author$project$Pages$withAudio(page) ? $author$project$Main$initAudio(_Utils_Tuple0) : $elm$core$Platform$Cmd$none);
 			}),
@@ -18176,7 +18296,8 @@ var $author$project$Main$main = $elm$browser$Browser$application(
 			return $elm$core$Platform$Sub$batch(
 				_List_fromArray(
 					[
-						A3($mdgriffith$elm_animator$Animator$toSubscription, $author$project$Main$Tick, model, $author$project$Main$animator)
+						A3($mdgriffith$elm_animator$Animator$toSubscription, $author$project$Main$Tick, model, $author$project$Main$animator),
+						$author$project$Main$bufferLoaderCreated($author$project$Main$BufferLoaderCreated)
 					]));
 		},
 		update: $author$project$Main$update,

@@ -118,7 +118,7 @@ let audioCtx;
 let source;
 let bufferLoader;
 
-async function init() {
+async function init(elmInitCallback) {
 
 //    console.log(fad0);
     
@@ -141,7 +141,10 @@ async function init() {
 		    playbuf
 		);
 
+		elmInitCallback.send({});
+		
 		bufferLoader.loadAll( ); // load all audio files 0 and play page 0
+
 		
             })
     }

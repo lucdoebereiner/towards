@@ -18,7 +18,7 @@
      });      
      
      app.ports.initAudio.subscribe(function() {
-	 init();
+	 init(app.ports.bufferLoaderCreated);
      });
     </script>
 

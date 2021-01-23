@@ -48,17 +48,19 @@ main =
                 let
                     page =
                         Pages.fromUrl url
-                in
-                ( { pageIndices =
-                        Animator.init (Pages.indices page)
-                  , navKey = navKey
-                  , needsUpdate = False
-                  , texts =
+
+                    texts =
                         { ge = Texts.textsToList Gerhard.texts
                         , le = Texts.textsToList Ludvig.texts
                         , dp = Texts.textsToList David.texts
                         , ld = Texts.textsToList Luc.texts
                         }
+                in
+                ( { pageIndices =
+                        Animator.init (Pages.indices page)
+                  , navKey = navKey
+                  , needsUpdate = False
+                  , texts = texts
                   }
                 , if Pages.withAudio page then
                     initAudio ()
@@ -73,6 +75,7 @@ main =
                 Sub.batch
                     [ animator
                         |> Animator.toSubscription Tick model
+                    , bufferLoaderCreated BufferLoaderCreated
                     ]
         , onUrlRequest = ClickedLink
         , onUrlChange = UrlChanged
@@ -92,6 +95,9 @@ port setAmps : ( Int, Array Float ) -> Cmd msg
 port setPan : ( Int, Float ) -> Cmd msg
 
 
+port bufferLoaderCreated : (() -> msg) -> Sub msg
+
+
 
 --
 
@@ -103,6 +109,7 @@ type Msg
     | SetPage PageIndices
     | SetEditor Author String
     | Scroll Float Author
+    | BufferLoaderCreated ()
 
 
 incOrDec : Wheel.Event -> Float
@@ -117,6 +124,27 @@ incOrDec wheelEvent =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        BufferLoaderCreated () ->
+            let
+                _ =
+                    Debug.log "buffer loader created" ()
+
+                maxIdx =
+                    Texts.length model.texts
+
+                indices =
+                    Animator.current model.pageIndices
+
+                ampsCmds =
+                    List.map (\author -> setAmps ( PageIndices.authorIndex author, ampArray indices author maxIdx ))
+                        PageIndices.authors
+
+                panCmds =
+                    List.map (\author -> setPan ( PageIndices.authorIndex author, authorPan author ))
+                        PageIndices.authors
+            in
+            ( model, Cmd.batch (ampsCmds ++ panCmds) )
+
         Scroll incDec author ->
             let
                 newIndices =
@@ -178,6 +206,10 @@ animator =
             )
 
 
+
+-- opacity, panning and amplitudes
+
+
 calcDistance : Float -> Int -> Int -> Float
 calcDistance currentIdx textIdx maxIdx =
     let
@@ -199,6 +231,11 @@ distanceToOpacity d =
         (config.transitionDepth - d) / config.transitionDepth
 
 
+authorPan : Author -> Float
+authorPan author =
+    -0.7 + ((1.4 / 3) * PageIndices.authorIndex author)
+
+
 ampArray : PageIndices -> Author -> Int -> Array Float
 ampArray indices author maxIdx =
     let
@@ -206,6 +243,13 @@ ampArray indices author maxIdx =
             PageIndices.getIndex author indices
     in
     Array.initialize maxIdx (\i -> calcDistance authorIdx i maxIdx |> distanceToOpacity)
+
+
+
+-- panAndAmp : PageIndices -> Author -> Int -> ( Float, Array Float )
+-- panAndAmp indices author maxIdx =
+--     ( authorPan author, ampArray indices author maxIdx )
+--
 
 
 textColumn :
