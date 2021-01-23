@@ -20,6 +20,16 @@
      app.ports.initAudio.subscribe(function() {
 	 init(app.ports.bufferLoaderCreated);
      });
+
+
+     app.ports.setAmps.subscribe(function(idxAndAmps) {
+	 bufferLoader.sendAmps(idxAndAmps[0], idxAndAmps[1]);
+     });
+
+     app.ports.setPan.subscribe(function(idxAndPan) {
+	 bufferLoader.sendPan(idxAndPan[0], idxAndPan[1]);
+     });
+
     </script>
 
   </body>

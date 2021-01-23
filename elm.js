@@ -6125,10 +6125,8 @@ var $elm$core$Task$perform = F2(
 	});
 var $elm$browser$Browser$application = _Browser_application;
 var $elm$core$Platform$Sub$batch = _Platform_batch;
-var $elm$json$Json$Decode$null = _Json_decodeNull;
-var $author$project$Main$bufferLoaderCreated = _Platform_incomingPort(
-	'bufferLoaderCreated',
-	$elm$json$Json$Decode$null(_Utils_Tuple0));
+var $elm$json$Json$Decode$bool = _Json_decodeBool;
+var $author$project$Main$bufferLoaderCreated = _Platform_incomingPort('bufferLoaderCreated', $elm$json$Json$Decode$bool);
 var $author$project$PageIndices$PageIndices = F5(
 	function (le, dp, ge, ld, rotation) {
 		return {dp: dp, ge: ge, ld: ld, le: le, rotation: rotation};
@@ -7569,15 +7567,109 @@ var $author$project$PageIndices$authorIndex = function (author) {
 			return 3;
 	}
 };
-var $author$project$Main$authorPan = function (author) {
-	return (-0.7) + ((1.4 / 3) * $author$project$PageIndices$authorIndex(author));
-};
 var $author$project$PageIndices$David = {$: 'David'};
 var $author$project$PageIndices$Gerhard = {$: 'Gerhard'};
 var $author$project$PageIndices$Luc = {$: 'Luc'};
 var $author$project$PageIndices$Ludvig = {$: 'Ludvig'};
 var $author$project$PageIndices$authors = _List_fromArray(
 	[$author$project$PageIndices$David, $author$project$PageIndices$Gerhard, $author$project$PageIndices$Luc, $author$project$PageIndices$Ludvig]);
+var $elm$core$List$maximum = function (list) {
+	if (list.b) {
+		var x = list.a;
+		var xs = list.b;
+		return $elm$core$Maybe$Just(
+			A3($elm$core$List$foldl, $elm$core$Basics$max, x, xs));
+	} else {
+		return $elm$core$Maybe$Nothing;
+	}
+};
+var $author$project$Texts$maxLength = function (lsts) {
+	return A2(
+		$elm$core$Maybe$withDefault,
+		0,
+		$elm$core$List$maximum(
+			A2($elm$core$List$map, $elm$core$List$length, lsts)));
+};
+var $author$project$Texts$length = function (p) {
+	return $author$project$Texts$maxLength(
+		_List_fromArray(
+			[p.ge, p.dp, p.ld, p.le]));
+};
+var $elm$core$Elm$JsArray$foldl = _JsArray_foldl;
+var $elm$core$Array$foldl = F3(
+	function (func, baseCase, _v0) {
+		var tree = _v0.c;
+		var tail = _v0.d;
+		var helper = F2(
+			function (node, acc) {
+				if (node.$ === 'SubTree') {
+					var subTree = node.a;
+					return A3($elm$core$Elm$JsArray$foldl, helper, acc, subTree);
+				} else {
+					var values = node.a;
+					return A3($elm$core$Elm$JsArray$foldl, func, acc, values);
+				}
+			});
+		return A3(
+			$elm$core$Elm$JsArray$foldl,
+			func,
+			A3($elm$core$Elm$JsArray$foldl, helper, baseCase, tree),
+			tail);
+	});
+var $elm$json$Json$Encode$array = F2(
+	function (func, entries) {
+		return _Json_wrap(
+			A3(
+				$elm$core$Array$foldl,
+				_Json_addEntry(func),
+				_Json_emptyArray(_Utils_Tuple0),
+				entries));
+	});
+var $elm$json$Json$Encode$float = _Json_wrap;
+var $elm$json$Json$Encode$int = _Json_wrap;
+var $elm$json$Json$Encode$list = F2(
+	function (func, entries) {
+		return _Json_wrap(
+			A3(
+				$elm$core$List$foldl,
+				_Json_addEntry(func),
+				_Json_emptyArray(_Utils_Tuple0),
+				entries));
+	});
+var $author$project$Main$setAmps = _Platform_outgoingPort(
+	'setAmps',
+	function ($) {
+		var a = $.a;
+		var b = $.b;
+		return A2(
+			$elm$json$Json$Encode$list,
+			$elm$core$Basics$identity,
+			_List_fromArray(
+				[
+					$elm$json$Json$Encode$int(a),
+					$elm$json$Json$Encode$array($elm$json$Json$Encode$float)(b)
+				]));
+	});
+var $author$project$Main$ampsCmd = F2(
+	function (model, indices) {
+		return $elm$core$Platform$Cmd$batch(
+			A2(
+				$elm$core$List$map,
+				function (a) {
+					return $author$project$Main$setAmps(
+						_Utils_Tuple2(
+							$author$project$PageIndices$authorIndex(a),
+							A3(
+								$author$project$Main$ampArray,
+								indices,
+								a,
+								$author$project$Texts$length(model.texts))));
+				},
+				$author$project$PageIndices$authors));
+	});
+var $author$project$Main$authorPan = function (author) {
+	return (-0.7) + ((1.4 / 3) * $author$project$PageIndices$authorIndex(author));
+};
 var $ianmackenzie$elm_units$Quantity$greaterThan = F2(
 	function (_v0, _v1) {
 		var y = _v0.a;
@@ -8192,28 +8284,6 @@ var $author$project$PageIndices$incIndex = F4(
 				inc + A2($author$project$PageIndices$getIndex, author, indices)));
 		return A3($author$project$PageIndices$setIndex, author, newIdx, indices);
 	});
-var $elm$core$List$maximum = function (list) {
-	if (list.b) {
-		var x = list.a;
-		var xs = list.b;
-		return $elm$core$Maybe$Just(
-			A3($elm$core$List$foldl, $elm$core$Basics$max, x, xs));
-	} else {
-		return $elm$core$Maybe$Nothing;
-	}
-};
-var $author$project$Texts$maxLength = function (lsts) {
-	return A2(
-		$elm$core$Maybe$withDefault,
-		0,
-		$elm$core$List$maximum(
-			A2($elm$core$List$map, $elm$core$List$length, lsts)));
-};
-var $author$project$Texts$length = function (p) {
-	return $author$project$Texts$maxLength(
-		_List_fromArray(
-			[p.ge, p.dp, p.ld, p.le]));
-};
 var $elm$core$Debug$log = _Debug_log;
 var $elm$core$List$filter = F2(
 	function (isGood, list) {
@@ -8285,61 +8355,6 @@ var $author$project$Texts$formatPrinting = function (s) {
 var $author$project$Texts$printEntry = A2($elm$core$Basics$composeL, $author$project$Texts$formatPrinting, $author$project$Texts$entryString);
 var $elm$browser$Browser$Navigation$pushUrl = _Browser_pushUrl;
 var $mdgriffith$elm_animator$Animator$seconds = $ianmackenzie$elm_units$Duration$seconds;
-var $elm$core$Elm$JsArray$foldl = _JsArray_foldl;
-var $elm$core$Array$foldl = F3(
-	function (func, baseCase, _v0) {
-		var tree = _v0.c;
-		var tail = _v0.d;
-		var helper = F2(
-			function (node, acc) {
-				if (node.$ === 'SubTree') {
-					var subTree = node.a;
-					return A3($elm$core$Elm$JsArray$foldl, helper, acc, subTree);
-				} else {
-					var values = node.a;
-					return A3($elm$core$Elm$JsArray$foldl, func, acc, values);
-				}
-			});
-		return A3(
-			$elm$core$Elm$JsArray$foldl,
-			func,
-			A3($elm$core$Elm$JsArray$foldl, helper, baseCase, tree),
-			tail);
-	});
-var $elm$json$Json$Encode$array = F2(
-	function (func, entries) {
-		return _Json_wrap(
-			A3(
-				$elm$core$Array$foldl,
-				_Json_addEntry(func),
-				_Json_emptyArray(_Utils_Tuple0),
-				entries));
-	});
-var $elm$json$Json$Encode$float = _Json_wrap;
-var $elm$json$Json$Encode$int = _Json_wrap;
-var $elm$json$Json$Encode$list = F2(
-	function (func, entries) {
-		return _Json_wrap(
-			A3(
-				$elm$core$List$foldl,
-				_Json_addEntry(func),
-				_Json_emptyArray(_Utils_Tuple0),
-				entries));
-	});
-var $author$project$Main$setAmps = _Platform_outgoingPort(
-	'setAmps',
-	function ($) {
-		var a = $.a;
-		var b = $.b;
-		return A2(
-			$elm$json$Json$Encode$list,
-			$elm$core$Basics$identity,
-			_List_fromArray(
-				[
-					$elm$json$Json$Encode$int(a),
-					$elm$json$Json$Encode$array($elm$json$Json$Encode$float)(b)
-				]));
-	});
 var $author$project$Texts$getText = F2(
 	function (author, texts) {
 		switch (author.$) {
@@ -8516,6 +8531,7 @@ var $author$project$Main$update = F2(
 	function (msg, model) {
 		switch (msg.$) {
 			case 'BufferLoaderCreated':
+				var b = msg.a;
 				var panCmds = A2(
 					$elm$core$List$map,
 					function (author) {
@@ -8527,20 +8543,12 @@ var $author$project$Main$update = F2(
 					$author$project$PageIndices$authors);
 				var maxIdx = $author$project$Texts$length(model.texts);
 				var indices = $mdgriffith$elm_animator$Animator$current(model.pageIndices);
-				var ampsCmds = A2(
-					$elm$core$List$map,
-					function (author) {
-						return $author$project$Main$setAmps(
-							_Utils_Tuple2(
-								$author$project$PageIndices$authorIndex(author),
-								A3($author$project$Main$ampArray, indices, author, maxIdx)));
-					},
-					$author$project$PageIndices$authors);
-				var _v1 = A2($elm$core$Debug$log, 'buffer loader created', _Utils_Tuple0);
+				var amps = A2($author$project$Main$ampsCmd, model, indices);
+				var _v1 = A2($elm$core$Debug$log, 'buffer loader created', b);
 				return _Utils_Tuple2(
 					model,
 					$elm$core$Platform$Cmd$batch(
-						_Utils_ap(ampsCmds, panCmds)));
+						A2($elm$core$List$cons, amps, panCmds)));
 			case 'Scroll':
 				var incDec = msg.a;
 				var author = msg.b;
@@ -8585,6 +8593,8 @@ var $author$project$Main$update = F2(
 				return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
 			case 'UrlChanged':
 				var url = msg.a;
+				var newIndices = $author$project$PageIndices$fromUrl(url);
+				var amps = A2($author$project$Main$ampsCmd, model, newIndices);
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
@@ -8592,10 +8602,10 @@ var $author$project$Main$update = F2(
 							pageIndices: A3(
 								$mdgriffith$elm_animator$Animator$go,
 								$mdgriffith$elm_animator$Animator$seconds($author$project$Main$config.transitionDur),
-								$author$project$PageIndices$fromUrl(url),
+								newIndices,
 								model.pageIndices)
 						}),
-					$elm$core$Platform$Cmd$none);
+					amps);
 			default:
 				var newIndices = msg.a;
 				return _Utils_Tuple2(
@@ -16676,7 +16686,6 @@ var $mpizenberg$elm_pointer_events$Internal$Decode$Keys = F3(
 	function (alt, ctrl, shift) {
 		return {alt: alt, ctrl: ctrl, shift: shift};
 	});
-var $elm$json$Json$Decode$bool = _Json_decodeBool;
 var $elm$json$Json$Decode$map3 = _Json_map3;
 var $mpizenberg$elm_pointer_events$Internal$Decode$keys = A4(
 	$elm$json$Json$Decode$map3,

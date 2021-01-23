@@ -35,6 +35,7 @@ class BufferLoader {
     }
 
     sendAmps(index, amps) {
+	console.log(index, amps);
 	this.node.port.postMessage({amps: [index, amps]});
     }
 
@@ -141,7 +142,7 @@ async function init(elmInitCallback) {
 		    playbuf
 		);
 
-		elmInitCallback.send({});
+		elmInitCallback.send(true);
 		
 		bufferLoader.loadAll( ); // load all audio files 0 and play page 0
 

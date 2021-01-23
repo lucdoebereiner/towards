@@ -95,7 +95,7 @@ port setAmps : ( Int, Array Float ) -> Cmd msg
 port setPan : ( Int, Float ) -> Cmd msg
 
 
-port bufferLoaderCreated : (() -> msg) -> Sub msg
+port bufferLoaderCreated : (Bool -> msg) -> Sub msg
 
 
 
@@ -109,7 +109,7 @@ type Msg
     | SetPage PageIndices
     | SetEditor Author String
     | Scroll Float Author
-    | BufferLoaderCreated ()
+    | BufferLoaderCreated Bool
 
 
 incOrDec : Wheel.Event -> Float
@@ -121,13 +121,25 @@ incOrDec wheelEvent =
         1.0
 
 
+ampsCmd model indices =
+    List.map
+        (\a ->
+            setAmps
+                ( PageIndices.authorIndex a
+                , ampArray indices a (Texts.length model.texts)
+                )
+        )
+        PageIndices.authors
+        |> Cmd.batch
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        BufferLoaderCreated () ->
+        BufferLoaderCreated b ->
             let
                 _ =
-                    Debug.log "buffer loader created" ()
+                    Debug.log "buffer loader created" b
 
                 maxIdx =
                     Texts.length model.texts
@@ -135,15 +147,20 @@ update msg model =
                 indices =
                     Animator.current model.pageIndices
 
-                ampsCmds =
-                    List.map (\author -> setAmps ( PageIndices.authorIndex author, ampArray indices author maxIdx ))
-                        PageIndices.authors
+                amps =
+                    ampsCmd model indices
 
                 panCmds =
-                    List.map (\author -> setPan ( PageIndices.authorIndex author, authorPan author ))
+                    List.map
+                        (\author ->
+                            setPan
+                                ( PageIndices.authorIndex author
+                                , authorPan author
+                                )
+                        )
                         PageIndices.authors
             in
-            ( model, Cmd.batch (ampsCmds ++ panCmds) )
+            ( model, Cmd.batch (amps :: panCmds) )
 
         Scroll incDec author ->
             let
@@ -152,8 +169,16 @@ update msg model =
                         (config.scrollInc * incDec)
                         (Texts.length model.texts)
                         (Animator.current model.pageIndices)
+
+                -- amps =
+                --     ampsCmd model newIndices
             in
-            ( model, Nav.pushUrl model.navKey (PageIndices.toUrl newIndices) )
+            ( model
+            , --Cmd.batch
+              Nav.pushUrl model.navKey (PageIndices.toUrl newIndices)
+              -- , amps
+              -- ]
+            )
 
         SetEditor author str ->
             let
@@ -183,18 +208,35 @@ update msg model =
             ( model, Cmd.none )
 
         UrlChanged url ->
+            let
+                newIndices =
+                    PageIndices.fromUrl url
+
+                amps =
+                    ampsCmd model newIndices
+            in
             ( { model
                 | pageIndices =
                     model.pageIndices
                         |> Animator.go
                             (Animator.seconds config.transitionDur)
-                            (PageIndices.fromUrl url)
+                            newIndices
               }
-            , Cmd.none
+            , amps
             )
 
         SetPage newIndices ->
-            ( model, Nav.pushUrl model.navKey (PageIndices.toUrl newIndices) )
+            -- let
+            --     amps =
+            --         ampsCmd model newIndices
+            -- in
+            ( model
+            , Nav.pushUrl
+                model.navKey
+                (PageIndices.toUrl newIndices)
+              -- , amps
+              -- ]
+            )
 
 
 animator : Animator.Animator Model
