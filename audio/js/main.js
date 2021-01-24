@@ -14,10 +14,14 @@ class BufferLoader {
 	this.shBuf = [];
 	this.page2l = 0;
 	this.index2l = 0;
+	this.sr = this.context.sampleRate;
+	console.log("sr : ");
+	console.log(this.sr);
+	this.node.port.postMessage({init: [pageNum, this.sr]});
 	for (var i = 0; i < 4; ++i) {
 	    this.shBuf[i] = [];
 	    for (var j = 0; j < pageNum; ++j) {
-		this.shBuf[i][j] = new SharedArrayBuffer(4 * 48000 * 60); // 32 bit floats
+		this.shBuf[i][j] = new SharedArrayBuffer(4 * this.sr * 60); // 32 bit floats
 	    }
 	}
 	this.shArray = [];
@@ -27,7 +31,7 @@ class BufferLoader {
 		this.shArray[i][j] = new Float32Array(this.shBuf[i][j]); // 32 bit floats
 	    }
 	}
-	this.node.port.postMessage({init: pageNum});
+
     }
 
     sendBuffer(page, index){
@@ -64,7 +68,7 @@ class BufferLoader {
 			return;
 		    }
 		    var chdata = buffer.getChannelData(0);
-		    for (var i = 0; i<48000 * 60; ++i) {
+		    for (var i = 0; i<loader.sr * 60; ++i) {
 			loader.shArray[index][page][i] = chdata[i];
 		    };
 		    loader.index2l = loader.index2l + 1;
