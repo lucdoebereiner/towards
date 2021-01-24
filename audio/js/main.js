@@ -127,20 +127,26 @@ async function init(elmInitCallback) {
 
 //    console.log(fad0);
     
-    if (navigator.mediaDevices) {
-        navigator.mediaDevices.getUserMedia ({audio: true, video: false})
-            .then(async function(stream) {
+    // if (navigator.mediaDevices) {
+    //     navigator.mediaDevices.getUserMedia ({audio: true, video: false})
+    //         .then(async function(stream) {
 		
                 audioCtx = new AudioContext();                      
-                source = audioCtx.createMediaStreamSource(stream);
+                // source = audioCtx.createMediaStreamSource(stream);
                 
                 await audioCtx.audioWorklet.addModule('audio/js/playbuf.js');
-		
-                const playbuf = new AudioWorkletNode(audioCtx,'playbufprocessor');
 
-		source.connect(playbuf); 
+		// if we want the mik
+                // const playbuf = new AudioWorkletNode(audioCtx,'playbufprocessor');
+		// source.connect(playbuf);
+
+		// if we don't ask for mik
+                const playbuf = new AudioWorkletNode(audioCtx,'playbufprocessor', {
+		    numberOfOutputs: 2,
+		});
                 playbuf.connect(audioCtx.destination);
-		
+
+				
 		bufferLoader = new BufferLoader(
 		    audioCtx,
 		    playbuf
@@ -149,10 +155,10 @@ async function init(elmInitCallback) {
 		elmInitCallback.send(true);
 		
 		bufferLoader.loadAll( ); // load all audio files 0 and play page 0
-
-		
-            })
-    }
+ 
+    
+    //         })
+    // }
 
 }
 
