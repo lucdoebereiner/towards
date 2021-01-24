@@ -38,6 +38,7 @@ type alias Model =
     , navKey : Nav.Key
     , needsUpdate : Bool
     , texts : Texts
+    , audioInitialized : Bool
     }
 
 
@@ -61,12 +62,13 @@ main =
                   , navKey = navKey
                   , needsUpdate = False
                   , texts = texts
+                  , audioInitialized = False
                   }
-                , if Pages.withAudio page then
-                    initAudio ()
-
-                  else
-                    Cmd.none
+                , Cmd.none
+                  -- , if Pages.withAudio page then
+                  --     initAudio ()
+                  --   else
+                  --     Cmd.none
                 )
         , view = view
         , update = update
@@ -110,6 +112,7 @@ type Msg
     | SetEditor Author String
     | Scroll Float Author
     | BufferLoaderCreated Bool
+    | InitAudio
 
 
 incOrDec : Wheel.Event -> Float
@@ -136,6 +139,9 @@ ampsCmd model indices =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        InitAudio ->
+            ( { model | audioInitialized = True }, initAudio () )
+
         BufferLoaderCreated b ->
             let
                 _ =
@@ -510,6 +516,11 @@ view model =
                         )
                         (Texts.transposedTexts model.texts)
                 , buttons (Animator.current model.pageIndices) (Texts.length model.texts)
+                , if not model.audioInitialized then
+                    Input.button [] { onPress = Just InitAudio, label = text "Init audio" }
+
+                  else
+                    none
                 , viewEditable model
                 ]
         ]
