@@ -66,11 +66,12 @@ class PlayBufProcessor extends AudioWorkletProcessor {
     
     process (inputs, outputs, parameters) {
 	// console.log("called process");
-        // const output = outputs[0];
+        const output = outputs[0];
         // const input = inputs[0];
-	// console.log(outputs[0][0]);
+	console.log(["outputs : ", output]);
+	console.log(this.pan);
 	if (this.init) {
-            for (let s = 0; s < outputs[0][0].length; s++) {
+            for (let s = 0; s < output[0].length; s++) {
 		let so = [0.0, 0.0, 0.0, 0.0];
 		this.phase = this.phase + 1;
 		this.phase = this.phase % this.length;
@@ -80,14 +81,15 @@ class PlayBufProcessor extends AudioWorkletProcessor {
 		    so[2] = so[2] + this.shArray[2][pp][this.phase] * this.amps[2][pp];
 		    so[3] = so[3] + this.shArray[3][pp][this.phase] * this.amps[3][pp];
 		}
-		outputs[0][0][s] = so[0] * this.pan[0][0] + 
+		output[0][s] = so[0] * this.pan[0][0] + 
 		    so[1] * this.pan[1][0] +
 		    so[2] * this.pan[2][0] +
 		    so[3] * this.pan[3][0];
-		outputs[1][0][s] = so[0] * this.pan[0][1] + 
+		output[1][s] = so[0] * this.pan[0][1] + 
 		    so[1] * this.pan[1][1] +
 		    so[2] * this.pan[2][1] +
 		    so[3] * this.pan[3][1];
+		// output[1][s] = 0.0;
 		// if (this.counter > 4096) { // for debugging 
 		//     // console.log(so);
 		//     // // console.log(this.bufs);

@@ -142,7 +142,8 @@ async function init(elmInitCallback) {
 
 		// if we don't ask for mik
                 const playbuf = new AudioWorkletNode(audioCtx,'playbufprocessor', {
-		    numberOfOutputs: 2,
+		    // numberOfOutputs: 2,
+		    outputChannelCount: [2],
 		});
                 playbuf.connect(audioCtx.destination);
 
