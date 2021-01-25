@@ -9,6 +9,7 @@ module PageIndices exposing
     , fromUrl
     , getIndex
     , incIndex
+    , indicesList
     , indicesParser
     , nextIndex
     , previousIndex
@@ -129,6 +130,11 @@ getIndex author indices =
 
         Ludvig ->
             indices.le
+
+
+indicesList : PageIndices -> List Float
+indicesList i =
+    List.map (\a -> getIndex a i) authors
 
 
 setIndex : Author -> Float -> PageIndices -> PageIndices

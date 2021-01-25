@@ -123,7 +123,7 @@ let audioCtx;
 let source;
 let bufferLoader;
 
-async function init(elmInitCallback) {
+async function init(indices, elmInitCallback) {
 
 //    console.log(fad0);
     

@@ -22,6 +22,7 @@ import Pages
 import Texts exposing (Entry, Texts)
 import Texts.David as David
 import Texts.Gerhard as Gerhard
+import Texts.Intro as Intro
 import Texts.Luc as Luc
 import Texts.Ludvig as Ludvig
 import Time
@@ -33,12 +34,18 @@ config =
     { scrollInc = 0.1, transitionDur = 1, transitionDepth = 1.0 }
 
 
+type InitStatus
+    = Uninitialized
+    | WithAudio
+    | WithoutAudio
+
+
 type alias Model =
     { pageIndices : Animator.Timeline PageIndices
     , navKey : Nav.Key
     , needsUpdate : Bool
     , texts : Texts
-    , audioInitialized : Bool
+    , initStatus : InitStatus
     }
 
 
@@ -62,13 +69,14 @@ main =
                   , navKey = navKey
                   , needsUpdate = False
                   , texts = texts
-                  , audioInitialized = False
+                  , initStatus =
+                        if not <| Pages.withAudio page then
+                            WithoutAudio
+
+                        else
+                            Uninitialized
                   }
                 , Cmd.none
-                  -- , if Pages.withAudio page then
-                  --     initAudio ()
-                  --   else
-                  --     Cmd.none
                 )
         , view = view
         , update = update
@@ -88,7 +96,7 @@ main =
 --
 
 
-port initAudio : () -> Cmd msg
+port initAudio : List Float -> Cmd msg
 
 
 port setAmps : ( Int, Array Float ) -> Cmd msg
@@ -125,22 +133,27 @@ incOrDec wheelEvent =
 
 
 ampsCmd model indices =
-    List.map
-        (\a ->
-            setAmps
-                ( PageIndices.authorIndex a
-                , ampArray indices a (Texts.length model.texts)
+    case model.initStatus of
+        WithAudio ->
+            List.map
+                (\a ->
+                    setAmps
+                        ( PageIndices.authorIndex a
+                        , ampArray indices a (Texts.length model.texts)
+                        )
                 )
-        )
-        PageIndices.authors
-        |> Cmd.batch
+                PageIndices.authors
+                |> Cmd.batch
+
+        _ ->
+            Cmd.none
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         InitAudio ->
-            ( { model | audioInitialized = True }, initAudio () )
+            ( model, initAudio (PageIndices.indicesList (Animator.current model.pageIndices)) )
 
         BufferLoaderCreated b ->
             let
@@ -166,7 +179,7 @@ update msg model =
                         )
                         PageIndices.authors
             in
-            ( model, Cmd.batch (amps :: panCmds) )
+            ( { model | initStatus = WithAudio }, Cmd.batch (amps :: panCmds) )
 
         Scroll incDec author ->
             let
@@ -483,6 +496,52 @@ viewEditable m =
             ]
 
 
+introPage : Element Msg
+introPage =
+    column [ width fill, spacing 20 ]
+        [ Intro.texts
+        , Input.button [ padding 10, Border.width 1 ]
+            { onPress = Just InitAudio, label = text "Init audio" }
+        ]
+
+
+viewColumns : Model -> Element Msg
+viewColumns model =
+    column [ width fill, spacingXY 0 20 ] <|
+        [ matryoshka <|
+            List.indexedMap
+                (\i l ->
+                    case l of
+                        [ d, g, luc, ludvig ] ->
+                            iteration model.pageIndices
+                                i
+                                (Texts.length model.texts)
+                                { ld = luc, dp = d, ge = g, le = ludvig }
+
+                        _ ->
+                            let
+                                _ =
+                                    Debug.log "l" l
+                            in
+                            text "Problem"
+                )
+                (Texts.transposedTexts model.texts)
+        , buttons (Animator.current model.pageIndices)
+            (Texts.length model.texts)
+        , viewEditable model
+        ]
+
+
+viewMainContent : Model -> Element Msg
+viewMainContent model =
+    case model.initStatus of
+        Uninitialized ->
+            introPage
+
+        _ ->
+            viewColumns model
+
+
 view : Model -> Browser.Document Msg
 view model =
     { title = "Towards"
@@ -496,32 +555,6 @@ view model =
                 [ Font.monospace ]
             ]
           <|
-            column [ width fill, spacingXY 0 20 ] <|
-                [ matryoshka <|
-                    List.indexedMap
-                        (\i l ->
-                            case l of
-                                [ d, g, luc, ludvig ] ->
-                                    iteration model.pageIndices
-                                        i
-                                        (Texts.length model.texts)
-                                        { ld = luc, dp = d, ge = g, le = ludvig }
-
-                                _ ->
-                                    let
-                                        _ =
-                                            Debug.log "l" l
-                                    in
-                                    text "Problem"
-                        )
-                        (Texts.transposedTexts model.texts)
-                , buttons (Animator.current model.pageIndices) (Texts.length model.texts)
-                , if not model.audioInitialized then
-                    Input.button [] { onPress = Just InitAudio, label = text "Init audio" }
-
-                  else
-                    none
-                , viewEditable model
-                ]
+            viewMainContent model
         ]
     }

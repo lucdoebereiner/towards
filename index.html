@@ -17,8 +17,8 @@
 	 node: document.getElementById('app')
      });      
      
-     app.ports.initAudio.subscribe(function() {
-	 init(app.ports.bufferLoaderCreated);
+     app.ports.initAudio.subscribe(function(indices) {
+	 init(indices,app.ports.bufferLoaderCreated);
      });
 
 
