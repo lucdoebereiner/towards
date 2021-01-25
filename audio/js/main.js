@@ -2,6 +2,7 @@
 // import { BufferLoader } from 'js/bufferloader.js'; // doesn't work : hate
 
 const pageNum = 50;
+const duration = 60;
 
 class BufferLoader {
 
@@ -21,7 +22,7 @@ class BufferLoader {
 	for (var i = 0; i < 4; ++i) {
 	    this.shBuf[i] = [];
 	    for (var j = 0; j < pageNum; ++j) {
-		this.shBuf[i][j] = new SharedArrayBuffer(4 * this.sr * 60); // 32 bit floats
+		this.shBuf[i][j] = new SharedArrayBuffer(4 * this.sr * duration); // 32 bit floats
 	    }
 	}
 	this.shArray = [];
@@ -53,12 +54,12 @@ class BufferLoader {
 	var url = "audio/files/page" + page + "/" + this.names[index] + ".mp3";
 
 	console.log(url);
-	
+
 	request.open("GET", url, true);
 	request.responseType = "arraybuffer";
 
 	var loader = this;
-	
+
 	request.onload = function() {
 	    loader.context.decodeAudioData(
 		request.response,
@@ -68,7 +69,7 @@ class BufferLoader {
 			return;
 		    }
 		    var chdata = buffer.getChannelData(0);
-		    for (var i = 0; i<loader.sr * 60; ++i) {
+		    for (var i = 0; i<loader.sr * duration; ++i) {
 			loader.shArray[index][page][i] = chdata[i];
 		    };
 		    loader.index2l = loader.index2l + 1;
@@ -80,7 +81,7 @@ class BufferLoader {
 			loader.sendBuffer(loader.page2l - 1, 2);
 			loader.sendBuffer(loader.page2l - 1, 3);
 		    }
-		    if (loader.page2l < 50) {
+		    if (loader.page2l < pageNum) {
 			// console.log("calling next");
 			loader.loadBuffer(loader.page2l, loader.index2l);
 		    }
@@ -126,14 +127,14 @@ let bufferLoader;
 async function init(indices, elmInitCallback) {
 
 //    console.log(fad0);
-    
+
     // if (navigator.mediaDevices) {
     //     navigator.mediaDevices.getUserMedia ({audio: true, video: false})
     //         .then(async function(stream) {
-		
-                audioCtx = new AudioContext();                      
+
+                audioCtx = new AudioContext();
                 // source = audioCtx.createMediaStreamSource(stream);
-                
+
                 await audioCtx.audioWorklet.addModule('audio/js/playbuf.js');
 
 		// if we want the mik
@@ -147,17 +148,17 @@ async function init(indices, elmInitCallback) {
 		});
                 playbuf.connect(audioCtx.destination);
 
-				
+
 		bufferLoader = new BufferLoader(
 		    audioCtx,
 		    playbuf
 		);
 
 		elmInitCallback.send(true);
-		
+
 		bufferLoader.loadAll( ); // load all audio files 0 and play page 0
- 
-    
+
+
     //         })
     // }
 
@@ -207,4 +208,3 @@ async function init(indices, elmInitCallback) {
 //     document.querySelector('#volume3').value = this.value;
 //     faderToAmp(3, this.value);
 // }
-
