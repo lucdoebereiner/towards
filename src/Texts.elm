@@ -8,6 +8,7 @@ module Texts exposing
     , getText
     , indexTexts
     , length
+    , lineOfCharN
     , nlClip
     , noNl
     , padOrNl
@@ -236,6 +237,11 @@ entryString e =
 printEntry : Entry -> String
 printEntry =
     formatPrinting << entryString
+
+
+lineOfCharN : Int -> Entry -> Maybe String
+lineOfCharN n entry =
+    entryString entry |> String.lines |> L.getAt (n // 40)
 
 
 type alias EntryWithIndex =
