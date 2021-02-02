@@ -17,6 +17,7 @@ import Html.Attributes as Attributes
 import Html.Events
 import Html.Events.Extra.Wheel as Wheel
 import List.Extra as L
+import Luc.TextGen
 import PageIndices exposing (Author(..), PageIndices)
 import Pages
 import Texts exposing (Entry, Texts)
@@ -61,7 +62,13 @@ main =
                         { ge = Texts.textsToList Gerhard.texts
                         , le = Texts.textsToList Ludvig.texts
                         , dp = Texts.textsToList David.texts
-                        , ld = Texts.textsToList Luc.texts
+                        , ld =
+                            Luc.TextGen.generateEntries
+                                (Luc.TextGen.Probabilities 0.5 0.2 0.0)
+                                (Texts.textsToList Gerhard.texts)
+                                (Texts.textsToList Ludvig.texts)
+
+                        --Texts.textsToList Luc.texts
                         }
                 in
                 ( { pageIndices =

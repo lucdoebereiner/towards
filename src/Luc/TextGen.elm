@@ -1,7 +1,9 @@
-module Luc.TextGen exposing (entries, rule1)
+module Luc.TextGen exposing (Probabilities, entries, generateEntries, rule1)
 
 import Array exposing (Array)
+import List.Extra as L
 import Maybe.Extra as M
+import Random
 import Texts exposing (Entry)
 
 
@@ -130,10 +132,10 @@ rule1 : Bool -> Bool -> Bool -> Bool -> Bool
 rule1 prevIt lL lR prevChar =
     case [ prevIt, lL, lR, prevChar ] of
         [ False, False, False, False ] ->
-            True
+            False
 
         [ False, False, False, True ] ->
-            True
+            False
 
         [ False, False, True, False ] ->
             False
@@ -179,3 +181,182 @@ rule1 prevIt lL lR prevChar =
 
         _ ->
             False
+
+
+
+-- "clouds"
+
+
+type alias CharState =
+    { potential : Bool
+    , active : Bool
+    , visible : Bool
+    }
+
+
+nextCharState : List Bool -> CharState -> CharState
+nextCharState neighborsOn c =
+    { potential = c.potential && not c.active
+    , active =
+        not c.active
+            && c.potential
+            && List.any identity neighborsOn
+    , visible = c.visible || c.active
+    }
+
+
+type alias Probabilities =
+    { extProb : Float
+    , potentialProb : Float
+    , activeProb : Float
+    }
+
+
+probCharState : Random.Seed -> Probabilities -> CharState -> ( CharState, Random.Seed )
+probCharState seed probs state =
+    Random.map3
+        (\p1 p2 p3 ->
+            { potential = state.potential || p1 < probs.potentialProb
+            , active = state.active || p2 < probs.activeProb
+            , visible = state.visible && p3 > probs.extProb
+            }
+        )
+        probability
+        probability
+        probability
+        |> (\g -> Random.step g seed)
+
+
+neighbors : Int -> Entry -> Entry -> Array CharState -> List Bool
+neighbors c left right previous =
+    let
+        fromPrev i =
+            Maybe.map .visible <| Array.get i previous
+
+        leftNeighbor =
+            case modBy 40 c of
+                0 ->
+                    Texts.lineOfCharN c left
+                        |> Maybe.map (not << String.endsWith " ")
+
+                _ ->
+                    Nothing
+
+        --fromPrev (c - )1
+        rightNeighbor =
+            case modBy 40 c of
+                39 ->
+                    Texts.lineOfCharN c right
+                        |> Maybe.map (not << String.startsWith " ")
+
+                _ ->
+                    Nothing
+
+        --fromPrev (c + 1)
+        -- _ =
+        --     Debug.log "neighbors left and right" ( c, leftNeighbor, rightNeighbor )
+        topNeighbor =
+            fromPrev (c - 40)
+
+        bottomNeighbor =
+            fromPrev (c + 40)
+    in
+    List.map (Maybe.withDefault False)
+        [ leftNeighbor
+        , rightNeighbor
+        , topNeighbor
+        , bottomNeighbor
+        , fromPrev (c - 1)
+        , fromPrev (c + 1)
+        , fromPrev (c - 2)
+        , fromPrev (c + 2)
+        ]
+
+
+probability : Random.Generator Float
+probability =
+    Random.float 0 1
+
+
+initStates : Float -> Random.Seed -> ( Array CharState, Random.Seed )
+initStates prob seed =
+    let
+        ( lst, newSeed ) =
+            Random.step (Random.list (40 * 30) probability) seed
+    in
+    ( lst
+        |> List.map (\p -> CharState (p < prob) False False)
+        |> Array.fromList
+    , newSeed
+    )
+
+
+
+-- probCharState : Random.Seed -> Probabilities -> CharState -> ( CharState, Random.Seed )
+-- probCharState seed probs state =
+
+
+flipTuple : ( a, b ) -> ( b, a )
+flipTuple ( a, b ) =
+    ( b, a )
+
+
+applyProbs :
+    Random.Seed
+    -> Probabilities
+    -> Array CharState
+    -> ( Array CharState, Random.Seed )
+applyProbs seed probs array =
+    let
+        ( newSeed, states ) =
+            L.mapAccuml
+                (\s c ->
+                    probCharState s probs c |> flipTuple
+                )
+                seed
+                (Array.toList array)
+    in
+    ( Array.fromList states, newSeed )
+
+
+generateEntries : Probabilities -> List Entry -> List Entry -> List Entry
+generateEntries probs left right =
+    let
+        initState =
+            Array.repeat (40 * 30) (CharState False False False)
+
+        nextGen p l r seed =
+            case ( l, r ) of
+                ( thisL :: restL, thisR :: restR ) ->
+                    let
+                        nextEntry =
+                            Array.indexedMap
+                                (\i state ->
+                                    nextCharState
+                                        (neighbors i thisL thisR p)
+                                        state
+                                )
+                                p
+
+                        ( withProbs, newSeed ) =
+                            applyProbs seed probs nextEntry
+                    in
+                    withProbs :: nextGen withProbs restL restR newSeed
+
+                _ ->
+                    []
+    in
+    List.map
+        (\a ->
+            (Texts.noNl << stringFromArray) <|
+                Array.map
+                    (\s ->
+                        if s.visible then
+                            'x'
+
+                        else
+                            ' '
+                    )
+                    a
+        )
+        (nextGen initState left right (Random.initialSeed 0))
