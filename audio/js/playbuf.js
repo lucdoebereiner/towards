@@ -1,12 +1,11 @@
-const duration = 60;
-
 class PlayBufProcessor extends AudioWorkletProcessor {
 
     constructor (...args) {
 	super(...args);
 	this.phase = 0;
 	this.sr = 48000;
-	this.length = this.sr * duration;
+	this.duration = 60;
+	this.length = this.sr * this.duration;
 	this.amps = [];
 	this.pan = [[0.9, 0.1], [0.65, 0.35], [0.35, 0.65], [0.1, 0.9]];
 	this.pageNum = 0;
@@ -23,12 +22,13 @@ class PlayBufProcessor extends AudioWorkletProcessor {
 		// console.log(e.data.init);
 		this.pageNum = e.data.init[0];
 		this.sr = e.data.init[1];
-		this.length = this.sr * duration;
+		this.duration = e.data.init[2];
+		this.length = this.sr * this.duration;
 		for (var i = 0;  i < 4; ++i) {
 		    this.shArray[i] = [];
 		    this.amps[i] = [];
 		    for (var j = 0;  j < this.pageNum; ++j) {
-			this.shArray[i][j] = new Float32Array(this.sr * duration);
+			this.shArray[i][j] = new Float32Array(this.sr * this.duration);
 			this.amps[i][j] = 0.0;
 		    }
 		}

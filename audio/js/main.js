@@ -18,7 +18,7 @@ class BufferLoader {
 	this.loadIndices = [];
 	// console.log("sr : ");
 	// console.log(this.sr);
-	this.node.port.postMessage({init: [pageNum, this.sr]});
+	this.node.port.postMessage({init: [pageNum, this.sr, duration]});
 	for (var i = 0; i < 4; ++i) {
 	    this.shBuf[i] = [];
 	    for (var j = 0; j < pageNum; ++j) {
