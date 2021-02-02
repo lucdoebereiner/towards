@@ -7585,31 +7585,9 @@ var $elm$core$Basics$modBy = _Basics_modBy;
 var $elm$core$Basics$not = _Basics_not;
 var $author$project$Luc$TextGen$neighbors = F4(
 	function (c, left, right, previous) {
-		var fromPrev = function (i) {
-			return A2(
-				$elm$core$Maybe$map,
-				function ($) {
-					return $.visible;
-				},
-				A2($elm$core$Array$get, i, previous));
-		};
-		var leftNeighbor = function () {
-			var _v1 = A2($elm$core$Basics$modBy, 40, c);
-			if (!_v1) {
-				return A2(
-					$elm$core$Maybe$map,
-					A2(
-						$elm$core$Basics$composeL,
-						$elm$core$Basics$not,
-						$elm$core$String$endsWith(' ')),
-					A2($author$project$Texts$lineOfCharN, c, left));
-			} else {
-				return fromPrev(c - 1);
-			}
-		}();
 		var rightNeighbor = function () {
-			var _v0 = A2($elm$core$Basics$modBy, 40, c);
-			if (_v0 === 39) {
+			var _v1 = A2($elm$core$Basics$modBy, 40, c);
+			if (_v1 === 39) {
 				return A2(
 					$elm$core$Maybe$map,
 					A2(
@@ -7618,16 +7596,47 @@ var $author$project$Luc$TextGen$neighbors = F4(
 						$elm$core$String$startsWith(' ')),
 					A2($author$project$Texts$lineOfCharN, c, right));
 			} else {
-				return fromPrev(c + 1);
+				return $elm$core$Maybe$Nothing;
 			}
 		}();
+		var leftNeighbor = function () {
+			var _v0 = A2($elm$core$Basics$modBy, 40, c);
+			if (!_v0) {
+				return A2(
+					$elm$core$Maybe$map,
+					A2(
+						$elm$core$Basics$composeL,
+						$elm$core$Basics$not,
+						$elm$core$String$endsWith(' ')),
+					A2($author$project$Texts$lineOfCharN, c, left));
+			} else {
+				return $elm$core$Maybe$Nothing;
+			}
+		}();
+		var fromPrev = function (i) {
+			return A2(
+				$elm$core$Maybe$map,
+				function ($) {
+					return $.visible;
+				},
+				A2($elm$core$Array$get, i, previous));
+		};
 		var topNeighbor = fromPrev(c - 40);
 		var bottomNeighbor = fromPrev(c + 40);
 		return A2(
 			$elm$core$List$map,
 			$elm$core$Maybe$withDefault(false),
 			_List_fromArray(
-				[leftNeighbor, rightNeighbor, topNeighbor, bottomNeighbor]));
+				[
+					leftNeighbor,
+					rightNeighbor,
+					topNeighbor,
+					bottomNeighbor,
+					fromPrev(c - 1),
+					fromPrev(c + 1),
+					fromPrev(c - 2),
+					fromPrev(c + 2)
+				]));
 	});
 var $elm$core$List$any = F2(
 	function (isOkay, list) {
@@ -18800,7 +18809,7 @@ var $author$project$Main$main = $elm$browser$Browser$application(
 					ge: $author$project$Texts$textsToList($author$project$Texts$Gerhard$texts),
 					ld: A3(
 						$author$project$Luc$TextGen$generateEntries,
-						A3($author$project$Luc$TextGen$Probabilities, 0.5, 0.5, 0.0),
+						A3($author$project$Luc$TextGen$Probabilities, 0.5, 0.2, 0.0),
 						$author$project$Texts$textsToList($author$project$Texts$Gerhard$texts),
 						$author$project$Texts$textsToList($author$project$Texts$Ludvig$texts)),
 					le: $author$project$Texts$textsToList($author$project$Texts$Ludvig$texts)

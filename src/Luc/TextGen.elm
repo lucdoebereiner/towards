@@ -240,8 +240,9 @@ neighbors c left right previous =
                         |> Maybe.map (not << String.endsWith " ")
 
                 _ ->
-                    fromPrev (c - 1)
+                    Nothing
 
+        --fromPrev (c - )1
         rightNeighbor =
             case modBy 40 c of
                 39 ->
@@ -249,8 +250,9 @@ neighbors c left right previous =
                         |> Maybe.map (not << String.startsWith " ")
 
                 _ ->
-                    fromPrev (c + 1)
+                    Nothing
 
+        --fromPrev (c + 1)
         -- _ =
         --     Debug.log "neighbors left and right" ( c, leftNeighbor, rightNeighbor )
         topNeighbor =
@@ -264,6 +266,10 @@ neighbors c left right previous =
         , rightNeighbor
         , topNeighbor
         , bottomNeighbor
+        , fromPrev (c - 1)
+        , fromPrev (c + 1)
+        , fromPrev (c - 2)
+        , fromPrev (c + 2)
         ]
 
 

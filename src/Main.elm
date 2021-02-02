@@ -64,7 +64,7 @@ main =
                         , dp = Texts.textsToList David.texts
                         , ld =
                             Luc.TextGen.generateEntries
-                                (Luc.TextGen.Probabilities 0.5 0.5 0.0)
+                                (Luc.TextGen.Probabilities 0.5 0.2 0.0)
                                 (Texts.textsToList Gerhard.texts)
                                 (Texts.textsToList Ludvig.texts)
 
