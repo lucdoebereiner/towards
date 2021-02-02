@@ -4496,6 +4496,10 @@ var $author$project$Main$ClickedLink = function (a) {
 	return {$: 'ClickedLink', a: a};
 };
 var $elm$core$Basics$False = {$: 'False'};
+var $author$project$Luc$TextGen$Probabilities = F3(
+	function (extProb, potentialProb, activeProb) {
+		return {activeProb: activeProb, extProb: extProb, potentialProb: potentialProb};
+	});
 var $author$project$Main$Tick = function (a) {
 	return {$: 'Tick', a: a};
 };
@@ -6997,49 +7001,294 @@ var $author$project$Pages$fromUrl = function (url) {
 				A2($elm$url$Url$Parser$questionMark, $author$project$PageIndices$indicesParser, $author$project$Pages$audio)),
 			url));
 };
-var $author$project$Pages$indices = function (_v0) {
-	var i = _v0.a;
-	return i;
+var $author$project$Luc$TextGen$CharState = F3(
+	function (potential, active, visible) {
+		return {active: active, potential: potential, visible: visible};
+	});
+var $author$project$Luc$TextGen$flipTuple = function (_v0) {
+	var a = _v0.a;
+	var b = _v0.b;
+	return _Utils_Tuple2(b, a);
 };
-var $elm$time$Time$Posix = function (a) {
-	return {$: 'Posix', a: a};
-};
-var $elm$time$Time$millisToPosix = $elm$time$Time$Posix;
-var $mdgriffith$elm_animator$Animator$init = function (first) {
-	return $mdgriffith$elm_animator$Internal$Timeline$Timeline(
-		{
-			events: $mdgriffith$elm_animator$Internal$Timeline$Timetable(_List_Nil),
-			initial: first,
-			interruption: _List_Nil,
-			now: $mdgriffith$elm_animator$Internal$Time$absolute(
-				$elm$time$Time$millisToPosix(0)),
-			queued: $elm$core$Maybe$Nothing,
-			running: true
-		});
-};
-var $elm$core$Platform$Cmd$batch = _Platform_batch;
-var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
-var $elm$core$Basics$not = _Basics_not;
-var $author$project$Texts$NoNl = function (a) {
-	return {$: 'NoNl', a: a};
-};
-var $author$project$Texts$insertNewlinesEveryN = F2(
-	function (n, s) {
-		if (s === '') {
-			return '';
-		} else {
-			var str = s;
-			return A2($elm$core$String$left, n, str) + ('\n' + A2(
-				$author$project$Texts$insertNewlinesEveryN,
-				n,
-				A2($elm$core$String$dropLeft, n, str)));
+var $elm$core$Array$fromListHelp = F3(
+	function (list, nodeList, nodeListSize) {
+		fromListHelp:
+		while (true) {
+			var _v0 = A2($elm$core$Elm$JsArray$initializeFromList, $elm$core$Array$branchFactor, list);
+			var jsArray = _v0.a;
+			var remainingItems = _v0.b;
+			if (_Utils_cmp(
+				$elm$core$Elm$JsArray$length(jsArray),
+				$elm$core$Array$branchFactor) < 0) {
+				return A2(
+					$elm$core$Array$builderToArray,
+					true,
+					{nodeList: nodeList, nodeListSize: nodeListSize, tail: jsArray});
+			} else {
+				var $temp$list = remainingItems,
+					$temp$nodeList = A2(
+					$elm$core$List$cons,
+					$elm$core$Array$Leaf(jsArray),
+					nodeList),
+					$temp$nodeListSize = nodeListSize + 1;
+				list = $temp$list;
+				nodeList = $temp$nodeList;
+				nodeListSize = $temp$nodeListSize;
+				continue fromListHelp;
+			}
 		}
+	});
+var $elm$core$Array$fromList = function (list) {
+	if (!list.b) {
+		return $elm$core$Array$empty;
+	} else {
+		return A3($elm$core$Array$fromListHelp, list, _List_Nil, 0);
+	}
+};
+var $elm_community$list_extra$List$Extra$mapAccuml = F3(
+	function (f, acc0, list) {
+		var _v0 = A3(
+			$elm$core$List$foldl,
+			F2(
+				function (x, _v1) {
+					var acc1 = _v1.a;
+					var ys = _v1.b;
+					var _v2 = A2(f, acc1, x);
+					var acc2 = _v2.a;
+					var y = _v2.b;
+					return _Utils_Tuple2(
+						acc2,
+						A2($elm$core$List$cons, y, ys));
+				}),
+			_Utils_Tuple2(acc0, _List_Nil),
+			list);
+		var accFinal = _v0.a;
+		var generatedList = _v0.b;
+		return _Utils_Tuple2(
+			accFinal,
+			$elm$core$List$reverse(generatedList));
+	});
+var $elm$random$Random$Generator = function (a) {
+	return {$: 'Generator', a: a};
+};
+var $elm$random$Random$map3 = F4(
+	function (func, _v0, _v1, _v2) {
+		var genA = _v0.a;
+		var genB = _v1.a;
+		var genC = _v2.a;
+		return $elm$random$Random$Generator(
+			function (seed0) {
+				var _v3 = genA(seed0);
+				var a = _v3.a;
+				var seed1 = _v3.b;
+				var _v4 = genB(seed1);
+				var b = _v4.a;
+				var seed2 = _v4.b;
+				var _v5 = genC(seed2);
+				var c = _v5.a;
+				var seed3 = _v5.b;
+				return _Utils_Tuple2(
+					A3(func, a, b, c),
+					seed3);
+			});
+	});
+var $elm$core$Bitwise$and = _Bitwise_and;
+var $elm$random$Random$Seed = F2(
+	function (a, b) {
+		return {$: 'Seed', a: a, b: b};
+	});
+var $elm$core$Bitwise$shiftRightZfBy = _Bitwise_shiftRightZfBy;
+var $elm$random$Random$next = function (_v0) {
+	var state0 = _v0.a;
+	var incr = _v0.b;
+	return A2($elm$random$Random$Seed, ((state0 * 1664525) + incr) >>> 0, incr);
+};
+var $elm$core$Bitwise$xor = _Bitwise_xor;
+var $elm$random$Random$peel = function (_v0) {
+	var state = _v0.a;
+	var word = (state ^ (state >>> ((state >>> 28) + 4))) * 277803737;
+	return ((word >>> 22) ^ word) >>> 0;
+};
+var $elm$random$Random$float = F2(
+	function (a, b) {
+		return $elm$random$Random$Generator(
+			function (seed0) {
+				var seed1 = $elm$random$Random$next(seed0);
+				var range = $elm$core$Basics$abs(b - a);
+				var n1 = $elm$random$Random$peel(seed1);
+				var n0 = $elm$random$Random$peel(seed0);
+				var lo = (134217727 & n1) * 1.0;
+				var hi = (67108863 & n0) * 1.0;
+				var val = ((hi * 134217728.0) + lo) / 9007199254740992.0;
+				var scaled = (val * range) + a;
+				return _Utils_Tuple2(
+					scaled,
+					$elm$random$Random$next(seed1));
+			});
+	});
+var $author$project$Luc$TextGen$probability = A2($elm$random$Random$float, 0, 1);
+var $elm$random$Random$step = F2(
+	function (_v0, seed) {
+		var generator = _v0.a;
+		return generator(seed);
+	});
+var $author$project$Luc$TextGen$probCharState = F3(
+	function (seed, probs, state) {
+		return function (g) {
+			return A2($elm$random$Random$step, g, seed);
+		}(
+			A4(
+				$elm$random$Random$map3,
+				F3(
+					function (p1, p2, p3) {
+						return {
+							active: state.active || (_Utils_cmp(p2, probs.activeProb) < 0),
+							potential: state.potential || (_Utils_cmp(p1, probs.potentialProb) < 0),
+							visible: state.visible && (_Utils_cmp(p3, probs.extProb) > 0)
+						};
+					}),
+				$author$project$Luc$TextGen$probability,
+				$author$project$Luc$TextGen$probability,
+				$author$project$Luc$TextGen$probability));
+	});
+var $author$project$Luc$TextGen$applyProbs = F3(
+	function (seed, probs, array) {
+		var _v0 = A3(
+			$elm_community$list_extra$List$Extra$mapAccuml,
+			F2(
+				function (s, c) {
+					return $author$project$Luc$TextGen$flipTuple(
+						A3($author$project$Luc$TextGen$probCharState, s, probs, c));
+				}),
+			seed,
+			$elm$core$Array$toList(array));
+		var newSeed = _v0.a;
+		var states = _v0.b;
+		return _Utils_Tuple2(
+			$elm$core$Array$fromList(states),
+			newSeed);
+	});
+var $elm$core$Basics$composeL = F3(
+	function (g, f, x) {
+		return g(
+			f(x));
+	});
+var $elm$core$Elm$JsArray$foldl = _JsArray_foldl;
+var $elm$core$Elm$JsArray$indexedMap = _JsArray_indexedMap;
+var $elm$core$Bitwise$shiftLeftBy = _Bitwise_shiftLeftBy;
+var $elm$core$Array$tailIndex = function (len) {
+	return (len >>> 5) << 5;
+};
+var $elm$core$Array$indexedMap = F2(
+	function (func, _v0) {
+		var len = _v0.a;
+		var tree = _v0.c;
+		var tail = _v0.d;
+		var initialBuilder = {
+			nodeList: _List_Nil,
+			nodeListSize: 0,
+			tail: A3(
+				$elm$core$Elm$JsArray$indexedMap,
+				func,
+				$elm$core$Array$tailIndex(len),
+				tail)
+		};
+		var helper = F2(
+			function (node, builder) {
+				if (node.$ === 'SubTree') {
+					var subTree = node.a;
+					return A3($elm$core$Elm$JsArray$foldl, helper, builder, subTree);
+				} else {
+					var leaf = node.a;
+					var offset = builder.nodeListSize * $elm$core$Array$branchFactor;
+					var mappedLeaf = $elm$core$Array$Leaf(
+						A3($elm$core$Elm$JsArray$indexedMap, func, offset, leaf));
+					return {
+						nodeList: A2($elm$core$List$cons, mappedLeaf, builder.nodeList),
+						nodeListSize: builder.nodeListSize + 1,
+						tail: builder.tail
+					};
+				}
+			});
+		return A2(
+			$elm$core$Array$builderToArray,
+			true,
+			A3($elm$core$Elm$JsArray$foldl, helper, initialBuilder, tree));
+	});
+var $elm$random$Random$initialSeed = function (x) {
+	var _v0 = $elm$random$Random$next(
+		A2($elm$random$Random$Seed, 0, 1013904223));
+	var state1 = _v0.a;
+	var incr = _v0.b;
+	var state2 = (state1 + x) >>> 0;
+	return $elm$random$Random$next(
+		A2($elm$random$Random$Seed, state2, incr));
+};
+var $elm$core$Elm$JsArray$map = _JsArray_map;
+var $elm$core$Array$map = F2(
+	function (func, _v0) {
+		var len = _v0.a;
+		var startShift = _v0.b;
+		var tree = _v0.c;
+		var tail = _v0.d;
+		var helper = function (node) {
+			if (node.$ === 'SubTree') {
+				var subTree = node.a;
+				return $elm$core$Array$SubTree(
+					A2($elm$core$Elm$JsArray$map, helper, subTree));
+			} else {
+				var values = node.a;
+				return $elm$core$Array$Leaf(
+					A2($elm$core$Elm$JsArray$map, func, values));
+			}
+		};
+		return A4(
+			$elm$core$Array$Array_elm_builtin,
+			len,
+			startShift,
+			A2($elm$core$Elm$JsArray$map, helper, tree),
+			A2($elm$core$Elm$JsArray$map, func, tail));
+	});
+var $elm$core$String$endsWith = _String_endsWith;
+var $elm$core$Array$bitMask = 4294967295 >>> (32 - $elm$core$Array$shiftStep);
+var $elm$core$Elm$JsArray$unsafeGet = _JsArray_unsafeGet;
+var $elm$core$Array$getHelp = F3(
+	function (shift, index, tree) {
+		getHelp:
+		while (true) {
+			var pos = $elm$core$Array$bitMask & (index >>> shift);
+			var _v0 = A2($elm$core$Elm$JsArray$unsafeGet, pos, tree);
+			if (_v0.$ === 'SubTree') {
+				var subTree = _v0.a;
+				var $temp$shift = shift - $elm$core$Array$shiftStep,
+					$temp$index = index,
+					$temp$tree = subTree;
+				shift = $temp$shift;
+				index = $temp$index;
+				tree = $temp$tree;
+				continue getHelp;
+			} else {
+				var values = _v0.a;
+				return A2($elm$core$Elm$JsArray$unsafeGet, $elm$core$Array$bitMask & index, values);
+			}
+		}
+	});
+var $elm$core$Array$get = F2(
+	function (index, _v0) {
+		var len = _v0.a;
+		var startShift = _v0.b;
+		var tree = _v0.c;
+		var tail = _v0.d;
+		return ((index < 0) || (_Utils_cmp(index, len) > -1)) ? $elm$core$Maybe$Nothing : ((_Utils_cmp(
+			index,
+			$elm$core$Array$tailIndex(len)) > -1) ? $elm$core$Maybe$Just(
+			A2($elm$core$Elm$JsArray$unsafeGet, $elm$core$Array$bitMask & index, tail)) : $elm$core$Maybe$Just(
+			A3($elm$core$Array$getHelp, startShift, index, tree)));
 	});
 var $elm$core$String$cons = _String_cons;
 var $elm$core$String$fromChar = function (_char) {
 	return A2($elm$core$String$cons, _char, '');
 };
-var $elm$core$Bitwise$and = _Bitwise_and;
 var $elm$core$Bitwise$shiftRightBy = _Bitwise_shiftRightBy;
 var $elm$core$String$repeatHelp = F3(
 	function (n, chunk, result) {
@@ -7061,65 +7310,6 @@ var $elm$core$String$padRight = F3(
 				$elm$core$String$repeat,
 				n - $elm$core$String$length(string),
 				$elm$core$String$fromChar(_char)));
-	});
-var $elm$core$String$replace = F3(
-	function (before, after, string) {
-		return A2(
-			$elm$core$String$join,
-			after,
-			A2($elm$core$String$split, before, string));
-	});
-var $author$project$Texts$formatNoNl = function (s) {
-	return A2(
-		$author$project$Texts$insertNewlinesEveryN,
-		40,
-		A3(
-			$elm$core$String$padRight,
-			40 * 30,
-			_Utils_chr(' '),
-			A2(
-				$elm$core$String$left,
-				40 * 30,
-				A3($elm$core$String$replace, '\n', '', s))));
-};
-var $author$project$Texts$noNl = function (s) {
-	return $author$project$Texts$NoNl(
-		$author$project$Texts$formatNoNl(s));
-};
-var $author$project$Texts$David$texts = _List_fromArray(
-	[
-		_Utils_Tuple2(
-		0,
-		$author$project$Texts$noNl('test1 david')),
-		_Utils_Tuple2(
-		9,
-		$author$project$Texts$noNl('test2'))
-	]);
-var $author$project$Texts$Gerhard$texts = _List_fromArray(
-	[
-		_Utils_Tuple2(
-		0,
-		$author$project$Texts$noNl('test1 gerhard')),
-		_Utils_Tuple2(
-		9,
-		$author$project$Texts$noNl('test2'))
-	]);
-var $author$project$Texts$Luc$texts = _List_fromArray(
-	[
-		_Utils_Tuple2(
-		0,
-		$author$project$Texts$noNl('test1 luc')),
-		_Utils_Tuple2(
-		9,
-		$author$project$Texts$noNl('test2'))
-	]);
-var $author$project$Texts$NlClip = function (a) {
-	return {$: 'NlClip', a: a};
-};
-var $elm$core$Basics$composeL = F3(
-	function (g, f, x) {
-		return g(
-			f(x));
 	});
 var $author$project$Texts$emptyLine = A3(
 	$elm$core$String$padRight,
@@ -7281,6 +7471,328 @@ var $author$project$Texts$ensureLength = F3(
 		}
 	});
 var $elm$core$String$lines = _String_lines;
+var $elm$core$List$filter = F2(
+	function (isGood, list) {
+		return A3(
+			$elm$core$List$foldr,
+			F2(
+				function (x, xs) {
+					return isGood(x) ? A2($elm$core$List$cons, x, xs) : xs;
+				}),
+			_List_Nil,
+			list);
+	});
+var $author$project$Texts$insertNewlinesEveryN = F2(
+	function (n, s) {
+		if (s === '') {
+			return '';
+		} else {
+			var str = s;
+			return A2($elm$core$String$left, n, str) + ('\n' + A2(
+				$author$project$Texts$insertNewlinesEveryN,
+				n,
+				A2($elm$core$String$dropLeft, n, str)));
+		}
+	});
+var $elm$core$String$replace = F3(
+	function (before, after, string) {
+		return A2(
+			$elm$core$String$join,
+			after,
+			A2($elm$core$String$split, before, string));
+	});
+var $author$project$Texts$padOrNl = function (s) {
+	var withoutNl = A3($elm$core$String$replace, '\n', '', s);
+	return ($elm$core$String$length(withoutNl) < 40) ? _List_fromArray(
+		[
+			A3(
+			$elm$core$String$padRight,
+			40,
+			_Utils_chr(' '),
+			withoutNl)
+		]) : A2(
+		$elm$core$List$filter,
+		function (str) {
+			return $elm$core$String$length(str) > 0;
+		},
+		$elm$core$String$lines(
+			A2($author$project$Texts$insertNewlinesEveryN, 40, withoutNl)));
+};
+var $author$project$Texts$formatEditor = function (s) {
+	return A2(
+		$elm$core$String$left,
+		40 * 30,
+		A2(
+			$elm$core$String$join,
+			'\n',
+			A3(
+				$author$project$Texts$ensureLength,
+				30,
+				$author$project$Texts$emptyLine,
+				A2(
+					$elm$core$List$concatMap,
+					$author$project$Texts$padOrNl,
+					$elm$core$String$lines(s)))));
+};
+var $author$project$Texts$entryString = function (e) {
+	switch (e.$) {
+		case 'NoNl':
+			var s = e.a;
+			return s;
+		case 'NlClip':
+			var s = e.a;
+			return s;
+		default:
+			var s = e.a;
+			return $author$project$Texts$formatEditor(s);
+	}
+};
+var $elm$core$List$drop = F2(
+	function (n, list) {
+		drop:
+		while (true) {
+			if (n <= 0) {
+				return list;
+			} else {
+				if (!list.b) {
+					return list;
+				} else {
+					var x = list.a;
+					var xs = list.b;
+					var $temp$n = n - 1,
+						$temp$list = xs;
+					n = $temp$n;
+					list = $temp$list;
+					continue drop;
+				}
+			}
+		}
+	});
+var $elm_community$list_extra$List$Extra$getAt = F2(
+	function (idx, xs) {
+		return (idx < 0) ? $elm$core$Maybe$Nothing : $elm$core$List$head(
+			A2($elm$core$List$drop, idx, xs));
+	});
+var $author$project$Texts$lineOfCharN = F2(
+	function (n, entry) {
+		return A2(
+			$elm_community$list_extra$List$Extra$getAt,
+			(n / 40) | 0,
+			$elm$core$String$lines(
+				$author$project$Texts$entryString(entry)));
+	});
+var $elm$core$Basics$modBy = _Basics_modBy;
+var $elm$core$Basics$not = _Basics_not;
+var $author$project$Luc$TextGen$neighbors = F4(
+	function (c, left, right, previous) {
+		var fromPrev = function (i) {
+			return A2(
+				$elm$core$Maybe$map,
+				function ($) {
+					return $.visible;
+				},
+				A2($elm$core$Array$get, i, previous));
+		};
+		var leftNeighbor = function () {
+			var _v1 = A2($elm$core$Basics$modBy, 40, c);
+			if (!_v1) {
+				return A2(
+					$elm$core$Maybe$map,
+					A2(
+						$elm$core$Basics$composeL,
+						$elm$core$Basics$not,
+						$elm$core$String$endsWith(' ')),
+					A2($author$project$Texts$lineOfCharN, c, left));
+			} else {
+				return fromPrev(c - 1);
+			}
+		}();
+		var rightNeighbor = function () {
+			var _v0 = A2($elm$core$Basics$modBy, 40, c);
+			if (_v0 === 39) {
+				return A2(
+					$elm$core$Maybe$map,
+					A2(
+						$elm$core$Basics$composeL,
+						$elm$core$Basics$not,
+						$elm$core$String$startsWith(' ')),
+					A2($author$project$Texts$lineOfCharN, c, right));
+			} else {
+				return fromPrev(c + 1);
+			}
+		}();
+		var topNeighbor = fromPrev(c - 40);
+		var bottomNeighbor = fromPrev(c + 40);
+		return A2(
+			$elm$core$List$map,
+			$elm$core$Maybe$withDefault(false),
+			_List_fromArray(
+				[leftNeighbor, rightNeighbor, topNeighbor, bottomNeighbor]));
+	});
+var $elm$core$List$any = F2(
+	function (isOkay, list) {
+		any:
+		while (true) {
+			if (!list.b) {
+				return false;
+			} else {
+				var x = list.a;
+				var xs = list.b;
+				if (isOkay(x)) {
+					return true;
+				} else {
+					var $temp$isOkay = isOkay,
+						$temp$list = xs;
+					isOkay = $temp$isOkay;
+					list = $temp$list;
+					continue any;
+				}
+			}
+		}
+	});
+var $author$project$Luc$TextGen$nextCharState = F2(
+	function (neighborsOn, c) {
+		return {
+			active: (!c.active) && (c.potential && A2($elm$core$List$any, $elm$core$Basics$identity, neighborsOn)),
+			potential: c.potential && (!c.active),
+			visible: c.visible || c.active
+		};
+	});
+var $author$project$Texts$NoNl = function (a) {
+	return {$: 'NoNl', a: a};
+};
+var $author$project$Texts$formatNoNl = function (s) {
+	return A2(
+		$author$project$Texts$insertNewlinesEveryN,
+		40,
+		A3(
+			$elm$core$String$padRight,
+			40 * 30,
+			_Utils_chr(' '),
+			A2(
+				$elm$core$String$left,
+				40 * 30,
+				A3($elm$core$String$replace, '\n', '', s))));
+};
+var $author$project$Texts$noNl = function (s) {
+	return $author$project$Texts$NoNl(
+		$author$project$Texts$formatNoNl(s));
+};
+var $elm$core$Array$repeat = F2(
+	function (n, e) {
+		return A2(
+			$elm$core$Array$initialize,
+			n,
+			function (_v0) {
+				return e;
+			});
+	});
+var $elm$core$String$fromList = _String_fromList;
+var $author$project$Luc$TextGen$stringFromArray = function (a) {
+	return $elm$core$String$fromList(
+		$elm$core$Array$toList(a));
+};
+var $author$project$Luc$TextGen$generateEntries = F3(
+	function (probs, left, right) {
+		var nextGen = F4(
+			function (p, l, r, seed) {
+				var _v0 = _Utils_Tuple2(l, r);
+				if (_v0.a.b && _v0.b.b) {
+					var _v1 = _v0.a;
+					var thisL = _v1.a;
+					var restL = _v1.b;
+					var _v2 = _v0.b;
+					var thisR = _v2.a;
+					var restR = _v2.b;
+					var nextEntry = A2(
+						$elm$core$Array$indexedMap,
+						F2(
+							function (i, state) {
+								return A2(
+									$author$project$Luc$TextGen$nextCharState,
+									A4($author$project$Luc$TextGen$neighbors, i, thisL, thisR, p),
+									state);
+							}),
+						p);
+					var _v3 = A3($author$project$Luc$TextGen$applyProbs, seed, probs, nextEntry);
+					var withProbs = _v3.a;
+					var newSeed = _v3.b;
+					return A2(
+						$elm$core$List$cons,
+						withProbs,
+						A4(nextGen, withProbs, restL, restR, newSeed));
+				} else {
+					return _List_Nil;
+				}
+			});
+		var initState = A2(
+			$elm$core$Array$repeat,
+			40 * 30,
+			A3($author$project$Luc$TextGen$CharState, false, false, false));
+		return A2(
+			$elm$core$List$map,
+			function (a) {
+				return A3(
+					$elm$core$Basics$composeL,
+					$author$project$Texts$noNl,
+					$author$project$Luc$TextGen$stringFromArray,
+					A2(
+						$elm$core$Array$map,
+						function (s) {
+							return s.visible ? _Utils_chr('x') : _Utils_chr(' ');
+						},
+						a));
+			},
+			A4(
+				nextGen,
+				initState,
+				left,
+				right,
+				$elm$random$Random$initialSeed(0)));
+	});
+var $author$project$Pages$indices = function (_v0) {
+	var i = _v0.a;
+	return i;
+};
+var $elm$time$Time$Posix = function (a) {
+	return {$: 'Posix', a: a};
+};
+var $elm$time$Time$millisToPosix = $elm$time$Time$Posix;
+var $mdgriffith$elm_animator$Animator$init = function (first) {
+	return $mdgriffith$elm_animator$Internal$Timeline$Timeline(
+		{
+			events: $mdgriffith$elm_animator$Internal$Timeline$Timetable(_List_Nil),
+			initial: first,
+			interruption: _List_Nil,
+			now: $mdgriffith$elm_animator$Internal$Time$absolute(
+				$elm$time$Time$millisToPosix(0)),
+			queued: $elm$core$Maybe$Nothing,
+			running: true
+		});
+};
+var $elm$core$Platform$Cmd$batch = _Platform_batch;
+var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
+var $author$project$Texts$David$texts = _List_fromArray(
+	[
+		_Utils_Tuple2(
+		0,
+		$author$project$Texts$noNl('test1 david')),
+		_Utils_Tuple2(
+		9,
+		$author$project$Texts$noNl('test2'))
+	]);
+var $author$project$Texts$Gerhard$texts = _List_fromArray(
+	[
+		_Utils_Tuple2(
+		0,
+		$author$project$Texts$noNl('test1 gerhard')),
+		_Utils_Tuple2(
+		9,
+		$author$project$Texts$noNl('test2'))
+	]);
+var $author$project$Texts$NlClip = function (a) {
+	return {$: 'NlClip', a: a};
+};
 var $author$project$Texts$formatNlClip = function (s) {
 	return A2(
 		$elm$core$String$join,
@@ -7310,23 +7822,17 @@ var $author$project$Texts$Ludvig$texts = _List_fromArray(
 		0,
 		$author$project$Texts$noNl('test1 ludvig')),
 		_Utils_Tuple2(
+		1,
+		$author$project$Texts$noNl('test2 ludvig')),
+		_Utils_Tuple2(
+		2,
+		$author$project$Texts$noNl('test3 ludvig')),
+		_Utils_Tuple2(
 		9,
 		$author$project$Texts$nlClip('test2\nanother line\n\nand another one'))
 	]);
 var $author$project$Texts$emptyEntry = $author$project$Texts$noNl(
 	A2($elm$core$String$repeat, 40 * 30, ' '));
-var $elm$core$Array$repeat = F2(
-	function (n, e) {
-		return A2(
-			$elm$core$Array$initialize,
-			n,
-			function (_v0) {
-				return e;
-			});
-	});
-var $elm$core$Bitwise$shiftRightZfBy = _Bitwise_shiftRightZfBy;
-var $elm$core$Array$bitMask = 4294967295 >>> (32 - $elm$core$Array$shiftStep);
-var $elm$core$Elm$JsArray$unsafeGet = _JsArray_unsafeGet;
 var $elm$core$Elm$JsArray$unsafeSet = _JsArray_unsafeSet;
 var $elm$core$Array$setHelp = F4(
 	function (shift, index, value, tree) {
@@ -7350,10 +7856,6 @@ var $elm$core$Array$setHelp = F4(
 				tree);
 		}
 	});
-var $elm$core$Bitwise$shiftLeftBy = _Bitwise_shiftLeftBy;
-var $elm$core$Array$tailIndex = function (len) {
-	return (len >>> 5) << 5;
-};
 var $elm$core$Array$set = F3(
 	function (index, value, array) {
 		var len = array.a;
@@ -7593,7 +8095,6 @@ var $author$project$Texts$length = function (p) {
 		_List_fromArray(
 			[p.ge, p.dp, p.ld, p.le]));
 };
-var $elm$core$Elm$JsArray$foldl = _JsArray_foldl;
 var $elm$core$Array$foldl = F3(
 	function (func, baseCase, _v0) {
 		var tree = _v0.c;
@@ -8299,63 +8800,6 @@ var $author$project$Main$initAudio = _Platform_outgoingPort(
 	'initAudio',
 	$elm$json$Json$Encode$list($elm$json$Json$Encode$float));
 var $elm$core$Debug$log = _Debug_log;
-var $elm$core$List$filter = F2(
-	function (isGood, list) {
-		return A3(
-			$elm$core$List$foldr,
-			F2(
-				function (x, xs) {
-					return isGood(x) ? A2($elm$core$List$cons, x, xs) : xs;
-				}),
-			_List_Nil,
-			list);
-	});
-var $author$project$Texts$padOrNl = function (s) {
-	var withoutNl = A3($elm$core$String$replace, '\n', '', s);
-	return ($elm$core$String$length(withoutNl) < 40) ? _List_fromArray(
-		[
-			A3(
-			$elm$core$String$padRight,
-			40,
-			_Utils_chr(' '),
-			withoutNl)
-		]) : A2(
-		$elm$core$List$filter,
-		function (str) {
-			return $elm$core$String$length(str) > 0;
-		},
-		$elm$core$String$lines(
-			A2($author$project$Texts$insertNewlinesEveryN, 40, withoutNl)));
-};
-var $author$project$Texts$formatEditor = function (s) {
-	return A2(
-		$elm$core$String$left,
-		40 * 30,
-		A2(
-			$elm$core$String$join,
-			'\n',
-			A3(
-				$author$project$Texts$ensureLength,
-				30,
-				$author$project$Texts$emptyLine,
-				A2(
-					$elm$core$List$concatMap,
-					$author$project$Texts$padOrNl,
-					$elm$core$String$lines(s)))));
-};
-var $author$project$Texts$entryString = function (e) {
-	switch (e.$) {
-		case 'NoNl':
-			var s = e.a;
-			return s;
-		case 'NlClip':
-			var s = e.a;
-			return s;
-		default:
-			var s = e.a;
-			return $author$project$Texts$formatEditor(s);
-	}
-};
 var $author$project$Texts$formatPrinting = function (s) {
 	return A3(
 		$elm$core$String$padRight,
@@ -8380,27 +8824,6 @@ var $author$project$Texts$getText = F2(
 				return texts.dp;
 			default:
 				return texts.le;
-		}
-	});
-var $elm$core$List$drop = F2(
-	function (n, list) {
-		drop:
-		while (true) {
-			if (n <= 0) {
-				return list;
-			} else {
-				if (!list.b) {
-					return list;
-				} else {
-					var x = list.a;
-					var xs = list.b;
-					var $temp$n = n - 1,
-						$temp$list = xs;
-					n = $temp$n;
-					list = $temp$list;
-					continue drop;
-				}
-			}
 		}
 	});
 var $elm_community$list_extra$List$Extra$updateAt = F3(
@@ -11282,27 +11705,6 @@ var $elm$json$Json$Encode$object = function (pairs) {
 			_Json_emptyObject(_Utils_Tuple0),
 			pairs));
 };
-var $elm$core$List$any = F2(
-	function (isOkay, list) {
-		any:
-		while (true) {
-			if (!list.b) {
-				return false;
-			} else {
-				var x = list.a;
-				var xs = list.b;
-				if (isOkay(x)) {
-					return true;
-				} else {
-					var $temp$isOkay = isOkay,
-						$temp$list = xs;
-					isOkay = $temp$isOkay;
-					list = $temp$list;
-					continue any;
-				}
-			}
-		}
-	});
 var $mdgriffith$elm_ui$Internal$Model$fontName = function (font) {
 	switch (font.$) {
 		case 'Serif':
@@ -14710,7 +15112,6 @@ var $author$project$Main$introPage = A2(
 				onPress: $elm$core$Maybe$Just($author$project$Main$InitAudio)
 			})
 		]));
-var $elm$core$Basics$modBy = _Basics_modBy;
 var $author$project$PageIndices$rotate = F2(
 	function (n, l) {
 		var modN = A2(
@@ -18253,11 +18654,6 @@ var $author$project$Main$editColumn = F2(
 				text: content
 			});
 	});
-var $elm_community$list_extra$List$Extra$getAt = F2(
-	function (idx, xs) {
-		return (idx < 0) ? $elm$core$Maybe$Nothing : $elm$core$List$head(
-			A2($elm$core$List$drop, idx, xs));
-	});
 var $author$project$Texts$indexTexts = F3(
 	function (author, indices, texts) {
 		return A2(
@@ -18402,7 +18798,11 @@ var $author$project$Main$main = $elm$browser$Browser$application(
 				var texts = {
 					dp: $author$project$Texts$textsToList($author$project$Texts$David$texts),
 					ge: $author$project$Texts$textsToList($author$project$Texts$Gerhard$texts),
-					ld: $author$project$Texts$textsToList($author$project$Texts$Luc$texts),
+					ld: A3(
+						$author$project$Luc$TextGen$generateEntries,
+						A3($author$project$Luc$TextGen$Probabilities, 0.5, 0.5, 0.0),
+						$author$project$Texts$textsToList($author$project$Texts$Gerhard$texts),
+						$author$project$Texts$textsToList($author$project$Texts$Ludvig$texts)),
 					le: $author$project$Texts$textsToList($author$project$Texts$Ludvig$texts)
 				};
 				var page = $author$project$Pages$fromUrl(url);
