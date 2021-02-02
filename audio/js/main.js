@@ -16,8 +16,8 @@ class BufferLoader {
 	this.page2l = 0;
 	this.index2l = 0;
 	this.sr = this.context.sampleRate;
-	console.log("sr : ");
-	console.log(this.sr);
+	// console.log("sr : ");
+	// console.log(this.sr);
 	this.node.port.postMessage({init: [pageNum, this.sr]});
 	for (var i = 0; i < 4; ++i) {
 	    this.shBuf[i] = [];
@@ -126,41 +126,30 @@ let bufferLoader;
 
 async function init(indices, elmInitCallback) {
 
-//    console.log(fad0);
 
-    // if (navigator.mediaDevices) {
-    //     navigator.mediaDevices.getUserMedia ({audio: true, video: false})
-    //         .then(async function(stream) {
+    console.log(indices);
+    
+    audioCtx = new AudioContext();
+    // source = audioCtx.createMediaStreamSource(stream);
 
-                audioCtx = new AudioContext();
-                // source = audioCtx.createMediaStreamSource(stream);
+    await audioCtx.audioWorklet.addModule('audio/js/playbuf.js');
 
-                await audioCtx.audioWorklet.addModule('audio/js/playbuf.js');
-
-		// if we want the mik
-                // const playbuf = new AudioWorkletNode(audioCtx,'playbufprocessor');
-		// source.connect(playbuf);
-
-		// if we don't ask for mik
-                const playbuf = new AudioWorkletNode(audioCtx,'playbufprocessor', {
-		    // numberOfOutputs: 2,
-		    outputChannelCount: [2],
-		});
-                playbuf.connect(audioCtx.destination);
+    const playbuf = new AudioWorkletNode(audioCtx,'playbufprocessor', {
+	outputChannelCount: [2],
+    });
+    playbuf.connect(audioCtx.destination);
 
 
-		bufferLoader = new BufferLoader(
-		    audioCtx,
-		    playbuf
-		);
+    bufferLoader = new BufferLoader(
+	audioCtx,
+	playbuf
+    );
 
-		elmInitCallback.send(true);
+    elmInitCallback.send(true);
 
-		bufferLoader.loadAll( ); // load all audio files 0 and play page 0
+    bufferLoader.loadAll( ); // load all audio files 0 and play page 0
 
 
-    //         })
-    // }
 
 }
 
