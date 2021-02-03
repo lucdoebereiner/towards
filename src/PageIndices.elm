@@ -22,6 +22,7 @@ import Url exposing (Url)
 import Url.Builder as Builder
 import Url.Parser exposing ((<?>), Parser)
 import Url.Parser.Query as Query
+import Utils exposing (rotate)
 
 
 type alias PageIndices =
@@ -38,15 +39,6 @@ type Author
     | Gerhard
     | David
     | Ludvig
-
-
-rotate : Int -> List a -> List a
-rotate n l =
-    let
-        modN =
-            modBy (List.length l) n
-    in
-    List.drop modN l ++ List.take modN l
 
 
 authors =

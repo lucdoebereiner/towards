@@ -5,6 +5,7 @@ import List.Extra as L
 import Maybe.Extra as M
 import Random
 import Texts exposing (Entry)
+import Utils exposing (rotate)
 
 
 type alias StringArray =
@@ -184,7 +185,7 @@ rule1 prevIt lL lR prevChar =
 
 
 
--- "clouds"
+-- "clouds" based on 10.1063/1.4866854
 
 
 type alias CharState =
@@ -319,29 +320,46 @@ applyProbs seed probs array =
     ( Array.fromList states, newSeed )
 
 
+genEntry : Entry -> Entry -> Array CharState -> Array CharState
+genEntry l r p =
+    Array.indexedMap
+        (\i state ->
+            nextCharState
+                (neighbors i l r p)
+                state
+        )
+        p
+
+
 generateEntries : Probabilities -> List Entry -> List Entry -> List Entry
 generateEntries probs left right =
     let
-        initState =
+        initSeed =
+            Random.initialSeed 0
+
+        emptyState =
             Array.repeat (40 * 30) (CharState False False False)
+
+        ( initState, seedAfterInit ) =
+            case ( List.head left, List.head right ) of
+                ( Just l, Just r ) ->
+                    Tuple.mapFirst (genEntry l r) <|
+                        applyProbs initSeed probs emptyState
+
+                _ ->
+                    ( emptyState, initSeed )
 
         nextGen p l r seed =
             case ( l, r ) of
                 ( thisL :: restL, thisR :: restR ) ->
                     let
-                        nextEntry =
-                            Array.indexedMap
-                                (\i state ->
-                                    nextCharState
-                                        (neighbors i thisL thisR p)
-                                        state
-                                )
-                                p
-
                         ( withProbs, newSeed ) =
-                            applyProbs seed probs nextEntry
+                            applyProbs seed probs p
+
+                        nextEntry =
+                            genEntry thisL thisR withProbs
                     in
-                    withProbs :: nextGen withProbs restL restR newSeed
+                    nextEntry :: nextGen nextEntry restL restR newSeed
 
                 _ ->
                     []
@@ -359,4 +377,8 @@ generateEntries probs left right =
                     )
                     a
         )
-        (nextGen initState left right (Random.initialSeed 0))
+        (nextGen initState (rotate 1 left) (rotate 1 right) seedAfterInit)
+
+
+
+-- ideas shift generation by one to react to current neighbord and start with content not empty

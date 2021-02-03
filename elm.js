@@ -7215,40 +7215,6 @@ var $elm$core$Array$indexedMap = F2(
 			true,
 			A3($elm$core$Elm$JsArray$foldl, helper, initialBuilder, tree));
 	});
-var $elm$random$Random$initialSeed = function (x) {
-	var _v0 = $elm$random$Random$next(
-		A2($elm$random$Random$Seed, 0, 1013904223));
-	var state1 = _v0.a;
-	var incr = _v0.b;
-	var state2 = (state1 + x) >>> 0;
-	return $elm$random$Random$next(
-		A2($elm$random$Random$Seed, state2, incr));
-};
-var $elm$core$Elm$JsArray$map = _JsArray_map;
-var $elm$core$Array$map = F2(
-	function (func, _v0) {
-		var len = _v0.a;
-		var startShift = _v0.b;
-		var tree = _v0.c;
-		var tail = _v0.d;
-		var helper = function (node) {
-			if (node.$ === 'SubTree') {
-				var subTree = node.a;
-				return $elm$core$Array$SubTree(
-					A2($elm$core$Elm$JsArray$map, helper, subTree));
-			} else {
-				var values = node.a;
-				return $elm$core$Array$Leaf(
-					A2($elm$core$Elm$JsArray$map, func, values));
-			}
-		};
-		return A4(
-			$elm$core$Array$Array_elm_builtin,
-			len,
-			startShift,
-			A2($elm$core$Elm$JsArray$map, helper, tree),
-			A2($elm$core$Elm$JsArray$map, func, tail));
-	});
 var $elm$core$String$endsWith = _String_endsWith;
 var $elm$core$Array$bitMask = 4294967295 >>> (32 - $elm$core$Array$shiftStep);
 var $elm$core$Elm$JsArray$unsafeGet = _JsArray_unsafeGet;
@@ -7667,6 +7633,61 @@ var $author$project$Luc$TextGen$nextCharState = F2(
 			visible: c.visible || c.active
 		};
 	});
+var $author$project$Luc$TextGen$genEntry = F3(
+	function (l, r, p) {
+		return A2(
+			$elm$core$Array$indexedMap,
+			F2(
+				function (i, state) {
+					return A2(
+						$author$project$Luc$TextGen$nextCharState,
+						A4($author$project$Luc$TextGen$neighbors, i, l, r, p),
+						state);
+				}),
+			p);
+	});
+var $elm$random$Random$initialSeed = function (x) {
+	var _v0 = $elm$random$Random$next(
+		A2($elm$random$Random$Seed, 0, 1013904223));
+	var state1 = _v0.a;
+	var incr = _v0.b;
+	var state2 = (state1 + x) >>> 0;
+	return $elm$random$Random$next(
+		A2($elm$random$Random$Seed, state2, incr));
+};
+var $elm$core$Elm$JsArray$map = _JsArray_map;
+var $elm$core$Array$map = F2(
+	function (func, _v0) {
+		var len = _v0.a;
+		var startShift = _v0.b;
+		var tree = _v0.c;
+		var tail = _v0.d;
+		var helper = function (node) {
+			if (node.$ === 'SubTree') {
+				var subTree = node.a;
+				return $elm$core$Array$SubTree(
+					A2($elm$core$Elm$JsArray$map, helper, subTree));
+			} else {
+				var values = node.a;
+				return $elm$core$Array$Leaf(
+					A2($elm$core$Elm$JsArray$map, func, values));
+			}
+		};
+		return A4(
+			$elm$core$Array$Array_elm_builtin,
+			len,
+			startShift,
+			A2($elm$core$Elm$JsArray$map, helper, tree),
+			A2($elm$core$Elm$JsArray$map, func, tail));
+	});
+var $elm$core$Tuple$mapFirst = F2(
+	function (func, _v0) {
+		var x = _v0.a;
+		var y = _v0.b;
+		return _Utils_Tuple2(
+			func(x),
+			y);
+	});
 var $author$project$Texts$NoNl = function (a) {
 	return {$: 'NoNl', a: a};
 };
@@ -7696,6 +7717,16 @@ var $elm$core$Array$repeat = F2(
 				return e;
 			});
 	});
+var $author$project$Utils$rotate = F2(
+	function (n, l) {
+		var modN = A2(
+			$elm$core$Basics$modBy,
+			$elm$core$List$length(l),
+			n);
+		return _Utils_ap(
+			A2($elm$core$List$drop, modN, l),
+			A2($elm$core$List$take, modN, l));
+	});
 var $elm$core$String$fromList = _String_fromList;
 var $author$project$Luc$TextGen$stringFromArray = function (a) {
 	return $elm$core$String$fromList(
@@ -7713,31 +7744,40 @@ var $author$project$Luc$TextGen$generateEntries = F3(
 					var _v2 = _v0.b;
 					var thisR = _v2.a;
 					var restR = _v2.b;
-					var nextEntry = A2(
-						$elm$core$Array$indexedMap,
-						F2(
-							function (i, state) {
-								return A2(
-									$author$project$Luc$TextGen$nextCharState,
-									A4($author$project$Luc$TextGen$neighbors, i, thisL, thisR, p),
-									state);
-							}),
-						p);
-					var _v3 = A3($author$project$Luc$TextGen$applyProbs, seed, probs, nextEntry);
+					var _v3 = A3($author$project$Luc$TextGen$applyProbs, seed, probs, p);
 					var withProbs = _v3.a;
 					var newSeed = _v3.b;
+					var nextEntry = A3($author$project$Luc$TextGen$genEntry, thisL, thisR, withProbs);
 					return A2(
 						$elm$core$List$cons,
-						withProbs,
-						A4(nextGen, withProbs, restL, restR, newSeed));
+						nextEntry,
+						A4(nextGen, nextEntry, restL, restR, newSeed));
 				} else {
 					return _List_Nil;
 				}
 			});
-		var initState = A2(
+		var initSeed = $elm$random$Random$initialSeed(0);
+		var emptyState = A2(
 			$elm$core$Array$repeat,
 			40 * 30,
 			A3($author$project$Luc$TextGen$CharState, false, false, false));
+		var _v4 = function () {
+			var _v5 = _Utils_Tuple2(
+				$elm$core$List$head(left),
+				$elm$core$List$head(right));
+			if ((_v5.a.$ === 'Just') && (_v5.b.$ === 'Just')) {
+				var l = _v5.a.a;
+				var r = _v5.b.a;
+				return A2(
+					$elm$core$Tuple$mapFirst,
+					A2($author$project$Luc$TextGen$genEntry, l, r),
+					A3($author$project$Luc$TextGen$applyProbs, initSeed, probs, emptyState));
+			} else {
+				return _Utils_Tuple2(emptyState, initSeed);
+			}
+		}();
+		var initState = _v4.a;
+		var seedAfterInit = _v4.b;
 		return A2(
 			$elm$core$List$map,
 			function (a) {
@@ -7755,9 +7795,9 @@ var $author$project$Luc$TextGen$generateEntries = F3(
 			A4(
 				nextGen,
 				initState,
-				left,
-				right,
-				$elm$random$Random$initialSeed(0)));
+				A2($author$project$Utils$rotate, 1, left),
+				A2($author$project$Utils$rotate, 1, right),
+				seedAfterInit));
 	});
 var $author$project$Pages$indices = function (_v0) {
 	var i = _v0.a;
@@ -9519,14 +9559,6 @@ var $mdgriffith$elm_ui$Internal$Model$formatBoxShadow = function (shadow) {
 					$mdgriffith$elm_ui$Internal$Model$formatColor(shadow.color))
 				])));
 };
-var $elm$core$Tuple$mapFirst = F2(
-	function (func, _v0) {
-		var x = _v0.a;
-		var y = _v0.b;
-		return _Utils_Tuple2(
-			func(x),
-			y);
-	});
 var $elm$core$Tuple$mapSecond = F2(
 	function (func, _v0) {
 		var x = _v0.a;
@@ -15121,18 +15153,8 @@ var $author$project$Main$introPage = A2(
 				onPress: $elm$core$Maybe$Just($author$project$Main$InitAudio)
 			})
 		]));
-var $author$project$PageIndices$rotate = F2(
-	function (n, l) {
-		var modN = A2(
-			$elm$core$Basics$modBy,
-			$elm$core$List$length(l),
-			n);
-		return _Utils_ap(
-			A2($elm$core$List$drop, modN, l),
-			A2($elm$core$List$take, modN, l));
-	});
 var $author$project$PageIndices$authorsInOrder = function (i) {
-	return A2($author$project$PageIndices$rotate, i.rotation, $author$project$PageIndices$authors);
+	return A2($author$project$Utils$rotate, i.rotation, $author$project$PageIndices$authors);
 };
 var $mdgriffith$elm_ui$Internal$Model$AlignX = function (a) {
 	return {$: 'AlignX', a: a};
@@ -18809,7 +18831,7 @@ var $author$project$Main$main = $elm$browser$Browser$application(
 					ge: $author$project$Texts$textsToList($author$project$Texts$Gerhard$texts),
 					ld: A3(
 						$author$project$Luc$TextGen$generateEntries,
-						A3($author$project$Luc$TextGen$Probabilities, 0.5, 0.2, 0.0),
+						A3($author$project$Luc$TextGen$Probabilities, 0.7, 0.5, 0.0),
 						$author$project$Texts$textsToList($author$project$Texts$Gerhard$texts),
 						$author$project$Texts$textsToList($author$project$Texts$Ludvig$texts)),
 					le: $author$project$Texts$textsToList($author$project$Texts$Ludvig$texts)
