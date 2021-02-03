@@ -13,12 +13,12 @@ class BufferLoader {
 	this.loadCount = 0;
 	this.names = ["david", "gerhard", "luc", "ludvig"];
 	this.shBuf = [];
-	this.page2l = 0;
 	this.index2l = 0;
 	this.sr = this.context.sampleRate;
+	this.loadIndices = [];
 	// console.log("sr : ");
 	// console.log(this.sr);
-	this.node.port.postMessage({init: [pageNum, this.sr]});
+	this.node.port.postMessage({init: [pageNum, this.sr, duration]});
 	for (var i = 0; i < 4; ++i) {
 	    this.shBuf[i] = [];
 	    for (var j = 0; j < pageNum; ++j) {
@@ -48,9 +48,11 @@ class BufferLoader {
 	this.node.port.postMessage({pan: [index, pan]});
     }
 
-    loadBuffer(page, index) {
+    loadBuffer( ) {
 	// Load buffer asynchronously
 	var request = new XMLHttpRequest();
+	var index = Math.floor((this.index2l%8)/2);
+	var page = this.loadIndices[ this.index2l ];
 	var url = "audio/files/page" + page + "/" + this.names[index] + ".mp3";
 
 	console.log(url);
@@ -73,17 +75,16 @@ class BufferLoader {
 			loader.shArray[index][page][i] = chdata[i];
 		    };
 		    loader.index2l = loader.index2l + 1;
-		    if (loader.index2l == 4) {
-			loader.index2l = 0;
-			loader.page2l = loader.page2l + 1;
-			loader.sendBuffer(loader.page2l - 1, 0);
-			loader.sendBuffer(loader.page2l - 1, 1);
-			loader.sendBuffer(loader.page2l - 1, 2);
-			loader.sendBuffer(loader.page2l - 1, 3);
+		    if (loader.index2l%8 == 0) {
+			for (var j = 1; j<9; ++j) {
+			    var pi = Math.floor(((loader.index2l - j)%8)/2);
+			    var pp = loader.loadIndices[ loader.index2l - j ];
+			    loader.sendBuffer(pp, pi);
+			}
 		    }
-		    if (loader.page2l < pageNum) {
+		    if (loader.index2l < pageNum*4) {
 			// console.log("calling next");
-			loader.loadBuffer(loader.page2l, loader.index2l);
+			loader.loadBuffer( );
 		    }
 		},
 		function(error) {
@@ -99,15 +100,18 @@ class BufferLoader {
 	request.send();
     }
 
-    loadAll( ) {
-	// console.log("not yet loaded");
-	this.loadBuffer(this.page2l, this.index2l);
-	// for (var page = 0; page < pageNum; ++page) {
-	//     for (var i = 0; i < 4; ++i) {
-	// 	this.loadBuffer(page, i);
-	//     }
-	// }
-
+    loadAll(indices) {
+	var f = []; 	
+	for (var i = 0; i<4; ++i) {
+	    f[i] = Math.floor(indices[i]);
+	};
+	for (var j = 0; j<25; ++j) {
+	    for (var i = 0; i<4; ++i) {
+		this.loadIndices.push((f[i] - j + 50)%50);
+		this.loadIndices.push((f[i] + j + 1)%50);
+	    };
+	}
+	this.loadBuffer( );
     }
 }
 
@@ -147,9 +151,7 @@ async function init(indices, elmInitCallback) {
 
     elmInitCallback.send(true);
 
-    bufferLoader.loadAll( ); // load all audio files 0 and play page 0
-
-
+    bufferLoader.loadAll(indices);
 
 }
 
