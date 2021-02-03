@@ -381,4 +381,5 @@ generateEntries probs left right =
 
 
 
--- ideas shift generation by one to react to current neighbord and start with content not empty
+-- ideas shift generation by one to react to current neighbord and start with content not empty [done]
+-- redefine neighborhood to avoid line break
