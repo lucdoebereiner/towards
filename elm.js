@@ -7168,11 +7168,6 @@ var $author$project$Luc$TextGen$applyProbs = F3(
 			$elm$core$Array$fromList(states),
 			newSeed);
 	});
-var $elm$core$Basics$composeL = F3(
-	function (g, f, x) {
-		return g(
-			f(x));
-	});
 var $elm$core$Elm$JsArray$foldl = _JsArray_foldl;
 var $elm$core$Elm$JsArray$indexedMap = _JsArray_indexedMap;
 var $elm$core$Bitwise$shiftLeftBy = _Bitwise_shiftLeftBy;
@@ -7214,6 +7209,11 @@ var $elm$core$Array$indexedMap = F2(
 			$elm$core$Array$builderToArray,
 			true,
 			A3($elm$core$Elm$JsArray$foldl, helper, initialBuilder, tree));
+	});
+var $elm$core$Basics$composeL = F3(
+	function (g, f, x) {
+		return g(
+			f(x));
 	});
 var $elm$core$String$endsWith = _String_endsWith;
 var $elm$core$Array$bitMask = 4294967295 >>> (32 - $elm$core$Array$shiftStep);
@@ -7565,6 +7565,7 @@ var $author$project$Luc$TextGen$neighbors = F4(
 				return $elm$core$Maybe$Nothing;
 			}
 		}();
+		var rightDist = 39 - A2($elm$core$Basics$modBy, 40, c);
 		var leftNeighbor = function () {
 			var _v0 = A2($elm$core$Basics$modBy, 40, c);
 			if (!_v0) {
@@ -7579,6 +7580,7 @@ var $author$project$Luc$TextGen$neighbors = F4(
 				return $elm$core$Maybe$Nothing;
 			}
 		}();
+		var leftDist = A2($elm$core$Basics$modBy, 40, c);
 		var fromPrev = function (i) {
 			return A2(
 				$elm$core$Maybe$map,
@@ -7598,10 +7600,10 @@ var $author$project$Luc$TextGen$neighbors = F4(
 					rightNeighbor,
 					topNeighbor,
 					bottomNeighbor,
-					fromPrev(c - 1),
-					fromPrev(c + 1),
-					fromPrev(c - 2),
-					fromPrev(c + 2)
+					(leftDist >= 1) ? fromPrev(c - 1) : $elm$core$Maybe$Nothing,
+					(rightDist >= 1) ? fromPrev(c + 1) : $elm$core$Maybe$Nothing,
+					(leftDist >= 2) ? fromPrev(c - 2) : $elm$core$Maybe$Nothing,
+					(rightDist >= 2) ? fromPrev(c + 2) : $elm$core$Maybe$Nothing
 				]));
 	});
 var $elm$core$List$any = F2(
@@ -7655,31 +7657,6 @@ var $elm$random$Random$initialSeed = function (x) {
 	return $elm$random$Random$next(
 		A2($elm$random$Random$Seed, state2, incr));
 };
-var $elm$core$Elm$JsArray$map = _JsArray_map;
-var $elm$core$Array$map = F2(
-	function (func, _v0) {
-		var len = _v0.a;
-		var startShift = _v0.b;
-		var tree = _v0.c;
-		var tail = _v0.d;
-		var helper = function (node) {
-			if (node.$ === 'SubTree') {
-				var subTree = node.a;
-				return $elm$core$Array$SubTree(
-					A2($elm$core$Elm$JsArray$map, helper, subTree));
-			} else {
-				var values = node.a;
-				return $elm$core$Array$Leaf(
-					A2($elm$core$Elm$JsArray$map, func, values));
-			}
-		};
-		return A4(
-			$elm$core$Array$Array_elm_builtin,
-			len,
-			startShift,
-			A2($elm$core$Elm$JsArray$map, helper, tree),
-			A2($elm$core$Elm$JsArray$map, func, tail));
-	});
 var $elm$core$Tuple$mapFirst = F2(
 	function (func, _v0) {
 		var x = _v0.a;
@@ -7688,6 +7665,29 @@ var $elm$core$Tuple$mapFirst = F2(
 			func(x),
 			y);
 	});
+var $elm$core$Array$repeat = F2(
+	function (n, e) {
+		return A2(
+			$elm$core$Array$initialize,
+			n,
+			function (_v0) {
+				return e;
+			});
+	});
+var $author$project$Utils$rotate = F2(
+	function (n, l) {
+		var modN = A2(
+			$elm$core$Basics$modBy,
+			$elm$core$List$length(l),
+			n);
+		return _Utils_ap(
+			A2($elm$core$List$drop, modN, l),
+			A2($elm$core$List$take, modN, l));
+	});
+var $author$project$Luc$TextGen$emptyArray = A2(
+	$elm$core$Array$repeat,
+	40 * 30,
+	_Utils_chr(' '));
 var $author$project$Texts$NoNl = function (a) {
 	return {$: 'NoNl', a: a};
 };
@@ -7708,30 +7708,300 @@ var $author$project$Texts$noNl = function (s) {
 	return $author$project$Texts$NoNl(
 		$author$project$Texts$formatNoNl(s));
 };
-var $elm$core$Array$repeat = F2(
-	function (n, e) {
-		return A2(
-			$elm$core$Array$initialize,
-			n,
-			function (_v0) {
-				return e;
-			});
-	});
-var $author$project$Utils$rotate = F2(
-	function (n, l) {
-		var modN = A2(
-			$elm$core$Basics$modBy,
-			$elm$core$List$length(l),
-			n);
-		return _Utils_ap(
-			A2($elm$core$List$drop, modN, l),
-			A2($elm$core$List$take, modN, l));
-	});
 var $elm$core$String$fromList = _String_fromList;
 var $author$project$Luc$TextGen$stringFromArray = function (a) {
 	return $elm$core$String$fromList(
 		$elm$core$Array$toList(a));
 };
+var $author$project$Luc$TextGen$entryFromArray = A2($elm$core$Basics$composeL, $author$project$Texts$noNl, $author$project$Luc$TextGen$stringFromArray);
+var $author$project$Luc$TextGen$addToRegions = F2(
+	function (regions, entry) {
+		return A2(
+			$elm$core$List$any,
+			function (e) {
+				return _Utils_eq(e.index, entry.index);
+			},
+			regions) ? regions : A2($elm$core$List$cons, entry, regions);
+	});
+var $elm$core$List$member = F2(
+	function (x, xs) {
+		return A2(
+			$elm$core$List$any,
+			function (a) {
+				return _Utils_eq(a, x);
+			},
+			xs);
+	});
+var $elm_community$maybe_extra$Maybe$Extra$cons = F2(
+	function (item, list) {
+		if (item.$ === 'Just') {
+			var v = item.a;
+			return A2($elm$core$List$cons, v, list);
+		} else {
+			return list;
+		}
+	});
+var $elm_community$maybe_extra$Maybe$Extra$values = A2($elm$core$List$foldr, $elm_community$maybe_extra$Maybe$Extra$cons, _List_Nil);
+var $author$project$Luc$TextGen$neighborIndices = F2(
+	function (_v0, i) {
+		var width = _v0.width;
+		var height = _v0.height;
+		var unless = F2(
+			function (p, v) {
+				return (!p) ? $elm$core$Maybe$Just(v) : $elm$core$Maybe$Nothing;
+			});
+		var lineIdx = A2($elm$core$Basics$modBy, width, i);
+		var line = (i / width) | 0;
+		var lineOffset = line * width;
+		var isTopRow = !line;
+		var top = A2(unless, isTopRow, lineIdx + ((line - 1) * width));
+		var isRight = _Utils_eq(lineIdx, width - 1);
+		var right = A2(unless, isRight, (lineIdx + 1) + lineOffset);
+		var rtCorner = A2(unless, isTopRow || isRight, (lineIdx + 1) + ((line - 1) * width));
+		var isLeft = !lineIdx;
+		var left = A2(unless, isLeft, (lineIdx - 1) + lineOffset);
+		var ltCorner = A2(unless, isTopRow || isLeft, (lineIdx - 1) + ((line - 1) * width));
+		var isBottomRow = _Utils_eq(line, height - 1);
+		var lbCorner = A2(unless, isBottomRow || isLeft, (lineIdx - 1) + ((line + 1) * width));
+		var rbCorner = A2(unless, isBottomRow || isRight, (lineIdx + 1) + ((line + 1) * width));
+		var bottom = A2(unless, isBottomRow, lineIdx + ((line + 1) * width));
+		return $elm_community$maybe_extra$Maybe$Extra$values(
+			_List_fromArray(
+				[left, right, top, bottom, ltCorner, rtCorner, lbCorner, rbCorner]));
+	});
+var $author$project$Luc$TextGen$collectNeighbors = F6(
+	function (dims, l, a, toCheck, checked, acc) {
+		collectNeighbors:
+		while (true) {
+			if (toCheck.b) {
+				var i = toCheck.a;
+				var nextToCheck = toCheck.b;
+				if (A2(
+					$elm$core$Maybe$withDefault,
+					false,
+					A2(
+						$elm$core$Maybe$map,
+						function ($) {
+							return $.visible;
+						},
+						A2($elm$core$Array$get, i, a)))) {
+					var thisEntry = {index: i, label: l};
+					var neighborsToCheck = A2(
+						$elm$core$List$filter,
+						function (e) {
+							return !A2($elm$core$List$member, e, checked);
+						},
+						A2($author$project$Luc$TextGen$neighborIndices, dims, i));
+					var neighborEntries = $elm_community$maybe_extra$Maybe$Extra$values(
+						A2(
+							$elm$core$List$map,
+							function (n) {
+								return A2(
+									$elm$core$Maybe$withDefault,
+									false,
+									A2(
+										$elm$core$Maybe$map,
+										function ($) {
+											return $.visible;
+										},
+										A2($elm$core$Array$get, n, a))) ? $elm$core$Maybe$Just(
+									{index: n, label: l}) : $elm$core$Maybe$Nothing;
+							},
+							neighborsToCheck));
+					var $temp$dims = dims,
+						$temp$l = l,
+						$temp$a = a,
+						$temp$toCheck = _Utils_ap(nextToCheck, neighborsToCheck),
+						$temp$checked = A2($elm$core$List$cons, i, checked),
+						$temp$acc = A2(
+						$elm$core$List$cons,
+						thisEntry,
+						_Utils_ap(acc, neighborEntries));
+					dims = $temp$dims;
+					l = $temp$l;
+					a = $temp$a;
+					toCheck = $temp$toCheck;
+					checked = $temp$checked;
+					acc = $temp$acc;
+					continue collectNeighbors;
+				} else {
+					var $temp$dims = dims,
+						$temp$l = l,
+						$temp$a = a,
+						$temp$toCheck = nextToCheck,
+						$temp$checked = A2($elm$core$List$cons, i, checked),
+						$temp$acc = acc;
+					dims = $temp$dims;
+					l = $temp$l;
+					a = $temp$a;
+					toCheck = $temp$toCheck;
+					checked = $temp$checked;
+					acc = $temp$acc;
+					continue collectNeighbors;
+				}
+			} else {
+				return acc;
+			}
+		}
+	});
+var $author$project$Luc$TextGen$flip = F3(
+	function (_function, argB, argA) {
+		return A2(_function, argA, argB);
+	});
+var $elm$core$Array$foldl = F3(
+	function (func, baseCase, _v0) {
+		var tree = _v0.c;
+		var tail = _v0.d;
+		var helper = F2(
+			function (node, acc) {
+				if (node.$ === 'SubTree') {
+					var subTree = node.a;
+					return A3($elm$core$Elm$JsArray$foldl, helper, acc, subTree);
+				} else {
+					var values = node.a;
+					return A3($elm$core$Elm$JsArray$foldl, func, acc, values);
+				}
+			});
+		return A3(
+			$elm$core$Elm$JsArray$foldl,
+			func,
+			A3($elm$core$Elm$JsArray$foldl, helper, baseCase, tree),
+			tail);
+	});
+var $author$project$Luc$TextGen$regionsOfArray = F2(
+	function (dims, a) {
+		return A3(
+			$elm$core$List$foldl,
+			$author$project$Luc$TextGen$flip($author$project$Luc$TextGen$addToRegions),
+			_List_Nil,
+			A3(
+				$elm$core$Array$foldl,
+				$elm$core$Basics$append,
+				_List_Nil,
+				A2(
+					$elm$core$Array$indexedMap,
+					F2(
+						function (i, s) {
+							if (s.visible) {
+								var c = A6(
+									$author$project$Luc$TextGen$collectNeighbors,
+									dims,
+									i,
+									a,
+									_List_fromArray(
+										[i]),
+									_List_Nil,
+									_List_Nil);
+								return c;
+							} else {
+								return _List_Nil;
+							}
+						}),
+					a)));
+	});
+var $elm$core$Elm$JsArray$unsafeSet = _JsArray_unsafeSet;
+var $elm$core$Array$setHelp = F4(
+	function (shift, index, value, tree) {
+		var pos = $elm$core$Array$bitMask & (index >>> shift);
+		var _v0 = A2($elm$core$Elm$JsArray$unsafeGet, pos, tree);
+		if (_v0.$ === 'SubTree') {
+			var subTree = _v0.a;
+			var newSub = A4($elm$core$Array$setHelp, shift - $elm$core$Array$shiftStep, index, value, subTree);
+			return A3(
+				$elm$core$Elm$JsArray$unsafeSet,
+				pos,
+				$elm$core$Array$SubTree(newSub),
+				tree);
+		} else {
+			var values = _v0.a;
+			var newLeaf = A3($elm$core$Elm$JsArray$unsafeSet, $elm$core$Array$bitMask & index, value, values);
+			return A3(
+				$elm$core$Elm$JsArray$unsafeSet,
+				pos,
+				$elm$core$Array$Leaf(newLeaf),
+				tree);
+		}
+	});
+var $elm$core$Array$set = F3(
+	function (index, value, array) {
+		var len = array.a;
+		var startShift = array.b;
+		var tree = array.c;
+		var tail = array.d;
+		return ((index < 0) || (_Utils_cmp(index, len) > -1)) ? array : ((_Utils_cmp(
+			index,
+			$elm$core$Array$tailIndex(len)) > -1) ? A4(
+			$elm$core$Array$Array_elm_builtin,
+			len,
+			startShift,
+			tree,
+			A3($elm$core$Elm$JsArray$unsafeSet, $elm$core$Array$bitMask & index, value, tail)) : A4(
+			$elm$core$Array$Array_elm_builtin,
+			len,
+			startShift,
+			A4($elm$core$Array$setHelp, startShift, index, value, tree),
+			tail));
+	});
+var $elm$core$Char$fromCode = _Char_fromCode;
+var $elm$core$Set$Set_elm_builtin = function (a) {
+	return {$: 'Set_elm_builtin', a: a};
+};
+var $elm$core$Set$empty = $elm$core$Set$Set_elm_builtin($elm$core$Dict$empty);
+var $elm$core$Set$insert = F2(
+	function (key, _v0) {
+		var dict = _v0.a;
+		return $elm$core$Set$Set_elm_builtin(
+			A3($elm$core$Dict$insert, key, _Utils_Tuple0, dict));
+	});
+var $elm$core$Set$fromList = function (list) {
+	return A3($elm$core$List$foldl, $elm$core$Set$insert, $elm$core$Set$empty, list);
+};
+var $author$project$Luc$TextGen$symbolizeRegions = function (r) {
+	var dict = $elm$core$Dict$fromList(
+		A2(
+			$elm$core$List$indexedMap,
+			F2(
+				function (i, l) {
+					return _Utils_Tuple2(
+						l,
+						$elm$core$Char$fromCode(i + 33));
+				}),
+			$elm$core$Set$toList(
+				$elm$core$Set$fromList(
+					A2(
+						$elm$core$List$map,
+						function ($) {
+							return $.label;
+						},
+						r)))));
+	return $elm_community$maybe_extra$Maybe$Extra$values(
+		A2(
+			$elm$core$List$map,
+			function (e) {
+				return A2(
+					$elm$core$Maybe$map,
+					function (newLabel) {
+						return {index: e.index, label: newLabel};
+					},
+					A2($elm$core$Dict$get, e.label, dict));
+			},
+			r));
+};
+var $author$project$Luc$TextGen$toRegionsEntry = F2(
+	function (dims, a) {
+		return $author$project$Luc$TextGen$entryFromArray(
+			A3(
+				$elm$core$List$foldl,
+				function (e) {
+					return A2($elm$core$Array$set, e.index, e.label);
+				},
+				$author$project$Luc$TextGen$emptyArray,
+				$author$project$Luc$TextGen$symbolizeRegions(
+					function (v) {
+						return v;
+					}(
+						A2($author$project$Luc$TextGen$regionsOfArray, dims, a)))));
+	});
 var $author$project$Luc$TextGen$generateEntries = F3(
 	function (probs, left, right) {
 		var nextGen = F4(
@@ -7780,18 +8050,8 @@ var $author$project$Luc$TextGen$generateEntries = F3(
 		var seedAfterInit = _v4.b;
 		return A2(
 			$elm$core$List$map,
-			function (a) {
-				return A3(
-					$elm$core$Basics$composeL,
-					$author$project$Texts$noNl,
-					$author$project$Luc$TextGen$stringFromArray,
-					A2(
-						$elm$core$Array$map,
-						function (s) {
-							return s.visible ? _Utils_chr('x') : _Utils_chr(' ');
-						},
-						a));
-			},
+			$author$project$Luc$TextGen$toRegionsEntry(
+				{height: 30, width: 40}),
 			A4(
 				nextGen,
 				initState,
@@ -7834,10 +8094,94 @@ var $author$project$Texts$Gerhard$texts = _List_fromArray(
 	[
 		_Utils_Tuple2(
 		0,
-		$author$project$Texts$noNl('test1 gerhard')),
+		$author$project$Texts$noNl('                   where I live, the air                      does not move much                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                ')),
+		_Utils_Tuple2(
+		1,
+		$author$project$Texts$noNl('                                                                                we hardly ever get any wind                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     ')),
+		_Utils_Tuple2(
+		2,
+		$author$project$Texts$noNl('                                                                                                                                         every day I take a walk              up the hill and down again                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        ')),
+		_Utils_Tuple2(
+		3,
+		$author$project$Texts$noNl('                                                                                                                                                                                                        on a narrow and winding road                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            ')),
+		_Utils_Tuple2(
+		4,
+		$author$project$Texts$noNl('                                                                                                                                                                                                                                                            there is very little traffic                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        ')),
+		_Utils_Tuple2(
+		5,
+		$author$project$Texts$noNl('                                                                                                                                                                                                                                                                                        in an hour I may encounter only a       handfull of cars                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                ')),
+		_Utils_Tuple2(
+		6,
+		$author$project$Texts$noNl('                                                                                                                                                                                                                                                                                                                                                                                        I started with the walks             to reduce my blood pressure                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        ')),
+		_Utils_Tuple2(
+		7,
+		$author$project$Texts$noNl('                                                                                                                                                                                                                                                                                                                                                                                                                                                        the intense breathing hightens          my the sense of smell                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           ')),
+		_Utils_Tuple2(
+		8,
+		$author$project$Texts$noNl('                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           besides stimulating my cardiovascular  system I am also training my olfaction                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        ')),
 		_Utils_Tuple2(
 		9,
-		$author$project$Texts$noNl('test2'))
+		$author$project$Texts$noNl('                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        now, in winter, the smellscape is       dominated by smoke from domestic heating                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        ')),
+		_Utils_Tuple2(
+		10,
+		$author$project$Texts$noNl('                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                when fumes are not blown away by        the wind, they linger on forever                                                                                                                                                                                                                                                                                                                                                                                                                                                        ')),
+		_Utils_Tuple2(
+		11,
+		$author$project$Texts$noNl('                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  the background scent is formed      by burned gas, oil, coal, and wood                                                                                                                                                                                                                                                                                                                                                                        ')),
+		_Utils_Tuple2(
+		12,
+		$author$project$Texts$noNl('                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        the foreground is shaped by             smell trails from car exhaust                                                                                                                                                                                                                                                                                                   ')),
+		_Utils_Tuple2(
+		13,
+		$author$project$Texts$noNl('                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        under ideal conditions, I can sniff them                  for hundreds of meters                                                                                                                                                                                                        ')),
+		_Utils_Tuple2(
+		14,
+		$author$project$Texts$noNl('                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        most of the smells are unpleasant and   most probably doxic                                                                                                                                             ')),
+		_Utils_Tuple2(
+		15,
+		$author$project$Texts$noNl('                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           we can assume that the people leaving        those traces are unaware of them                                        ')),
+		_Utils_Tuple2(
+		16,
+		$author$project$Texts$noNl('                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        yet, they are responsible for them      ')),
+		_Utils_Tuple2(
+		17,
+		$author$project$Texts$noNl('          this galls me, again and again                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        ')),
+		_Utils_Tuple2(
+		18,
+		$author$project$Texts$noNl('                                        but then, the my irritations get        supplanted by curiosity                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         ')),
+		_Utils_Tuple2(
+		19,
+		$author$project$Texts$noNl('                                                                                                                              maybe I have developed hyperosmia,          became hypersensitive to smell                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        ')),
+		_Utils_Tuple2(
+		20,
+		$author$project$Texts$noNl('                                                                                                                                                                                                        there is variety in the stink                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           ')),
+		_Utils_Tuple2(
+		21,
+		$author$project$Texts$noNl('                                                                                                                                                                                                                                                                   the nose gets to know                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        ')),
+		_Utils_Tuple2(
+		22,
+		$author$project$Texts$noNl('                                                                                                                                                                                                                                                                                        diesel engines are easy to single out                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   ')),
+		_Utils_Tuple2(
+		23,
+		$author$project$Texts$noNl('                                                                                                                                                                                                                                                                                                                                    dusty, smokey, imposing, dry, bitter                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        ')),
+		_Utils_Tuple2(
+		24,
+		$author$project$Texts$noNl('                                                                                                                                                                                                                                                                                                                                                                        a moped has a very complex and nostalgicsmell like from olden times                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     ')),
+		_Utils_Tuple2(
+		25,
+		$author$project$Texts$noNl('                                                                                                                                                                                                                                                                                                                                                                                                                                                          the chlorine aroma catalytic converter            is one of the most agressive                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        ')),
+		_Utils_Tuple2(
+		26,
+		$author$project$Texts$noNl('                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        the smell trails linked to the road cut through smell islands of domestic fumes                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         ')),
+		_Utils_Tuple2(
+		27,
+		$author$project$Texts$noNl('                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         temperature inversion and calm make for                 a persisting smellscape                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        ')),
+		_Utils_Tuple2(
+		28,
+		$author$project$Texts$noNl('                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        this is a prerequiste for studying it                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   ')),
+		_Utils_Tuple2(
+		29,
+		$author$project$Texts$noNl('                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                such a kind-of frozen smellscape is rare   in view of the ephemerality of scents                                                                                                                                                                                                                                                                                                                                                                                                                '))
 	]);
 var $author$project$Texts$NlClip = function (a) {
 	return {$: 'NlClip', a: a};
@@ -7882,49 +8226,6 @@ var $author$project$Texts$Ludvig$texts = _List_fromArray(
 	]);
 var $author$project$Texts$emptyEntry = $author$project$Texts$noNl(
 	A2($elm$core$String$repeat, 40 * 30, ' '));
-var $elm$core$Elm$JsArray$unsafeSet = _JsArray_unsafeSet;
-var $elm$core$Array$setHelp = F4(
-	function (shift, index, value, tree) {
-		var pos = $elm$core$Array$bitMask & (index >>> shift);
-		var _v0 = A2($elm$core$Elm$JsArray$unsafeGet, pos, tree);
-		if (_v0.$ === 'SubTree') {
-			var subTree = _v0.a;
-			var newSub = A4($elm$core$Array$setHelp, shift - $elm$core$Array$shiftStep, index, value, subTree);
-			return A3(
-				$elm$core$Elm$JsArray$unsafeSet,
-				pos,
-				$elm$core$Array$SubTree(newSub),
-				tree);
-		} else {
-			var values = _v0.a;
-			var newLeaf = A3($elm$core$Elm$JsArray$unsafeSet, $elm$core$Array$bitMask & index, value, values);
-			return A3(
-				$elm$core$Elm$JsArray$unsafeSet,
-				pos,
-				$elm$core$Array$Leaf(newLeaf),
-				tree);
-		}
-	});
-var $elm$core$Array$set = F3(
-	function (index, value, array) {
-		var len = array.a;
-		var startShift = array.b;
-		var tree = array.c;
-		var tail = array.d;
-		return ((index < 0) || (_Utils_cmp(index, len) > -1)) ? array : ((_Utils_cmp(
-			index,
-			$elm$core$Array$tailIndex(len)) > -1) ? A4(
-			$elm$core$Array$Array_elm_builtin,
-			len,
-			startShift,
-			tree,
-			A3($elm$core$Elm$JsArray$unsafeSet, $elm$core$Array$bitMask & index, value, tail)) : A4(
-			$elm$core$Array$Array_elm_builtin,
-			len,
-			startShift,
-			A4($elm$core$Array$setHelp, startShift, index, value, tree),
-			tail));
-	});
 var $author$project$Texts$textsToList = function (lst) {
 	return $elm$core$Array$toList(
 		A3(
@@ -8144,26 +8445,6 @@ var $author$project$Texts$length = function (p) {
 		_List_fromArray(
 			[p.ge, p.dp, p.ld, p.le]));
 };
-var $elm$core$Array$foldl = F3(
-	function (func, baseCase, _v0) {
-		var tree = _v0.c;
-		var tail = _v0.d;
-		var helper = F2(
-			function (node, acc) {
-				if (node.$ === 'SubTree') {
-					var subTree = node.a;
-					return A3($elm$core$Elm$JsArray$foldl, helper, acc, subTree);
-				} else {
-					var values = node.a;
-					return A3($elm$core$Elm$JsArray$foldl, func, acc, values);
-				}
-			});
-		return A3(
-			$elm$core$Elm$JsArray$foldl,
-			func,
-			A3($elm$core$Elm$JsArray$foldl, helper, baseCase, tree),
-			tail);
-	});
 var $elm$json$Json$Encode$array = F2(
 	function (func, entries) {
 		return _Json_wrap(
@@ -9321,10 +9602,6 @@ var $mdgriffith$elm_ui$Internal$Flag$alignRight = $mdgriffith$elm_ui$Internal$Fl
 var $mdgriffith$elm_ui$Internal$Flag$centerX = $mdgriffith$elm_ui$Internal$Flag$flag(42);
 var $mdgriffith$elm_ui$Internal$Flag$centerY = $mdgriffith$elm_ui$Internal$Flag$flag(43);
 var $elm$html$Html$div = _VirtualDom_node('div');
-var $elm$core$Set$Set_elm_builtin = function (a) {
-	return {$: 'Set_elm_builtin', a: a};
-};
-var $elm$core$Set$empty = $elm$core$Set$Set_elm_builtin($elm$core$Dict$empty);
 var $mdgriffith$elm_ui$Internal$Model$lengthClassName = function (x) {
 	switch (x.$) {
 		case 'Px':
@@ -9469,12 +9746,6 @@ var $mdgriffith$elm_ui$Internal$Model$getStyleName = function (style) {
 				$mdgriffith$elm_ui$Internal$Model$transformClass(x));
 	}
 };
-var $elm$core$Set$insert = F2(
-	function (key, _v0) {
-		var dict = _v0.a;
-		return $elm$core$Set$Set_elm_builtin(
-			A3($elm$core$Dict$insert, key, _Utils_Tuple0, dict));
-	});
 var $elm$core$Dict$member = F2(
 	function (key, dict) {
 		var _v0 = A2($elm$core$Dict$get, key, dict);
@@ -18831,7 +19102,7 @@ var $author$project$Main$main = $elm$browser$Browser$application(
 					ge: $author$project$Texts$textsToList($author$project$Texts$Gerhard$texts),
 					ld: A3(
 						$author$project$Luc$TextGen$generateEntries,
-						A3($author$project$Luc$TextGen$Probabilities, 0.7, 0.5, 0.0),
+						A3($author$project$Luc$TextGen$Probabilities, 0.65, 0.35, 0.0),
 						$author$project$Texts$textsToList($author$project$Texts$Gerhard$texts),
 						$author$project$Texts$textsToList($author$project$Texts$Ludvig$texts)),
 					le: $author$project$Texts$textsToList($author$project$Texts$Ludvig$texts)

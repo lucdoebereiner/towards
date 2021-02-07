@@ -1,11 +1,18 @@
 module Luc.TextGen exposing (Probabilities, entries, generateEntries, rule1)
 
 import Array exposing (Array)
+import Char
+import Dict
 import List.Extra as L
 import Maybe.Extra as M
 import Random
+import Set
 import Texts exposing (Entry)
 import Utils exposing (rotate)
+
+
+type alias Dimensions =
+    { width : Int, height : Int }
 
 
 type alias StringArray =
@@ -25,6 +32,11 @@ stringFromArray a =
 arrayFromEntry : Entry -> StringArray
 arrayFromEntry e =
     Texts.entryString e |> String.replace "\n" "" |> arrayFromString
+
+
+entryFromArray : StringArray -> Entry
+entryFromArray =
+    Texts.noNl << stringFromArray
 
 
 emptyArray : StringArray
@@ -243,7 +255,6 @@ neighbors c left right previous =
                 _ ->
                     Nothing
 
-        --fromPrev (c - )1
         rightNeighbor =
             case modBy 40 c of
                 39 ->
@@ -253,24 +264,43 @@ neighbors c left right previous =
                 _ ->
                     Nothing
 
-        --fromPrev (c + 1)
-        -- _ =
-        --     Debug.log "neighbors left and right" ( c, leftNeighbor, rightNeighbor )
         topNeighbor =
             fromPrev (c - 40)
 
         bottomNeighbor =
             fromPrev (c + 40)
+
+        leftDist =
+            modBy 40 c
+
+        rightDist =
+            39 - modBy 40 c
     in
     List.map (Maybe.withDefault False)
         [ leftNeighbor
         , rightNeighbor
         , topNeighbor
         , bottomNeighbor
-        , fromPrev (c - 1)
-        , fromPrev (c + 1)
-        , fromPrev (c - 2)
-        , fromPrev (c + 2)
+        , if leftDist >= 1 then
+            fromPrev (c - 1)
+
+          else
+            Nothing
+        , if rightDist >= 1 then
+            fromPrev (c + 1)
+
+          else
+            Nothing
+        , if leftDist >= 2 then
+            fromPrev (c - 2)
+
+          else
+            Nothing
+        , if rightDist >= 2 then
+            fromPrev (c + 2)
+
+          else
+            Nothing
         ]
 
 
@@ -364,22 +394,236 @@ generateEntries probs left right =
                 _ ->
                     []
     in
-    List.map
-        (\a ->
-            (Texts.noNl << stringFromArray) <|
-                Array.map
-                    (\s ->
-                        if s.visible then
-                            'x'
-
-                        else
-                            ' '
-                    )
-                    a
-        )
+    List.map (toRegionsEntry { width = 40, height = 30 })
+        -- (\a ->
+        --     entryFromArray <|
+        --         Array.map
+        --             (\s ->
+        --                 if s.visible then
+        --                     'x'
+        --                 else
+        --                     ' '
+        --             )
+        --             a
+        -- )
         (nextGen initState (rotate 1 left) (rotate 1 right) seedAfterInit)
 
 
 
+-- find regions
+
+
+type alias RegionEntry a =
+    { index : Int, label : a }
+
+
+type alias Regions a =
+    List (RegionEntry a)
+
+
+addToRegions : Regions a -> RegionEntry a -> Regions a
+addToRegions regions entry =
+    if List.any (\e -> e.index == entry.index) regions then
+        regions
+
+    else
+        entry :: regions
+
+
+symbolizeRegions : Regions Int -> Regions Char
+symbolizeRegions r =
+    let
+        dict =
+            List.map .label r
+                |> Set.fromList
+                |> Set.toList
+                |> List.indexedMap
+                    (\i l ->
+                        ( l, Char.fromCode (i + 33) )
+                    )
+                |> Dict.fromList
+    in
+    List.map
+        (\e ->
+            Maybe.map (\newLabel -> { index = e.index, label = newLabel }) <|
+                Dict.get e.label dict
+        )
+        r
+        |> M.values
+
+
+neighborIndices : Dimensions -> Int -> List Int
+neighborIndices { width, height } i =
+    let
+        line =
+            i // width
+
+        lineOffset =
+            line * width
+
+        lineIdx =
+            modBy width i
+
+        isLeft =
+            lineIdx == 0
+
+        isRight =
+            lineIdx == (width - 1)
+
+        isTopRow =
+            line == 0
+
+        isBottomRow =
+            line == (height - 1)
+
+        unless p v =
+            if not p then
+                Just v
+
+            else
+                Nothing
+
+        left =
+            unless isLeft (lineIdx - 1 + lineOffset)
+
+        right =
+            unless isRight (lineIdx + 1 + lineOffset)
+
+        top =
+            unless isTopRow (lineIdx + ((line - 1) * width))
+
+        bottom =
+            unless isBottomRow (lineIdx + ((line + 1) * width))
+
+        ltCorner =
+            unless (isTopRow || isLeft) (lineIdx - 1 + ((line - 1) * width))
+
+        rtCorner =
+            unless (isTopRow || isRight) (lineIdx + 1 + ((line - 1) * width))
+
+        lbCorner =
+            unless (isBottomRow || isLeft) (lineIdx - 1 + ((line + 1) * width))
+
+        rbCorner =
+            unless (isBottomRow || isRight) (lineIdx + 1 + ((line + 1) * width))
+    in
+    M.values [ left, right, top, bottom, ltCorner, rtCorner, lbCorner, rbCorner ]
+
+
+flip : (a -> b -> c) -> b -> a -> c
+flip function argB argA =
+    function argA argB
+
+
+collectNeighbors :
+    Dimensions
+    -> Int
+    -> Array CharState
+    -> List Int
+    -> List Int
+    -> Regions Int
+    -> Regions Int
+collectNeighbors dims l a toCheck checked acc =
+    case toCheck of
+        i :: nextToCheck ->
+            if
+                Maybe.map .visible (Array.get i a)
+                    |> Maybe.withDefault False
+            then
+                let
+                    thisEntry =
+                        { index = i, label = l }
+
+                    neighborsToCheck =
+                        neighborIndices dims i
+                            |> List.filter (\e -> not <| List.member e checked)
+
+                    neighborEntries =
+                        neighborsToCheck
+                            |> List.map
+                                (\n ->
+                                    if
+                                        Maybe.map .visible (Array.get n a)
+                                            |> Maybe.withDefault False
+                                    then
+                                        Just { index = n, label = l }
+
+                                    else
+                                        Nothing
+                                )
+                            |> M.values
+                in
+                collectNeighbors dims
+                    l
+                    a
+                    (nextToCheck ++ neighborsToCheck)
+                    (i :: checked)
+                    (thisEntry :: acc ++ neighborEntries)
+
+            else
+                collectNeighbors dims
+                    l
+                    a
+                    nextToCheck
+                    (i :: checked)
+                    acc
+
+        [] ->
+            acc
+
+
+regionsOfArray : Dimensions -> Array CharState -> Regions Int
+regionsOfArray dims a =
+    Array.indexedMap
+        (\i s ->
+            if s.visible then
+                let
+                    c =
+                        collectNeighbors dims i a [ i ] [] []
+
+                    -- _ =
+                    --     Debug.log "collected" c
+                in
+                c
+                -- { index = i, label = i }
+                --     :: (neighborIndices dims i
+                --             |> List.map
+                --                 (\n ->
+                --                     if
+                --                         Maybe.map .visible (Array.get n a)
+                --                             |> Maybe.withDefault False
+                --                     then
+                --                         Just { index = n, label = i }
+                --                     else
+                --                         Nothing
+                --                 )
+                --             |> M.values
+                --        )
+
+            else
+                []
+        )
+        a
+        |> Array.foldl (++) []
+        |> List.foldl (flip addToRegions) []
+
+
+toRegionsEntry : Dimensions -> Array CharState -> Entry
+toRegionsEntry dims a =
+    regionsOfArray dims a
+        |> (\v ->
+                -- let
+                --     _ =
+                --         Debug.log "regions" v
+                -- in
+                v
+           )
+        |> symbolizeRegions
+        |> List.foldl (\e -> Array.set e.index e.label) emptyArray
+        |> entryFromArray
+
+
+
 -- ideas shift generation by one to react to current neighbord and start with content not empty [done]
--- redefine neighborhood to avoid line break
+-- redefine neighborhood to avoid line break [done]
+-- detect regions
