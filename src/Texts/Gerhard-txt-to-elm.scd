@@ -1,10 +1,13 @@
 (
-var numLines, numChars;
-var cwd, towards, emptyLine, paragraphs, numParagraphs;
-var header, file, insertGridComment, padding, lineNum;
+var numPages, numLines, numChars;
+var cwd, towards, emptyLine, paragraphs, numParagraphs, paraSpacing;
+var header, file, insertGridComment, padding, lineNum, pageNum, paraLine;
+var writeBeginOfLine, writeEndOfLine, incrementLineNum, incrementLineNumAndParaLine;
 
+numPages = 50;
 numLines = 30;
 numChars = 40;
+paraSpacing = 0;
 
 cwd = thisProcess.nowExecutingPath.dirname();
 towards = FileReader.read(cwd +/+ "Gerhard.txt");
@@ -45,29 +48,80 @@ insertGridComment = {
 
 insertGridComment.();
 
+pageNum = 0;
 lineNum = 0;
-paragraphs.do({ |lines, pageNum|
-	var prefix;
+paraLine = 0;
 
-	prefix = (pageNum == 0).if({ "    [ ( " }, { "    , ( " });
-	(pageNum < 10).if({ prefix = prefix ++ " " });
+writeBeginOfLine = { |pageNum|
+	var begin;
 
-	file.write(prefix);
+	begin = (pageNum == 0).if({ "    [ ( " }, { "    , ( " });
+	(pageNum < 10).if({ begin = begin ++ " " });
+	file.write(begin);
 	file.write(pageNum.asString);
 	file.write(", Texts.noNl \"");
+};
 
-	(lineNum >= numLines).if({ lineNum = 0 });
-	lineNum.do({ file.write(emptyLine) });
+writeEndOfLine = {
+	file.write("\" )\n");
+	insertGridComment.();
+};
+
+incrementLineNum = {
+	lineNum = lineNum + 1;
+	(lineNum >= numLines).if({
+		lineNum = 0;
+		pageNum = pageNum + 1;
+		writeEndOfLine.();
+		(pageNum < numPages).if({
+			writeBeginOfLine.(pageNum);
+		});
+	});
+};
+
+incrementLineNumAndParaLine = {
+	incrementLineNum.();
+	paraLine = paraLine + 1;
+	((lineNum + 3) > numLines).if({
+		paraLine = 0;
+	});
+};
+
+writeBeginOfLine.(pageNum);
+
+paragraphs.do({ |lines, numPara|
+
+	paraLine.do({
+		file.write(emptyLine);
+		incrementLineNum.();
+	});
 
 	lines.do({ |line|
 		file.write(line);
-		lineNum = lineNum + 1;
+		incrementLineNumAndParaLine.();
 	});
 
-	(numLines - lineNum).do({ file.write(emptyLine) });
+	((lineNum + 2) > numLines).if({
+		paraLine = 0;
+	}, {
+		paraSpacing.do({
+			file.write(emptyLine);
+			incrementLineNumAndParaLine.();
+		});
+	});
 
-	file.write("\" )\n");
-	insertGridComment.();
+	(numLines - lineNum).do({
+		file.write(emptyLine);
+		incrementLineNum.();
+	});
+
+});
+
+(numPages - pageNum).do({
+	numLines.do({
+		file.write(emptyLine);
+		incrementLineNum.();
+	});
 });
 
 file.write("    ]\n");
