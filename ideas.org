@@ -1,0 +1,34 @@
+
+* TODO [#A] [DP] Reinit audio file git [0/2]
+ - [ ] a file with silence for each of us. Erase what is there.
+ - [ ] Exclude mp3 from audio git folder
+* TODO [#A] Test mode [0/2]
+- [ ] [LD] Display text field borders and editors (elm) 
+- [ ] [DP] Mute for audio channels (js -> elm) 
+- [ ] [LD] Make buttons in elm for control (elm)
+* TODO [#A] [LD] Rearrange folders for including each one's patches/codes for the text part
+- in the top folder
+* TODO [#B] [LE] Audio mixing/fading
+- lagging of mixing parameters
+- lagging of pan (with constant lag time for the moment)
+* TODO [#B] [LD] Performance of page turning
+* TODO [#C] [DP] Security Issues with SharedArrayBuffer
+* TODO [#C] [ALL] Think about the rotation parameter/interaction 
+* TODO [#C] [ALL] Averaging pages system
+- Pages dynamically change to converge to one average page number
+- OR the opposite: maximize differences
+* TODO [#C] [GE] Understand Depth to speed of change correlation
+- experiment with "config.transitionDepth" in Main.elm
+- put "config.transitionDepth" in the URL
+- Calculate speed
+* TODO [#C] [LD] Set up font loading
+
+
+* Notes
+** Tagging 
+- Tagging separately audio and text iterations
+- Whenever each of us pushes with a message e.g. "DP: iteration done"
+  he is signaling he is done. The last pushing his iteration also tags
+  the iteration.
+- Use tagging also in the audio files repo: do not use links or
+  dates. Simplify
