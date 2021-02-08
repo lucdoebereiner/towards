@@ -15,7 +15,7 @@
 
 
 ~genpages = {
-	~pages = Array.fill(~pageNum, {Array.fill(~lineNum, {Array.fill(~charNum ,"·")})});
+	~pages = Array.fill(~pageNum, {Array.fill(~lineNum, {Array.fill(~charNum ," ")})});
 	~pageNum.do{arg p;
 		~lineNum.do{arg l;
 			var bdot = [~d, ~t].choose;
