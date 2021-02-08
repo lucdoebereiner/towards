@@ -1,7 +1,9 @@
 
-* TODO [#A] [DP] Reinit audio file git [0/2]
- - [ ] a file with silence for each of us. Erase what is there.
- - [ ] Exclude mp3 from audio git folder
+* DONE [#A] [DP] Reinit audio file git [3/3]
+CLOSED: [2021-02-08 Mon 23:23]
+ - [X] add mp3 conversion script to cronjob
+ - [X] a file with silence for each of us. Erase what is there.
+ - [X] Exclude mp3 from audio git folder
 * TODO [#A] Test mode [0/2]
 - [ ] [LD] Display text field borders and editors (elm) 
 - [ ] [DP] Mute for audio channels (js -> elm) 
