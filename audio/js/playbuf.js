@@ -12,7 +12,7 @@ class PlayBufProcessor extends AudioWorkletProcessor {
 	this.counter = 0;
 	this.shArray = [];
 	this.init = false;
-
+	this.on = [true, true, true, true];
 	// console.log("numout, ch");
 	// console.log([this.numberOfOutputs]);
 	
@@ -60,7 +60,13 @@ class PlayBufProcessor extends AudioWorkletProcessor {
 		var pan = e.data.pan[1];
 		this.pan[idx] = [(1.0 - pan) * 0.5, (pan + 1) * 0.5];
 	    }
-
+	    if (e.data.mute) {
+		console.log("gotmute");
+		console.log(e.data.mute);
+		var idx = e.data.mute[0];
+		var monoff = e.data.mute[1];
+		this.on[idx] = !monoff;
+	    }
 	}
     }
 
@@ -70,16 +76,25 @@ class PlayBufProcessor extends AudioWorkletProcessor {
         // const input = inputs[0];
 	// console.log(["outputs : ", output]);
 	// console.log(this.pan);
+	console.log(this.on);
 	if (this.init) {
             for (let s = 0; s < output[0].length; s++) {
 		let so = [0.0, 0.0, 0.0, 0.0];
 		this.phase = this.phase + 1;
 		this.phase = this.phase % this.length;
 		for (let pp = 0; pp<this.pageNum; ++pp) {
-		    so[0] = so[0] + this.shArray[0][pp][this.phase] * this.amps[0][pp];
-		    so[1] = so[1] + this.shArray[1][pp][this.phase] * this.amps[1][pp];
-		    so[2] = so[2] + this.shArray[2][pp][this.phase] * this.amps[2][pp];
-		    so[3] = so[3] + this.shArray[3][pp][this.phase] * this.amps[3][pp];
+		    if (this.on[0]) {
+			so[0] = so[0] + this.shArray[0][pp][this.phase] * this.amps[0][pp];
+		    };
+		    if (this.on[1]) {
+			so[1] = so[1] + this.shArray[1][pp][this.phase] * this.amps[1][pp];
+		    }
+		    if (this.on[2]) {
+			so[2] = so[2] + this.shArray[2][pp][this.phase] * this.amps[2][pp];
+		    }
+		    if (this.on[3]) {
+			so[3] = so[3] + this.shArray[3][pp][this.phase] * this.amps[3][pp];
+		    }
 		}
 		output[0][s] = so[0] * this.pan[0][0] +
 		    so[1] * this.pan[1][0] +

@@ -48,6 +48,11 @@ class BufferLoader {
 	this.node.port.postMessage({pan: [index, pan]});
     }
 
+    sendMute(index, monoff) {
+	this.node.port.postMessage({mute: [index, monoff]});
+    }
+    
+    
     loadBuffer( ) {
 	// Load buffer asynchronously
 	var request = new XMLHttpRequest();
