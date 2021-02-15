@@ -6137,9 +6137,9 @@ var $author$project$PageIndices$PageIndices = F5(
 	function (le, dp, ge, ld, rotation) {
 		return {dp: dp, ge: ge, ld: ld, le: le, rotation: rotation};
 	});
-var $author$project$Pages$Root = F2(
-	function (a, b) {
-		return {$: 'Root', a: a, b: b};
+var $author$project$Pages$Root = F3(
+	function (a, b, c) {
+		return {$: 'Root', a: a, b: b, c: c};
 	});
 var $elm$url$Url$Parser$Internal$Parser = function (a) {
 	return {$: 'Parser', a: a};
@@ -6983,22 +6983,38 @@ var $elm$url$Url$Parser$parse = F2(
 					url.fragment,
 					$elm$core$Basics$identity)));
 	});
+var $author$project$Pages$test = A2(
+	$elm$url$Url$Parser$Query$map,
+	$elm$core$Maybe$withDefault(false),
+	A2(
+		$elm$url$Url$Parser$Query$enum,
+		'test',
+		$elm$core$Dict$fromList(
+			_List_fromArray(
+				[
+					_Utils_Tuple2('true', true),
+					_Utils_Tuple2('false', false)
+				]))));
 var $author$project$Pages$fromUrl = function (url) {
 	return A2(
 		$elm$core$Maybe$withDefault,
-		A2($author$project$Pages$Root, $author$project$PageIndices$default, true),
+		A3($author$project$Pages$Root, $author$project$PageIndices$default, true, false),
 		A2(
 			$elm$url$Url$Parser$parse,
 			A2(
 				$elm$url$Url$Parser$map,
-				F6(
-					function (l, d, g, ld, r, a) {
-						return A2(
+				F7(
+					function (l, d, g, ld, r, a, t) {
+						return A3(
 							$author$project$Pages$Root,
 							A5($author$project$PageIndices$PageIndices, l, d, g, ld, r),
-							a);
+							a,
+							t);
 					}),
-				A2($elm$url$Url$Parser$questionMark, $author$project$PageIndices$indicesParser, $author$project$Pages$audio)),
+				A2(
+					$elm$url$Url$Parser$questionMark,
+					A2($elm$url$Url$Parser$questionMark, $author$project$PageIndices$indicesParser, $author$project$Pages$audio),
+					$author$project$Pages$test)),
 			url));
 };
 var $author$project$Luc$TextGen$CharState = F3(
@@ -8081,6 +8097,10 @@ var $mdgriffith$elm_animator$Animator$init = function (first) {
 };
 var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
+var $author$project$Pages$testMode = function (_v0) {
+	var a = _v0.c;
+	return a;
+};
 var $author$project$Texts$David$texts = _List_fromArray(
 	[
 		_Utils_Tuple2(
@@ -9506,14 +9526,19 @@ var $author$project$Pages$toUrl = function (p) {
 		_Utils_ap(
 			$author$project$PageIndices$toUrl(
 				$author$project$Pages$indices(p)),
-			_List_fromArray(
-				[
-					A2(
-					$elm$url$Url$Builder$string,
-					'audio',
-					$author$project$Pages$boolToString(
-						$author$project$Pages$withAudio(p)))
-				])));
+			_Utils_ap(
+				_List_fromArray(
+					[
+						A2(
+						$elm$url$Url$Builder$string,
+						'audio',
+						$author$project$Pages$boolToString(
+							$author$project$Pages$withAudio(p)))
+					]),
+				$author$project$Pages$testMode(p) ? _List_fromArray(
+					[
+						A2($elm$url$Url$Builder$string, 'test', 'true')
+					]) : _List_Nil)));
 };
 var $mdgriffith$elm_animator$Animator$update = F3(
 	function (newTime, _v0, model) {
@@ -9550,7 +9575,6 @@ var $author$project$Main$update = F2(
 				var maxIdx = $author$project$Texts$length(model.texts);
 				var indices = $mdgriffith$elm_animator$Animator$current(model.pageIndices);
 				var amps = A2($author$project$Main$ampsCmd, model, indices);
-				var _v1 = A2($elm$core$Debug$log, 'buffer loader created', b);
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
@@ -9572,15 +9596,16 @@ var $author$project$Main$update = F2(
 						$elm$browser$Browser$Navigation$pushUrl,
 						model.navKey,
 						$author$project$Pages$toUrl(
-							A2(
+							A3(
 								$author$project$Pages$root,
 								newIndices,
-								$author$project$Main$withAudio(model.initStatus)))));
+								$author$project$Main$withAudio(model.initStatus),
+								model.testMode))));
 			case 'SetEditor':
 				var author = msg.a;
 				var str = msg.b;
 				var entry = $author$project$Texts$fromEditor(str);
-				var _v2 = A2(
+				var _v1 = A2(
 					$elm$core$Debug$log,
 					'Text:',
 					$author$project$Texts$printEntry(entry));
@@ -9627,10 +9652,11 @@ var $author$project$Main$update = F2(
 						$elm$browser$Browser$Navigation$pushUrl,
 						model.navKey,
 						$author$project$Pages$toUrl(
-							A2(
+							A3(
 								$author$project$Pages$root,
 								newIndices,
-								$author$project$Main$withAudio(model.initStatus)))));
+								$author$project$Main$withAudio(model.initStatus),
+								model.testMode))));
 		}
 	});
 var $mdgriffith$elm_ui$Internal$Model$AlignY = function (a) {
@@ -18071,16 +18097,24 @@ var $mdgriffith$elm_animator$Animator$Css$Linear = F3(
 var $mdgriffith$elm_animator$Animator$Css$opacity = function (lookup) {
 	return A3($mdgriffith$elm_animator$Animator$Css$Linear, 'opacity', lookup, $elm$core$String$fromFloat);
 };
-var $author$project$Main$textColumn = F5(
-	function (timeline, author, index, maxIdx, entry) {
+var $mdgriffith$elm_ui$Internal$Flag$borderStyle = $mdgriffith$elm_ui$Internal$Flag$flag(11);
+var $mdgriffith$elm_ui$Element$Border$solid = A2($mdgriffith$elm_ui$Internal$Model$Class, $mdgriffith$elm_ui$Internal$Flag$borderStyle, $mdgriffith$elm_ui$Internal$Style$classes.borderSolid);
+var $author$project$Main$textColumn = F6(
+	function (border, timeline, author, index, maxIdx, entry) {
 		return A2(
 			$mdgriffith$elm_ui$Element$el,
-			_List_fromArray(
-				[
-					$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$shrink),
-					$mdgriffith$elm_ui$Element$htmlAttribute(
-					A2($elm$html$Html$Attributes$style, 'line-height', '2'))
-				]),
+			_Utils_ap(
+				_List_fromArray(
+					[
+						$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$shrink),
+						$mdgriffith$elm_ui$Element$htmlAttribute(
+						A2($elm$html$Html$Attributes$style, 'line-height', '2'))
+					]),
+				border ? _List_fromArray(
+					[
+						$mdgriffith$elm_ui$Element$Border$solid,
+						$mdgriffith$elm_ui$Element$Border$width(1)
+					]) : _List_Nil),
 			$mdgriffith$elm_ui$Element$html(
 				A4(
 					$mdgriffith$elm_animator$Animator$Css$div,
@@ -18120,8 +18154,8 @@ var $author$project$Main$textColumn = F5(
 								]))
 						]))));
 	});
-var $author$project$Main$iteration = F4(
-	function (timeline, index, maxIdx, current) {
+var $author$project$Main$iteration = F5(
+	function (border, timeline, index, maxIdx, current) {
 		return A2(
 			$mdgriffith$elm_ui$Element$row,
 			_List_fromArray(
@@ -18132,8 +18166,9 @@ var $author$project$Main$iteration = F4(
 				A2(
 					$elm$core$List$map,
 					function (author) {
-						return A5(
+						return A6(
 							$author$project$Main$textColumn,
+							border,
 							timeline,
 							author,
 							index,
@@ -19266,7 +19301,7 @@ var $author$project$Main$viewColumns = function (model) {
 		_List_fromArray(
 			[
 				$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$fill),
-				A2($mdgriffith$elm_ui$Element$spacingXY, 0, 20)
+				A2($mdgriffith$elm_ui$Element$spacingXY, 0, 5)
 			]),
 		_List_fromArray(
 			[
@@ -19283,8 +19318,9 @@ var $author$project$Main$viewColumns = function (model) {
 								var luc = _v2.a;
 								var _v3 = _v2.b;
 								var ludvig = _v3.a;
-								return A4(
+								return A5(
 									$author$project$Main$iteration,
+									model.testMode,
 									model.pageIndices,
 									i,
 									$author$project$Texts$length(model.texts),
@@ -19299,7 +19335,7 @@ var $author$project$Main$viewColumns = function (model) {
 				$author$project$Main$buttons,
 				$mdgriffith$elm_animator$Animator$current(model.pageIndices),
 				$author$project$Texts$length(model.texts)),
-				$author$project$Main$viewEditable(model)
+				model.testMode ? $author$project$Main$viewEditable(model) : $mdgriffith$elm_ui$Element$none
 			]));
 };
 var $author$project$Main$viewMainContent = function (model) {
@@ -19353,6 +19389,7 @@ var $author$project$Main$main = $elm$browser$Browser$application(
 						needsUpdate: false,
 						pageIndices: $mdgriffith$elm_animator$Animator$init(
 							$author$project$Pages$indices(page)),
+						testMode: $author$project$Pages$testMode(page),
 						texts: texts
 					},
 					$elm$core$Platform$Cmd$none);

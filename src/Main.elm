@@ -57,6 +57,7 @@ type alias Model =
     , needsUpdate : Bool
     , texts : Texts
     , initStatus : InitStatus
+    , testMode : Bool
     }
 
 
@@ -77,8 +78,6 @@ main =
                                 (Luc.TextGen.Probabilities 0.65 0.35 0.0)
                                 (Texts.textsToList Gerhard.texts)
                                 (Texts.textsToList Ludvig.texts)
-
-                        --Texts.textsToList Luc.texts
                         }
                 in
                 ( { pageIndices =
@@ -92,6 +91,7 @@ main =
 
                         else
                             Uninitialized
+                  , testMode = Pages.testMode page
                   }
                 , Cmd.none
                 )
@@ -177,9 +177,6 @@ update msg model =
 
         BufferLoaderCreated b ->
             let
-                _ =
-                    Debug.log "buffer loader created" b
-
                 maxIdx =
                     Texts.length model.texts
 
@@ -211,7 +208,7 @@ update msg model =
             in
             ( model
             , Nav.pushUrl model.navKey
-                (Pages.toUrl (Pages.root newIndices (withAudio model.initStatus)))
+                (Pages.toUrl (Pages.root newIndices (withAudio model.initStatus) model.testMode))
             )
 
         SetEditor author str ->
@@ -266,7 +263,7 @@ update msg model =
             ( model
             , Nav.pushUrl
                 model.navKey
-                (Pages.toUrl (Pages.root newIndices (withAudio model.initStatus)))
+                (Pages.toUrl (Pages.root newIndices (withAudio model.initStatus) model.testMode))
             )
 
 
@@ -326,17 +323,27 @@ ampArray indices author maxIdx =
 
 
 textColumn :
-    Animator.Timeline PageIndices
+    Bool
+    -> Animator.Timeline PageIndices
     -> Author
     -> Int
     -> Int
     -> Entry
     -> Element Msg
-textColumn timeline author index maxIdx entry =
+textColumn border timeline author index maxIdx entry =
     el
-        [ width shrink
-        , htmlAttribute (Attributes.style "line-height" "2")
-        ]
+        ([ width shrink
+         , htmlAttribute (Attributes.style "line-height" "2")
+         ]
+            ++ (if border then
+                    [ Border.solid
+                    , Border.width 1
+                    ]
+
+                else
+                    []
+               )
+        )
     <|
         html
             (Animator.Css.div timeline
@@ -367,17 +374,19 @@ emptyColumn n =
 
 
 iteration :
-    Animator.Timeline PageIndices
+    Bool
+    -> Animator.Timeline PageIndices
     -> Int
     -> Int
     -> Texts.CurrentEntries
     -> Element Msg
-iteration timeline index maxIdx current =
+iteration border timeline index maxIdx current =
     row [ centerX, centerY ] <|
         List.intersperse (emptyColumn 1) <|
             List.map
                 (\author ->
-                    textColumn timeline
+                    textColumn border
+                        timeline
                         author
                         index
                         maxIdx
@@ -519,13 +528,14 @@ introPage =
 
 viewColumns : Model -> Element Msg
 viewColumns model =
-    column [ width fill, spacingXY 0 20 ] <|
+    column [ width fill, spacingXY 0 5 ] <|
         [ matryoshka <|
             List.indexedMap
                 (\i l ->
                     case l of
                         [ d, g, luc, ludvig ] ->
-                            iteration model.pageIndices
+                            iteration model.testMode
+                                model.pageIndices
                                 i
                                 (Texts.length model.texts)
                                 { ld = luc, dp = d, ge = g, le = ludvig }
@@ -540,7 +550,11 @@ viewColumns model =
                 (Texts.transposedTexts model.texts)
         , buttons (Animator.current model.pageIndices)
             (Texts.length model.texts)
-        , viewEditable model
+        , if model.testMode then
+            viewEditable model
+
+          else
+            none
         ]
 
 
