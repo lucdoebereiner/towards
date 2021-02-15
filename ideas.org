@@ -4,8 +4,8 @@ CLOSED: [2021-02-08 Mon 23:23]
  - [X] add mp3 conversion script to cronjob
  - [X] a file with silence for each of us. Erase what is there.
  - [X] Exclude mp3 from audio git folder
-* TODO [#A] Test mode [1/3]
-- [ ] [LD] Display text field borders and editors (elm) 
+* TODO [#A] Test mode [2/3]
+- [X] [LD] Display text field borders and editors (elm) 
 - [X] [DP] Mute for audio channels (js -> elm) 
   added /sendMute(index, monoff)/ method to the BufferLoader class.
   - /index/ is an integer in the range 0-3 (0 = david, 1 = gerhard, 2 =
