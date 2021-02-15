@@ -1,7 +1,7 @@
-module Pages exposing (fromUrl, indices, withAudio)
+module Pages exposing (fromUrl, indices, root, toUrl, withAudio)
 
 import Dict
-import PageIndices exposing (..)
+import PageIndices exposing (PageIndices)
 import Url exposing (Url)
 import Url.Builder as Builder
 import Url.Parser exposing ((<?>), Parser)
@@ -10,6 +10,10 @@ import Url.Parser.Query as Query
 
 type Page
     = Root PageIndices Bool
+
+
+root =
+    Root
 
 
 indices : Page -> PageIndices
@@ -30,10 +34,28 @@ audio =
 
 fromUrl : Url -> Page
 fromUrl url =
-    Maybe.withDefault (Root default True)
+    Maybe.withDefault (Root PageIndices.default True)
         (Url.Parser.parse
             (Url.Parser.map (\l d g ld r a -> Root (PageIndices l d g ld r) a)
-                (indicesParser <?> audio)
+                (PageIndices.indicesParser <?> audio)
             )
             url
+        )
+
+
+boolToString : Bool -> String
+boolToString b =
+    case b of
+        True ->
+            "true"
+
+        False ->
+            "false"
+
+
+toUrl : Page -> String
+toUrl p =
+    Builder.absolute []
+        (PageIndices.toUrl (indices p)
+            ++ [ Builder.string "audio" (boolToString (withAudio p)) ]
         )

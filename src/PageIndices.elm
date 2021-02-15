@@ -183,15 +183,15 @@ parsePageIndices =
     Url.Parser.map PageIndices indicesParser
 
 
-toUrl : PageIndices -> String
+toUrl : PageIndices -> List Builder.QueryParameter
 toUrl p =
-    Builder.absolute []
-        [ Builder.string "david" (String.fromFloat p.dp)
-        , Builder.string "luc" (String.fromFloat p.ld)
-        , Builder.string "gerhard" (String.fromFloat p.ge)
-        , Builder.string "ludvig" (String.fromFloat p.le)
-        , Builder.string "rotation" (String.fromInt p.rotation)
-        ]
+    --    Builder.absolute []
+    [ Builder.string "david" (String.fromFloat p.dp)
+    , Builder.string "luc" (String.fromFloat p.ld)
+    , Builder.string "gerhard" (String.fromFloat p.ge)
+    , Builder.string "ludvig" (String.fromFloat p.le)
+    , Builder.string "rotation" (String.fromInt p.rotation)
+    ]
 
 
 fromUrl : Url -> PageIndices

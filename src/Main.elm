@@ -41,6 +41,16 @@ type InitStatus
     | WithoutAudio
 
 
+withAudio : InitStatus -> Bool
+withAudio s =
+    case s of
+        WithoutAudio ->
+            False
+
+        _ ->
+            True
+
+
 type alias Model =
     { pageIndices : Animator.Timeline PageIndices
     , navKey : Nav.Key
@@ -160,7 +170,10 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         InitAudio ->
-            ( model, initAudio (PageIndices.indicesList (Animator.current model.pageIndices)) )
+            ( model
+            , initAudio
+                (PageIndices.indicesList (Animator.current model.pageIndices))
+            )
 
         BufferLoaderCreated b ->
             let
@@ -195,15 +208,10 @@ update msg model =
                         (config.scrollInc * incDec)
                         (Texts.length model.texts)
                         (Animator.current model.pageIndices)
-
-                -- amps =
-                --     ampsCmd model newIndices
             in
             ( model
-            , --Cmd.batch
-              Nav.pushUrl model.navKey (PageIndices.toUrl newIndices)
-              -- , amps
-              -- ]
+            , Nav.pushUrl model.navKey
+                (Pages.toUrl (Pages.root newIndices (withAudio model.initStatus)))
             )
 
         SetEditor author str ->
@@ -235,8 +243,11 @@ update msg model =
 
         UrlChanged url ->
             let
+                page =
+                    Pages.fromUrl url
+
                 newIndices =
-                    PageIndices.fromUrl url
+                    Pages.indices page
 
                 amps =
                     ampsCmd model newIndices
@@ -252,16 +263,10 @@ update msg model =
             )
 
         SetPage newIndices ->
-            -- let
-            --     amps =
-            --         ampsCmd model newIndices
-            -- in
             ( model
             , Nav.pushUrl
                 model.navKey
-                (PageIndices.toUrl newIndices)
-              -- , amps
-              -- ]
+                (Pages.toUrl (Pages.root newIndices (withAudio model.initStatus)))
             )
 
 

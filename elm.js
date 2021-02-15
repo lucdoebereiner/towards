@@ -9108,13 +9108,6 @@ var $author$project$Texts$Editor = function (a) {
 var $author$project$Texts$fromEditor = function (s) {
 	return $author$project$Texts$Editor(s);
 };
-var $author$project$PageIndices$parsePageIndices = A2($elm$url$Url$Parser$map, $author$project$PageIndices$PageIndices, $author$project$PageIndices$indicesParser);
-var $author$project$PageIndices$fromUrl = function (url) {
-	return A2(
-		$elm$core$Maybe$withDefault,
-		$author$project$PageIndices$default,
-		A2($elm$url$Url$Parser$parse, $author$project$PageIndices$parsePageIndices, url));
-};
 var $mdgriffith$elm_animator$Animator$TransitionTo = F2(
 	function (a, b) {
 		return {$: 'TransitionTo', a: a, b: b};
@@ -9350,6 +9343,7 @@ var $author$project$Texts$formatPrinting = function (s) {
 };
 var $author$project$Texts$printEntry = A2($elm$core$Basics$composeL, $author$project$Texts$formatPrinting, $author$project$Texts$entryString);
 var $elm$browser$Browser$Navigation$pushUrl = _Browser_pushUrl;
+var $author$project$Pages$root = $author$project$Pages$Root;
 var $mdgriffith$elm_animator$Animator$seconds = $ianmackenzie$elm_units$Duration$seconds;
 var $author$project$Texts$getText = F2(
 	function (author, texts) {
@@ -9456,7 +9450,13 @@ var $elm$url$Url$Builder$absolute = F2(
 	function (pathSegments, parameters) {
 		return '/' + (A2($elm$core$String$join, '/', pathSegments) + $elm$url$Url$Builder$toQuery(parameters));
 	});
-var $elm$core$String$fromFloat = _String_fromNumber;
+var $author$project$Pages$boolToString = function (b) {
+	if (b) {
+		return 'true';
+	} else {
+		return 'false';
+	}
+};
 var $elm$url$Url$Builder$QueryParameter = F2(
 	function (a, b) {
 		return {$: 'QueryParameter', a: a, b: b};
@@ -9469,39 +9469,64 @@ var $elm$url$Url$Builder$string = F2(
 			$elm$url$Url$percentEncode(key),
 			$elm$url$Url$percentEncode(value));
 	});
+var $elm$core$String$fromFloat = _String_fromNumber;
 var $author$project$PageIndices$toUrl = function (p) {
+	return _List_fromArray(
+		[
+			A2(
+			$elm$url$Url$Builder$string,
+			'david',
+			$elm$core$String$fromFloat(p.dp)),
+			A2(
+			$elm$url$Url$Builder$string,
+			'luc',
+			$elm$core$String$fromFloat(p.ld)),
+			A2(
+			$elm$url$Url$Builder$string,
+			'gerhard',
+			$elm$core$String$fromFloat(p.ge)),
+			A2(
+			$elm$url$Url$Builder$string,
+			'ludvig',
+			$elm$core$String$fromFloat(p.le)),
+			A2(
+			$elm$url$Url$Builder$string,
+			'rotation',
+			$elm$core$String$fromInt(p.rotation))
+		]);
+};
+var $author$project$Pages$withAudio = function (_v0) {
+	var a = _v0.b;
+	return a;
+};
+var $author$project$Pages$toUrl = function (p) {
 	return A2(
 		$elm$url$Url$Builder$absolute,
 		_List_Nil,
-		_List_fromArray(
-			[
-				A2(
-				$elm$url$Url$Builder$string,
-				'david',
-				$elm$core$String$fromFloat(p.dp)),
-				A2(
-				$elm$url$Url$Builder$string,
-				'luc',
-				$elm$core$String$fromFloat(p.ld)),
-				A2(
-				$elm$url$Url$Builder$string,
-				'gerhard',
-				$elm$core$String$fromFloat(p.ge)),
-				A2(
-				$elm$url$Url$Builder$string,
-				'ludvig',
-				$elm$core$String$fromFloat(p.le)),
-				A2(
-				$elm$url$Url$Builder$string,
-				'rotation',
-				$elm$core$String$fromInt(p.rotation))
-			]));
+		_Utils_ap(
+			$author$project$PageIndices$toUrl(
+				$author$project$Pages$indices(p)),
+			_List_fromArray(
+				[
+					A2(
+					$elm$url$Url$Builder$string,
+					'audio',
+					$author$project$Pages$boolToString(
+						$author$project$Pages$withAudio(p)))
+				])));
 };
 var $mdgriffith$elm_animator$Animator$update = F3(
 	function (newTime, _v0, model) {
 		var updateModel = _v0.b;
 		return A2(updateModel, newTime, model);
 	});
+var $author$project$Main$withAudio = function (s) {
+	if (s.$ === 'WithoutAudio') {
+		return false;
+	} else {
+		return true;
+	}
+};
 var $author$project$Main$update = F2(
 	function (msg, model) {
 		switch (msg.$) {
@@ -9546,7 +9571,11 @@ var $author$project$Main$update = F2(
 					A2(
 						$elm$browser$Browser$Navigation$pushUrl,
 						model.navKey,
-						$author$project$PageIndices$toUrl(newIndices)));
+						$author$project$Pages$toUrl(
+							A2(
+								$author$project$Pages$root,
+								newIndices,
+								$author$project$Main$withAudio(model.initStatus)))));
 			case 'SetEditor':
 				var author = msg.a;
 				var str = msg.b;
@@ -9576,7 +9605,8 @@ var $author$project$Main$update = F2(
 				return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
 			case 'UrlChanged':
 				var url = msg.a;
-				var newIndices = $author$project$PageIndices$fromUrl(url);
+				var page = $author$project$Pages$fromUrl(url);
+				var newIndices = $author$project$Pages$indices(page);
 				var amps = A2($author$project$Main$ampsCmd, model, newIndices);
 				return _Utils_Tuple2(
 					_Utils_update(
@@ -9596,7 +9626,11 @@ var $author$project$Main$update = F2(
 					A2(
 						$elm$browser$Browser$Navigation$pushUrl,
 						model.navKey,
-						$author$project$PageIndices$toUrl(newIndices)));
+						$author$project$Pages$toUrl(
+							A2(
+								$author$project$Pages$root,
+								newIndices,
+								$author$project$Main$withAudio(model.initStatus)))));
 		}
 	});
 var $mdgriffith$elm_ui$Internal$Model$AlignY = function (a) {
@@ -19296,10 +19330,6 @@ var $author$project$Main$view = function (model) {
 			]),
 		title: 'Towards'
 	};
-};
-var $author$project$Pages$withAudio = function (_v0) {
-	var a = _v0.b;
-	return a;
 };
 var $author$project$Main$main = $elm$browser$Browser$application(
 	{
