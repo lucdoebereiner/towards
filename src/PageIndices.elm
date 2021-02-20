@@ -15,6 +15,7 @@ module PageIndices exposing
     , previousIndex
     , setIndex
     , toUrl
+    , updateAuthor
     )
 
 import Basics.Extra exposing (fractionalModBy)
@@ -43,6 +44,22 @@ type Author
 
 authors =
     [ David, Gerhard, Luc, Ludvig ]
+
+
+updateAuthor : Author -> Float -> PageIndices -> PageIndices
+updateAuthor author i p =
+    case author of
+        David ->
+            { p | dp = i }
+
+        Gerhard ->
+            { p | ge = i }
+
+        Luc ->
+            { p | ld = i }
+
+        Ludvig ->
+            { p | le = i }
 
 
 authorIndex author =
@@ -86,26 +103,18 @@ incIndex author inc max indices =
     setIndex author newIdx indices
 
 
-nextIndex : Author -> Int -> PageIndices -> PageIndices
-nextIndex author max indices =
-    let
-        newIdx =
-            fractionalModBy (toFloat max)
-                (toFloat <| floor (getIndex author indices) + 1)
-                |> roundFloat
-    in
-    setIndex author newIdx indices
+nextIndex : Int -> Float -> Float
+nextIndex max index =
+    fractionalModBy (toFloat max)
+        (toFloat <| floor index + 1)
+        |> roundFloat
 
 
-previousIndex : Author -> Int -> PageIndices -> PageIndices
-previousIndex author max indices =
-    let
-        newIdx =
-            fractionalModBy (toFloat max)
-                (toFloat <| ceiling (getIndex author indices) - 1)
-                |> roundFloat
-    in
-    setIndex author newIdx indices
+previousIndex : Int -> Float -> Float
+previousIndex max index =
+    fractionalModBy (toFloat max)
+        (toFloat <| ceiling index - 1)
+        |> roundFloat
 
 
 getIndex : Author -> PageIndices -> Float
