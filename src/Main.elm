@@ -9,6 +9,7 @@ import Browser
 import Browser.Events
 import Browser.Navigation as Nav
 import Element exposing (..)
+import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
 import Element.Input as Input
@@ -64,6 +65,10 @@ type alias Model =
     , texts : Texts
     , initStatus : InitStatus
     , testMode : Bool
+    , muteGE : Bool
+    , muteLE : Bool
+    , muteDP : Bool
+    , muteLD : Bool
     }
 
 
@@ -75,6 +80,22 @@ modelIndices m =
         (Animator.current m.indexGE)
         (Animator.current m.indexLD)
         m.rotation
+
+
+muteOf : Author -> Model -> Bool
+muteOf author m =
+    case author of
+        Gerhard ->
+            m.muteGE
+
+        Luc ->
+            m.muteLD
+
+        Ludvig ->
+            m.muteLE
+
+        David ->
+            m.muteDP
 
 
 main =
@@ -111,6 +132,10 @@ main =
                         else
                             Uninitialized
                   , testMode = Pages.testMode page
+                  , muteLD = False
+                  , muteGE = False
+                  , muteLE = False
+                  , muteDP = False
                   }
                 , Cmd.none
                 )
@@ -147,6 +172,9 @@ port setAmps : ( Int, Array Float ) -> Cmd msg
 port setPan : ( Int, Float ) -> Cmd msg
 
 
+port sendMute : ( Int, Bool ) -> Cmd msg
+
+
 port bufferLoaderCreated : (Bool -> msg) -> Sub msg
 
 
@@ -161,6 +189,7 @@ type Msg
     | SetPage Author Float
     | SetEditor Author String
     | Scroll Float Author
+    | SetMute Author Bool
     | BufferLoaderCreated Bool
     | InitAudio
 
@@ -321,6 +350,24 @@ update msg model =
                 )
             )
 
+        SetMute author b ->
+            let
+                newModel =
+                    case author of
+                        Gerhard ->
+                            { model | muteGE = b }
+
+                        Ludvig ->
+                            { model | muteLE = b }
+
+                        Luc ->
+                            { model | muteLD = b }
+
+                        David ->
+                            { model | muteDP = b }
+            in
+            ( newModel, sendMute ( PageIndices.authorIndex author, b ) )
+
 
 animatorLD : Animator.Animator Model
 animatorLD =
@@ -409,13 +456,6 @@ ampArray indices author maxIdx =
     Array.initialize maxIdx (\i -> calcDistance authorIdx i maxIdx |> distanceToOpacity)
 
 
-
--- panAndAmp : PageIndices -> Author -> Int -> ( Float, Array Float )
--- panAndAmp indices author maxIdx =
---     ( authorPan author, ampArray indices author maxIdx )
---
-
-
 textColumn :
     Bool
     -> Animator.Timeline Float
@@ -485,6 +525,24 @@ buttonStyling =
     [ Border.width 1, padding 10, centerX ]
 
 
+muteButtonStyling b =
+    if b then
+        Background.color (rgb 0.6 0.6 0.6) :: buttonStyling
+
+    else
+        buttonStyling
+
+
+muteButton : Author -> Bool -> Element Msg
+muteButton author state =
+    Input.button (muteButtonStyling state)
+        { onPress =
+            Just <|
+                SetMute author (not state)
+        , label = text "Mute"
+        }
+
+
 columnButtons : Author -> Int -> Float -> Element Msg
 columnButtons author maxIdx index =
     let
@@ -531,9 +589,16 @@ buttons model =
                 )
                 (List.map
                     (\author ->
-                        columnButtons author
-                            maxIdx
-                            (PageIndices.getIndex author indices)
+                        column [ spacingXY 0 10, centerX ]
+                            [ columnButtons author
+                                maxIdx
+                                (PageIndices.getIndex author indices)
+                            , if model.testMode then
+                                muteButton author (muteOf author model)
+
+                              else
+                                none
+                            ]
                     )
                     (PageIndices.authorsInOrder indices)
                 )

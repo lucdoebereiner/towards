@@ -9410,6 +9410,21 @@ var $author$project$Texts$printEntry = A2($elm$core$Basics$composeL, $author$pro
 var $elm$browser$Browser$Navigation$pushUrl = _Browser_pushUrl;
 var $author$project$Pages$root = $author$project$Pages$Root;
 var $mdgriffith$elm_animator$Animator$seconds = $ianmackenzie$elm_units$Duration$seconds;
+var $elm$json$Json$Encode$bool = _Json_wrap;
+var $author$project$Main$sendMute = _Platform_outgoingPort(
+	'sendMute',
+	function ($) {
+		var a = $.a;
+		var b = $.b;
+		return A2(
+			$elm$json$Json$Encode$list,
+			$elm$core$Basics$identity,
+			_List_fromArray(
+				[
+					$elm$json$Json$Encode$int(a),
+					$elm$json$Json$Encode$bool(b)
+				]));
+	});
 var $author$project$Texts$getText = F2(
 	function (author, texts) {
 		switch (author.$) {
@@ -9739,7 +9754,7 @@ var $author$project$Main$update = F2(
 								model.indexLE)
 						}),
 					amps);
-			default:
+			case 'SetPage':
 				var author = msg.a;
 				var index = msg.b;
 				return _Utils_Tuple2(
@@ -9757,6 +9772,35 @@ var $author$project$Main$update = F2(
 									$author$project$Main$modelIndices(model)),
 								$author$project$Main$withAudio(model.initStatus),
 								model.testMode))));
+			default:
+				var author = msg.a;
+				var b = msg.b;
+				var newModel = function () {
+					switch (author.$) {
+						case 'Gerhard':
+							return _Utils_update(
+								model,
+								{muteGE: b});
+						case 'Ludvig':
+							return _Utils_update(
+								model,
+								{muteLE: b});
+						case 'Luc':
+							return _Utils_update(
+								model,
+								{muteLD: b});
+						default:
+							return _Utils_update(
+								model,
+								{muteDP: b});
+					}
+				}();
+				return _Utils_Tuple2(
+					newModel,
+					$author$project$Main$sendMute(
+						_Utils_Tuple2(
+							$author$project$PageIndices$authorIndex(author),
+							b)));
 		}
 	});
 var $mdgriffith$elm_ui$Internal$Model$AlignY = function (a) {
@@ -15439,7 +15483,6 @@ var $mdgriffith$elm_ui$Internal$Model$Button = {$: 'Button'};
 var $mdgriffith$elm_ui$Internal$Model$Describe = function (a) {
 	return {$: 'Describe', a: a};
 };
-var $elm$json$Json$Encode$bool = _Json_wrap;
 var $elm$html$Html$Attributes$boolProperty = F2(
 	function (key, bool) {
 		return A2(
@@ -15923,6 +15966,68 @@ var $elm$core$List$intersperse = F2(
 			return A2($elm$core$List$cons, hd, spersed);
 		}
 	});
+var $author$project$Main$SetMute = F2(
+	function (a, b) {
+		return {$: 'SetMute', a: a, b: b};
+	});
+var $mdgriffith$elm_ui$Element$Background$color = function (clr) {
+	return A2(
+		$mdgriffith$elm_ui$Internal$Model$StyleClass,
+		$mdgriffith$elm_ui$Internal$Flag$bgColor,
+		A3(
+			$mdgriffith$elm_ui$Internal$Model$Colored,
+			'bg-' + $mdgriffith$elm_ui$Internal$Model$formatColorClass(clr),
+			'background-color',
+			clr));
+};
+var $mdgriffith$elm_ui$Element$rgb = F3(
+	function (r, g, b) {
+		return A4($mdgriffith$elm_ui$Internal$Model$Rgba, r, g, b, 1);
+	});
+var $author$project$Main$muteButtonStyling = function (b) {
+	return b ? A2(
+		$elm$core$List$cons,
+		$mdgriffith$elm_ui$Element$Background$color(
+			A3($mdgriffith$elm_ui$Element$rgb, 0.6, 0.6, 0.6)),
+		$author$project$Main$buttonStyling) : $author$project$Main$buttonStyling;
+};
+var $author$project$Main$muteButton = F2(
+	function (author, state) {
+		return A2(
+			$mdgriffith$elm_ui$Element$Input$button,
+			$author$project$Main$muteButtonStyling(state),
+			{
+				label: $mdgriffith$elm_ui$Element$text('Mute'),
+				onPress: $elm$core$Maybe$Just(
+					A2($author$project$Main$SetMute, author, !state))
+			});
+	});
+var $author$project$Main$muteOf = F2(
+	function (author, m) {
+		switch (author.$) {
+			case 'Gerhard':
+				return m.muteGE;
+			case 'Luc':
+				return m.muteLD;
+			case 'Ludvig':
+				return m.muteLE;
+			default:
+				return m.muteDP;
+		}
+	});
+var $mdgriffith$elm_ui$Internal$Model$Empty = {$: 'Empty'};
+var $mdgriffith$elm_ui$Element$none = $mdgriffith$elm_ui$Internal$Model$Empty;
+var $mdgriffith$elm_ui$Element$spacingXY = F2(
+	function (x, y) {
+		return A2(
+			$mdgriffith$elm_ui$Internal$Model$StyleClass,
+			$mdgriffith$elm_ui$Internal$Flag$spacing,
+			A3(
+				$mdgriffith$elm_ui$Internal$Model$SpacingStyle,
+				A2($mdgriffith$elm_ui$Internal$Model$spacingName, x, y),
+				x,
+				y));
+	});
 var $author$project$Main$buttons = function (model) {
 	var maxIdx = $author$project$Texts$length(model.texts);
 	var indices = $author$project$Main$modelIndices(model);
@@ -15951,11 +16056,25 @@ var $author$project$Main$buttons = function (model) {
 				A2(
 					$elm$core$List$map,
 					function (author) {
-						return A3(
-							$author$project$Main$columnButtons,
-							author,
-							maxIdx,
-							A2($author$project$PageIndices$getIndex, author, indices));
+						return A2(
+							$mdgriffith$elm_ui$Element$column,
+							_List_fromArray(
+								[
+									A2($mdgriffith$elm_ui$Element$spacingXY, 0, 10),
+									$mdgriffith$elm_ui$Element$centerX
+								]),
+							_List_fromArray(
+								[
+									A3(
+									$author$project$Main$columnButtons,
+									author,
+									maxIdx,
+									A2($author$project$PageIndices$getIndex, author, indices)),
+									model.testMode ? A2(
+									$author$project$Main$muteButton,
+									author,
+									A2($author$project$Main$muteOf, author, model)) : $mdgriffith$elm_ui$Element$none
+								]));
 					},
 					$author$project$PageIndices$authorsInOrder(indices)))));
 };
@@ -16011,8 +16130,6 @@ var $mdgriffith$elm_ui$Element$createNearby = F2(
 var $mdgriffith$elm_ui$Element$inFront = function (element) {
 	return A2($mdgriffith$elm_ui$Element$createNearby, $mdgriffith$elm_ui$Internal$Model$InFront, element);
 };
-var $mdgriffith$elm_ui$Internal$Model$Empty = {$: 'Empty'};
-var $mdgriffith$elm_ui$Element$none = $mdgriffith$elm_ui$Internal$Model$Empty;
 var $author$project$Main$matryoshka = function (els) {
 	if (els.b) {
 		var first = els.a;
@@ -16030,17 +16147,6 @@ var $author$project$Main$matryoshka = function (els) {
 		return $mdgriffith$elm_ui$Element$none;
 	}
 };
-var $mdgriffith$elm_ui$Element$spacingXY = F2(
-	function (x, y) {
-		return A2(
-			$mdgriffith$elm_ui$Internal$Model$StyleClass,
-			$mdgriffith$elm_ui$Internal$Flag$spacing,
-			A3(
-				$mdgriffith$elm_ui$Internal$Model$SpacingStyle,
-				A2($mdgriffith$elm_ui$Internal$Model$spacingName, x, y),
-				x,
-				y));
-	});
 var $author$project$Main$Scroll = F2(
 	function (a, b) {
 		return {$: 'Scroll', a: a, b: b};
@@ -18477,16 +18583,6 @@ var $mdgriffith$elm_ui$Element$Input$calcMoveToCompensateForPadding = function (
 			$elm$core$Basics$floor(vSpace / 2));
 	}
 };
-var $mdgriffith$elm_ui$Element$Background$color = function (clr) {
-	return A2(
-		$mdgriffith$elm_ui$Internal$Model$StyleClass,
-		$mdgriffith$elm_ui$Internal$Flag$bgColor,
-		A3(
-			$mdgriffith$elm_ui$Internal$Model$Colored,
-			'bg-' + $mdgriffith$elm_ui$Internal$Model$formatColorClass(clr),
-			'background-color',
-			clr));
-};
 var $mdgriffith$elm_ui$Internal$Flag$borderColor = $mdgriffith$elm_ui$Internal$Flag$flag(28);
 var $mdgriffith$elm_ui$Element$Border$color = function (clr) {
 	return A2(
@@ -18498,10 +18594,6 @@ var $mdgriffith$elm_ui$Element$Border$color = function (clr) {
 			'border-color',
 			clr));
 };
-var $mdgriffith$elm_ui$Element$rgb = F3(
-	function (r, g, b) {
-		return A4($mdgriffith$elm_ui$Internal$Model$Rgba, r, g, b, 1);
-	});
 var $mdgriffith$elm_ui$Element$Input$darkGrey = A3($mdgriffith$elm_ui$Element$rgb, 186 / 255, 189 / 255, 182 / 255);
 var $mdgriffith$elm_ui$Element$paddingXY = F2(
 	function (x, y) {
@@ -19452,6 +19544,10 @@ var $author$project$Main$main = $elm$browser$Browser$application(
 						indexLE: $mdgriffith$elm_animator$Animator$init(
 							$author$project$Pages$indices(page).le),
 						initStatus: (!$author$project$Pages$withAudio(page)) ? $author$project$Main$WithoutAudio : $author$project$Main$Uninitialized,
+						muteDP: false,
+						muteGE: false,
+						muteLD: false,
+						muteLE: false,
 						navKey: navKey,
 						needsUpdate: false,
 						rotation: $author$project$Pages$indices(page).rotation,
