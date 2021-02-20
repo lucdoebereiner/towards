@@ -96,9 +96,7 @@ main =
                                 (Texts.textsToList Ludvig.texts)
                         }
                 in
-                ( { -- pageIndices =
-                    -- Animator.init (Pages.indices page)
-                    indexGE = Animator.init (Pages.indices page).ge
+                ( { indexGE = Animator.init (Pages.indices page).ge
                   , indexLD = Animator.init (Pages.indices page).ld
                   , indexLE = Animator.init (Pages.indices page).le
                   , indexDP = Animator.init (Pages.indices page).dp
@@ -672,9 +670,9 @@ view model =
             [ width fill
             , centerY
             , padding 20
-            , Font.size 14
+            , Font.size 13
             , Font.family
-                [ Font.monospace ]
+                [ Font.typeface "Inconsolata", Font.monospace ]
             ]
           <|
             viewMainContent model

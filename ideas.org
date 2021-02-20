@@ -17,7 +17,7 @@ CLOSED: [2021-02-08 Mon 23:23]
 * TODO [#B] [LE] Audio mixing/fading
 - lagging of mixing parameters
 - lagging of pan (with constant lag time for the moment)
-* TODO [#B] [LD] Performance of page turning
+* DONE [#B] [LD] Performance of page turning
 * TODO [#C] [DP] Security Issues with SharedArrayBuffer
 * TODO [#C] [ALL] Think about the rotation parameter/interaction 
 * TODO [#C] [ALL] Averaging pages system

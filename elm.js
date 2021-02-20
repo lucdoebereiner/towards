@@ -15433,6 +15433,7 @@ var $mdgriffith$elm_ui$Element$Font$size = function (i) {
 		$mdgriffith$elm_ui$Internal$Flag$fontSize,
 		$mdgriffith$elm_ui$Internal$Model$FontSize(i));
 };
+var $mdgriffith$elm_ui$Element$Font$typeface = $mdgriffith$elm_ui$Internal$Model$Typeface;
 var $author$project$Main$InitAudio = {$: 'InitAudio'};
 var $mdgriffith$elm_ui$Internal$Model$Button = {$: 'Button'};
 var $mdgriffith$elm_ui$Internal$Model$Describe = function (a) {
@@ -19412,10 +19413,13 @@ var $author$project$Main$view = function (model) {
 						$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$fill),
 						$mdgriffith$elm_ui$Element$centerY,
 						$mdgriffith$elm_ui$Element$padding(20),
-						$mdgriffith$elm_ui$Element$Font$size(14),
+						$mdgriffith$elm_ui$Element$Font$size(13),
 						$mdgriffith$elm_ui$Element$Font$family(
 						_List_fromArray(
-							[$mdgriffith$elm_ui$Element$Font$monospace]))
+							[
+								$mdgriffith$elm_ui$Element$Font$typeface('Inconsolata'),
+								$mdgriffith$elm_ui$Element$Font$monospace
+							]))
 					]),
 				$author$project$Main$viewMainContent(model))
 			]),
