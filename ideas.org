@@ -27,7 +27,7 @@ CLOSED: [2021-02-08 Mon 23:23]
 - experiment with "config.transitionDepth" in Main.elm
 - put "config.transitionDepth" in the URL
 - Calculate speed
-* TODO [#C] [LD] Set up font loading
+* DONE [#C] [LD] Set up font loading
 
 
 * Notes
