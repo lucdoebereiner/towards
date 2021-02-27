@@ -738,3 +738,39 @@ checkStartWithSpan words span acc =
 
             first :: rest ->
                 checkStartWithSpan rest span (acc ++ [ first ])
+
+
+checkStartWithSpanList : List String -> List SpanWithLength -> List String -> Maybe (List String)
+checkStartWithSpanList words span acc =
+    case span of
+        [] ->
+            Just acc
+
+        thisSpan :: otherSpans ->
+            let
+                thisCheck =
+                    checkStartWithSpan words thisSpan []
+            in
+            case thisCheck of
+                Nothing ->
+                    Nothing
+
+                Just lst ->
+                    checkStartWithSpanList (List.drop (List.length lst) words)
+                        otherSpans
+                        (acc ++ lst)
+
+
+correlateSpans : List String -> List SpanWithLength -> Maybe (List String)
+correlateSpans words spans =
+    case words of
+        [] ->
+            Nothing
+
+        wordsLst ->
+            case checkStartWithSpanList wordsLst spans [] of
+                Just found ->
+                    Just found
+
+                Nothing ->
+                    correlateSpans (List.drop 1 words) spans
