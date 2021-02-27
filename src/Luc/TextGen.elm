@@ -430,6 +430,119 @@ addToRegions regions entry =
         entry :: regions
 
 
+gatherRegions : Regions Int -> List ( Int, Regions Int )
+gatherRegions regions =
+    L.gatherEqualsBy .label regions
+        |> List.map (\( r, collected ) -> ( r.label, r :: collected ))
+
+
+type alias Span a =
+    { a
+        | line : Int
+        , lineIndexStart : Int
+        , lineIndexEnd : Int
+    }
+
+
+type alias SpanWithLength =
+    Span { min : Int, max : Int }
+
+
+lengthRange : Dimensions -> Span a -> SpanWithLength
+lengthRange dim span =
+    let
+        minLength =
+            (span.lineIndexEnd - span.lineIndexStart) + 1
+    in
+    { line = span.line
+    , lineIndexStart = span.lineIndexStart
+    , lineIndexEnd = span.lineIndexEnd
+    , min = minLength
+    , max = minLength + min 2 (dim.width - minLength)
+    }
+
+
+regionSpans : Dimensions -> Regions Int -> List (List SpanWithLength)
+regionSpans dims regions =
+    gatherRegions regions
+        |> List.map (\r -> List.map (lengthRange dims) (spanGroups dims r))
+
+
+
+-- lst needs to be sorted by .index
+
+
+spanGroupsAux : List IndexWithLine -> Maybe (Span {}) -> List (Span {}) -> List (Span {})
+spanGroupsAux lst span acc =
+    case ( lst, span ) of
+        ( [], Nothing ) ->
+            acc
+
+        ( [], Just curr ) ->
+            acc ++ [ curr ]
+
+        ( idx :: rest, Nothing ) ->
+            spanGroupsAux rest
+                (Just
+                    { line = idx.line
+                    , lineIndexStart = idx.indexInLine
+                    , lineIndexEnd = idx.indexInLine
+                    }
+                )
+                acc
+
+        ( idx :: rest, Just current ) ->
+            if
+                (current.line == idx.line)
+                    && (abs (idx.indexInLine - current.lineIndexStart)
+                            <= 2
+                            || abs (idx.indexInLine - current.lineIndexEnd)
+                            <= 2
+                       )
+            then
+                if idx.indexInLine < current.lineIndexStart then
+                    spanGroupsAux rest (Just { current | lineIndexStart = idx.indexInLine }) acc
+
+                else
+                    spanGroupsAux rest (Just { current | lineIndexEnd = idx.indexInLine }) acc
+
+            else
+                spanGroupsAux rest
+                    (Just
+                        { line = idx.line
+                        , lineIndexStart = idx.indexInLine
+                        , lineIndexEnd = idx.indexInLine
+                        }
+                    )
+                    (acc ++ [ current ])
+
+
+type alias IndexWithLine =
+    { line : Int
+    , indexInLine : Int
+    , index : Int
+    }
+
+
+
+-- assumes all regions have the same label
+
+
+spanGroups : Dimensions -> ( Int, Regions Int ) -> List (Span {})
+spanGroups dims ( label, regions ) =
+    List.map
+        (\r ->
+            let
+                line =
+                    r.index // dims.width
+            in
+            { line = line, indexInLine = r.index - (line * dims.width), index = r.index }
+        )
+        regions
+        |> List.sortBy .index
+        |> (\lst -> spanGroupsAux lst Nothing [])
+
+
 symbolizeRegions : Regions Int -> Regions Char
 symbolizeRegions r =
     let
@@ -577,28 +690,7 @@ regionsOfArray dims a =
     Array.indexedMap
         (\i s ->
             if s.visible then
-                let
-                    c =
-                        collectNeighbors dims i a [ i ] [] []
-
-                    -- _ =
-                    --     Debug.log "collected" c
-                in
-                c
-                -- { index = i, label = i }
-                --     :: (neighborIndices dims i
-                --             |> List.map
-                --                 (\n ->
-                --                     if
-                --                         Maybe.map .visible (Array.get n a)
-                --                             |> Maybe.withDefault False
-                --                     then
-                --                         Just { index = n, label = i }
-                --                     else
-                --                         Nothing
-                --                 )
-                --             |> M.values
-                --        )
+                collectNeighbors dims i a [ i ] [] []
 
             else
                 []
@@ -612,10 +704,10 @@ toRegionsEntry : Dimensions -> Array CharState -> Entry
 toRegionsEntry dims a =
     regionsOfArray dims a
         |> (\v ->
-                -- let
-                --     _ =
-                --         Debug.log "regions" v
-                -- in
+                let
+                    _ =
+                        Debug.log "regions" (regionSpans dims v)
+                in
                 v
            )
         |> symbolizeRegions
@@ -624,6 +716,25 @@ toRegionsEntry dims a =
 
 
 
--- ideas shift generation by one to react to current neighbord and start with content not empty [done]
--- redefine neighborhood to avoid line break [done]
--- detect regions
+-- check texts and spans
+
+
+checkStartWithSpan : List String -> SpanWithLength -> List String -> Maybe (List String)
+checkStartWithSpan words span acc =
+    let
+        c =
+            String.join " " acc |> String.length
+    in
+    if c > span.max then
+        Nothing
+
+    else if c >= span.min then
+        Just acc
+
+    else
+        case words of
+            [] ->
+                Nothing
+
+            first :: rest ->
+                checkStartWithSpan rest span (acc ++ [ first ])

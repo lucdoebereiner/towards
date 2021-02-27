@@ -7766,6 +7766,200 @@ var $author$project$Luc$TextGen$stringFromArray = function (a) {
 		$elm$core$Array$toList(a));
 };
 var $author$project$Luc$TextGen$entryFromArray = A2($elm$core$Basics$composeL, $author$project$Texts$noNl, $author$project$Luc$TextGen$stringFromArray);
+var $elm$core$Debug$log = _Debug_log;
+var $elm$core$List$partition = F2(
+	function (pred, list) {
+		var step = F2(
+			function (x, _v0) {
+				var trues = _v0.a;
+				var falses = _v0.b;
+				return pred(x) ? _Utils_Tuple2(
+					A2($elm$core$List$cons, x, trues),
+					falses) : _Utils_Tuple2(
+					trues,
+					A2($elm$core$List$cons, x, falses));
+			});
+		return A3(
+			$elm$core$List$foldr,
+			step,
+			_Utils_Tuple2(_List_Nil, _List_Nil),
+			list);
+	});
+var $elm_community$list_extra$List$Extra$gatherWith = F2(
+	function (testFn, list) {
+		var helper = F2(
+			function (scattered, gathered) {
+				if (!scattered.b) {
+					return $elm$core$List$reverse(gathered);
+				} else {
+					var toGather = scattered.a;
+					var population = scattered.b;
+					var _v1 = A2(
+						$elm$core$List$partition,
+						testFn(toGather),
+						population);
+					var gathering = _v1.a;
+					var remaining = _v1.b;
+					return A2(
+						helper,
+						remaining,
+						A2(
+							$elm$core$List$cons,
+							_Utils_Tuple2(toGather, gathering),
+							gathered));
+				}
+			});
+		return A2(helper, list, _List_Nil);
+	});
+var $elm_community$list_extra$List$Extra$gatherEqualsBy = F2(
+	function (extract, list) {
+		return A2(
+			$elm_community$list_extra$List$Extra$gatherWith,
+			F2(
+				function (a, b) {
+					return _Utils_eq(
+						extract(a),
+						extract(b));
+				}),
+			list);
+	});
+var $author$project$Luc$TextGen$gatherRegions = function (regions) {
+	return A2(
+		$elm$core$List$map,
+		function (_v0) {
+			var r = _v0.a;
+			var collected = _v0.b;
+			return _Utils_Tuple2(
+				r.label,
+				A2($elm$core$List$cons, r, collected));
+		},
+		A2(
+			$elm_community$list_extra$List$Extra$gatherEqualsBy,
+			function ($) {
+				return $.label;
+			},
+			regions));
+};
+var $author$project$Luc$TextGen$lengthRange = F2(
+	function (dim, span) {
+		var minLength = (span.lineIndexEnd - span.lineIndexStart) + 1;
+		return {
+			line: span.line,
+			lineIndexEnd: span.lineIndexEnd,
+			lineIndexStart: span.lineIndexStart,
+			max: minLength + A2($elm$core$Basics$min, 2, dim.width - minLength),
+			min: minLength
+		};
+	});
+var $elm$core$List$sortBy = _List_sortBy;
+var $author$project$Luc$TextGen$spanGroupsAux = F3(
+	function (lst, span, acc) {
+		spanGroupsAux:
+		while (true) {
+			var _v0 = _Utils_Tuple2(lst, span);
+			if (!_v0.a.b) {
+				if (_v0.b.$ === 'Nothing') {
+					var _v1 = _v0.b;
+					return acc;
+				} else {
+					var curr = _v0.b.a;
+					return _Utils_ap(
+						acc,
+						_List_fromArray(
+							[curr]));
+				}
+			} else {
+				if (_v0.b.$ === 'Nothing') {
+					var _v2 = _v0.a;
+					var idx = _v2.a;
+					var rest = _v2.b;
+					var _v3 = _v0.b;
+					var $temp$lst = rest,
+						$temp$span = $elm$core$Maybe$Just(
+						{line: idx.line, lineIndexEnd: idx.indexInLine, lineIndexStart: idx.indexInLine}),
+						$temp$acc = acc;
+					lst = $temp$lst;
+					span = $temp$span;
+					acc = $temp$acc;
+					continue spanGroupsAux;
+				} else {
+					var _v4 = _v0.a;
+					var idx = _v4.a;
+					var rest = _v4.b;
+					var current = _v0.b.a;
+					if (_Utils_eq(current.line, idx.line) && (($elm$core$Basics$abs(idx.indexInLine - current.lineIndexStart) <= 2) || ($elm$core$Basics$abs(idx.indexInLine - current.lineIndexEnd) <= 2))) {
+						if (_Utils_cmp(idx.indexInLine, current.lineIndexStart) < 0) {
+							var $temp$lst = rest,
+								$temp$span = $elm$core$Maybe$Just(
+								_Utils_update(
+									current,
+									{lineIndexStart: idx.indexInLine})),
+								$temp$acc = acc;
+							lst = $temp$lst;
+							span = $temp$span;
+							acc = $temp$acc;
+							continue spanGroupsAux;
+						} else {
+							var $temp$lst = rest,
+								$temp$span = $elm$core$Maybe$Just(
+								_Utils_update(
+									current,
+									{lineIndexEnd: idx.indexInLine})),
+								$temp$acc = acc;
+							lst = $temp$lst;
+							span = $temp$span;
+							acc = $temp$acc;
+							continue spanGroupsAux;
+						}
+					} else {
+						var $temp$lst = rest,
+							$temp$span = $elm$core$Maybe$Just(
+							{line: idx.line, lineIndexEnd: idx.indexInLine, lineIndexStart: idx.indexInLine}),
+							$temp$acc = _Utils_ap(
+							acc,
+							_List_fromArray(
+								[current]));
+						lst = $temp$lst;
+						span = $temp$span;
+						acc = $temp$acc;
+						continue spanGroupsAux;
+					}
+				}
+			}
+		}
+	});
+var $author$project$Luc$TextGen$spanGroups = F2(
+	function (dims, _v0) {
+		var label = _v0.a;
+		var regions = _v0.b;
+		return function (lst) {
+			return A3($author$project$Luc$TextGen$spanGroupsAux, lst, $elm$core$Maybe$Nothing, _List_Nil);
+		}(
+			A2(
+				$elm$core$List$sortBy,
+				function ($) {
+					return $.index;
+				},
+				A2(
+					$elm$core$List$map,
+					function (r) {
+						var line = (r.index / dims.width) | 0;
+						return {index: r.index, indexInLine: r.index - (line * dims.width), line: line};
+					},
+					regions)));
+	});
+var $author$project$Luc$TextGen$regionSpans = F2(
+	function (dims, regions) {
+		return A2(
+			$elm$core$List$map,
+			function (r) {
+				return A2(
+					$elm$core$List$map,
+					$author$project$Luc$TextGen$lengthRange(dims),
+					A2($author$project$Luc$TextGen$spanGroups, dims, r));
+			},
+			$author$project$Luc$TextGen$gatherRegions(regions));
+	});
 var $author$project$Luc$TextGen$addToRegions = F2(
 	function (regions, entry) {
 		return A2(
@@ -7934,20 +8128,15 @@ var $author$project$Luc$TextGen$regionsOfArray = F2(
 					$elm$core$Array$indexedMap,
 					F2(
 						function (i, s) {
-							if (s.visible) {
-								var c = A6(
-									$author$project$Luc$TextGen$collectNeighbors,
-									dims,
-									i,
-									a,
-									_List_fromArray(
-										[i]),
-									_List_Nil,
-									_List_Nil);
-								return c;
-							} else {
-								return _List_Nil;
-							}
+							return s.visible ? A6(
+								$author$project$Luc$TextGen$collectNeighbors,
+								dims,
+								i,
+								a,
+								_List_fromArray(
+									[i]),
+								_List_Nil,
+								_List_Nil) : _List_Nil;
 						}),
 					a)));
 	});
@@ -8050,6 +8239,10 @@ var $author$project$Luc$TextGen$toRegionsEntry = F2(
 				$author$project$Luc$TextGen$emptyArray,
 				$author$project$Luc$TextGen$symbolizeRegions(
 					function (v) {
+						var _v0 = A2(
+							$elm$core$Debug$log,
+							'regions',
+							A2($author$project$Luc$TextGen$regionSpans, dims, v));
 						return v;
 					}(
 						A2($author$project$Luc$TextGen$regionsOfArray, dims, a)))));
@@ -9002,7 +9195,6 @@ var $author$project$PageIndices$indicesList = function (i) {
 var $author$project$Main$initAudio = _Platform_outgoingPort(
 	'initAudio',
 	$elm$json$Json$Encode$list($elm$json$Json$Encode$float));
-var $elm$core$Debug$log = _Debug_log;
 var $ianmackenzie$elm_units$Quantity$greaterThan = F2(
 	function (_v0, _v1) {
 		var y = _v0.a;
