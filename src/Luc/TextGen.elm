@@ -394,18 +394,7 @@ generateEntries probs left right =
                 _ ->
                     []
     in
-    List.map (toRegionsEntry { width = 40, height = 30 })
-        -- (\a ->
-        --     entryFromArray <|
-        --         Array.map
-        --             (\s ->
-        --                 if s.visible then
-        --                     'x'
-        --                 else
-        --                     ' '
-        --             )
-        --             a
-        -- )
+    List.map (toRegionsEntryWithText { width = 40, height = 30 } sourceText)
         (nextGen initState (rotate 1 left) (rotate 1 right) seedAfterInit)
 
 
@@ -628,6 +617,10 @@ flip function argB argA =
     function argA argB
 
 
+
+-- todo optimize
+
+
 collectNeighbors :
     Dimensions
     -> Int
@@ -703,13 +696,13 @@ regionsOfArray dims a =
 toRegionsEntry : Dimensions -> Array CharState -> Entry
 toRegionsEntry dims a =
     regionsOfArray dims a
-        |> (\v ->
-                let
-                    _ =
-                        Debug.log "regions" (regionSpans dims v)
-                in
-                v
-           )
+        -- |> (\v ->
+        --         let
+        --             _ =
+        --                 Debug.log "regions" (regionSpans dims v)
+        --         in
+        --         v
+        --    )
         |> symbolizeRegions
         |> List.foldl (\e -> Array.set e.index e.label) emptyArray
         |> entryFromArray
@@ -740,7 +733,11 @@ checkStartWithSpan words span acc =
                 checkStartWithSpan rest span (acc ++ [ first ])
 
 
-checkStartWithSpanList : List String -> List SpanWithLength -> List String -> Maybe (List String)
+checkStartWithSpanList :
+    List String
+    -> List SpanWithLength
+    -> List ( SpanWithLength, List String )
+    -> Maybe (List ( SpanWithLength, List String ))
 checkStartWithSpanList words span acc =
     case span of
         [] ->
@@ -758,10 +755,13 @@ checkStartWithSpanList words span acc =
                 Just lst ->
                     checkStartWithSpanList (List.drop (List.length lst) words)
                         otherSpans
-                        (acc ++ lst)
+                        (acc ++ [ ( thisSpan, lst ) ])
 
 
-correlateSpans : List String -> List SpanWithLength -> Maybe (List String)
+correlateSpans :
+    List String
+    -> List SpanWithLength
+    -> Maybe (List ( SpanWithLength, List String ))
 correlateSpans words spans =
     case words of
         [] ->
@@ -774,3 +774,65 @@ correlateSpans words spans =
 
                 Nothing ->
                     correlateSpans (List.drop 1 words) spans
+
+
+insertString : Int -> String -> StringArray -> StringArray
+insertString startIdx str ar =
+    case String.uncons str of
+        Just ( ch, rest ) ->
+            insertString (startIdx + 1) rest (Array.set startIdx ch ar)
+
+        Nothing ->
+            ar
+
+
+writeSpanToArray :
+    Dimensions
+    -> ( SpanWithLength, List String )
+    -> StringArray
+    -> StringArray
+writeSpanToArray dims ( span, words ) ar =
+    let
+        strJoined =
+            String.join " " words
+
+        lengthDifference =
+            String.length strJoined - ((span.lineIndexEnd - span.lineIndexStart) + 1)
+
+        absStart =
+            span.lineIndexStart + (dims.width * span.line)
+    in
+    if lengthDifference > 0 then
+        if span.lineIndexEnd == (dims.width - 1) then
+            insertString (absStart - lengthDifference) strJoined ar
+
+        else if span.lineIndexStart > 0 then
+            insertString (absStart - 1) strJoined ar
+
+        else
+            insertString absStart strJoined ar
+
+    else
+        insertString absStart strJoined ar
+
+
+toRegionsEntryWithText : Dimensions -> String -> Array CharState -> Entry
+toRegionsEntryWithText dims text a =
+    regionsOfArray dims a
+        -- |> (\v ->
+        --         let
+        --             _ =
+        --                 Debug.log "regions" (regionSpans dims v)
+        --         in
+        --         v
+        --    )
+        |> regionSpans dims
+        |> List.map (correlateSpans (String.words text))
+        |> M.values
+        |> List.concat
+        |> List.foldl (writeSpanToArray dims) emptyArray
+        |> entryFromArray
+
+
+sourceText =
+    "Artistic practice has a conceptual and an aesthetic dimension. Their irreconcilability is a prerequisite.  Aesthetic thought demonstrates that thought is not tied to language, but    that there are unconscious, bodily, felt, material, and practiced    forms of thought. Aesthetic thought does not reflect its object at a distance but it is a speculative action that transforms and interacts with material. There is no method. This is not because    artistic practice is based on turmoil, inspiration or whim, but    because no abstract scheme of operation can be subtracted from its    material entanglement. The irreconcilability is a    prerequisite.  Speculative practice works at a    distance. Materialist artistic practice does not consist in    reconciling thought and matter, but in recognizing the productive    distances between matter and thoughts themselves.  No abstract    scheme of operation can be subtracted from arts material    entanglement.  We work with appearances."

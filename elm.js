@@ -7736,6 +7736,94 @@ var $author$project$Utils$rotate = F2(
 			A2($elm$core$List$drop, modN, l),
 			A2($elm$core$List$take, modN, l));
 	});
+var $author$project$Luc$TextGen$sourceText = 'Artistic practice has a conceptual and an aesthetic dimension. Their irreconcilability is a prerequisite.  Aesthetic thought demonstrates that thought is not tied to language, but    that there are unconscious, bodily, felt, material, and practiced    forms of thought. Aesthetic thought does not reflect its object at a distance but it is a speculative action that transforms and interacts with material. There is no method. This is not because    artistic practice is based on turmoil, inspiration or whim, but    because no abstract scheme of operation can be subtracted from its    material entanglement. The irreconcilability is a    prerequisite.  Speculative practice works at a    distance. Materialist artistic practice does not consist in    reconciling thought and matter, but in recognizing the productive    distances between matter and thoughts themselves.  No abstract    scheme of operation can be subtracted from arts material    entanglement.  We work with appearances.';
+var $author$project$Luc$TextGen$checkStartWithSpan = F3(
+	function (words, span, acc) {
+		checkStartWithSpan:
+		while (true) {
+			var c = $elm$core$String$length(
+				A2($elm$core$String$join, ' ', acc));
+			if (_Utils_cmp(c, span.max) > 0) {
+				return $elm$core$Maybe$Nothing;
+			} else {
+				if (_Utils_cmp(c, span.min) > -1) {
+					return $elm$core$Maybe$Just(acc);
+				} else {
+					if (!words.b) {
+						return $elm$core$Maybe$Nothing;
+					} else {
+						var first = words.a;
+						var rest = words.b;
+						var $temp$words = rest,
+							$temp$span = span,
+							$temp$acc = _Utils_ap(
+							acc,
+							_List_fromArray(
+								[first]));
+						words = $temp$words;
+						span = $temp$span;
+						acc = $temp$acc;
+						continue checkStartWithSpan;
+					}
+				}
+			}
+		}
+	});
+var $author$project$Luc$TextGen$checkStartWithSpanList = F3(
+	function (words, span, acc) {
+		checkStartWithSpanList:
+		while (true) {
+			if (!span.b) {
+				return $elm$core$Maybe$Just(acc);
+			} else {
+				var thisSpan = span.a;
+				var otherSpans = span.b;
+				var thisCheck = A3($author$project$Luc$TextGen$checkStartWithSpan, words, thisSpan, _List_Nil);
+				if (thisCheck.$ === 'Nothing') {
+					return $elm$core$Maybe$Nothing;
+				} else {
+					var lst = thisCheck.a;
+					var $temp$words = A2(
+						$elm$core$List$drop,
+						$elm$core$List$length(lst),
+						words),
+						$temp$span = otherSpans,
+						$temp$acc = _Utils_ap(
+						acc,
+						_List_fromArray(
+							[
+								_Utils_Tuple2(thisSpan, lst)
+							]));
+					words = $temp$words;
+					span = $temp$span;
+					acc = $temp$acc;
+					continue checkStartWithSpanList;
+				}
+			}
+		}
+	});
+var $author$project$Luc$TextGen$correlateSpans = F2(
+	function (words, spans) {
+		correlateSpans:
+		while (true) {
+			if (!words.b) {
+				return $elm$core$Maybe$Nothing;
+			} else {
+				var wordsLst = words;
+				var _v1 = A3($author$project$Luc$TextGen$checkStartWithSpanList, wordsLst, spans, _List_Nil);
+				if (_v1.$ === 'Just') {
+					var found = _v1.a;
+					return $elm$core$Maybe$Just(found);
+				} else {
+					var $temp$words = A2($elm$core$List$drop, 1, words),
+						$temp$spans = spans;
+					words = $temp$words;
+					spans = $temp$spans;
+					continue correlateSpans;
+				}
+			}
+		}
+	});
 var $author$project$Luc$TextGen$emptyArray = A2(
 	$elm$core$Array$repeat,
 	40 * 30,
@@ -7766,7 +7854,6 @@ var $author$project$Luc$TextGen$stringFromArray = function (a) {
 		$elm$core$Array$toList(a));
 };
 var $author$project$Luc$TextGen$entryFromArray = A2($elm$core$Basics$composeL, $author$project$Texts$noNl, $author$project$Luc$TextGen$stringFromArray);
-var $elm$core$Debug$log = _Debug_log;
 var $elm$core$List$partition = F2(
 	function (pred, list) {
 		var step = F2(
@@ -8140,6 +8227,7 @@ var $author$project$Luc$TextGen$regionsOfArray = F2(
 						}),
 					a)));
 	});
+var $elm$core$String$words = _String_words;
 var $elm$core$Elm$JsArray$unsafeSet = _JsArray_unsafeSet;
 var $elm$core$Array$setHelp = F4(
 	function (shift, index, value, tree) {
@@ -8183,69 +8271,53 @@ var $elm$core$Array$set = F3(
 			A4($elm$core$Array$setHelp, startShift, index, value, tree),
 			tail));
 	});
-var $elm$core$Char$fromCode = _Char_fromCode;
-var $elm$core$Set$Set_elm_builtin = function (a) {
-	return {$: 'Set_elm_builtin', a: a};
-};
-var $elm$core$Set$empty = $elm$core$Set$Set_elm_builtin($elm$core$Dict$empty);
-var $elm$core$Set$insert = F2(
-	function (key, _v0) {
-		var dict = _v0.a;
-		return $elm$core$Set$Set_elm_builtin(
-			A3($elm$core$Dict$insert, key, _Utils_Tuple0, dict));
+var $author$project$Luc$TextGen$insertString = F3(
+	function (startIdx, str, ar) {
+		insertString:
+		while (true) {
+			var _v0 = $elm$core$String$uncons(str);
+			if (_v0.$ === 'Just') {
+				var _v1 = _v0.a;
+				var ch = _v1.a;
+				var rest = _v1.b;
+				var $temp$startIdx = startIdx + 1,
+					$temp$str = rest,
+					$temp$ar = A3($elm$core$Array$set, startIdx, ch, ar);
+				startIdx = $temp$startIdx;
+				str = $temp$str;
+				ar = $temp$ar;
+				continue insertString;
+			} else {
+				return ar;
+			}
+		}
 	});
-var $elm$core$Set$fromList = function (list) {
-	return A3($elm$core$List$foldl, $elm$core$Set$insert, $elm$core$Set$empty, list);
-};
-var $author$project$Luc$TextGen$symbolizeRegions = function (r) {
-	var dict = $elm$core$Dict$fromList(
-		A2(
-			$elm$core$List$indexedMap,
-			F2(
-				function (i, l) {
-					return _Utils_Tuple2(
-						l,
-						$elm$core$Char$fromCode(i + 33));
-				}),
-			$elm$core$Set$toList(
-				$elm$core$Set$fromList(
-					A2(
-						$elm$core$List$map,
-						function ($) {
-							return $.label;
-						},
-						r)))));
-	return $elm_community$maybe_extra$Maybe$Extra$values(
-		A2(
-			$elm$core$List$map,
-			function (e) {
-				return A2(
-					$elm$core$Maybe$map,
-					function (newLabel) {
-						return {index: e.index, label: newLabel};
-					},
-					A2($elm$core$Dict$get, e.label, dict));
-			},
-			r));
-};
-var $author$project$Luc$TextGen$toRegionsEntry = F2(
-	function (dims, a) {
+var $author$project$Luc$TextGen$writeSpanToArray = F3(
+	function (dims, _v0, ar) {
+		var span = _v0.a;
+		var words = _v0.b;
+		var strJoined = A2($elm$core$String$join, ' ', words);
+		var lengthDifference = $elm$core$String$length(strJoined) - ((span.lineIndexEnd - span.lineIndexStart) + 1);
+		var absStart = span.lineIndexStart + (dims.width * span.line);
+		return (lengthDifference > 0) ? (_Utils_eq(span.lineIndexEnd, dims.width - 1) ? A3($author$project$Luc$TextGen$insertString, absStart - lengthDifference, strJoined, ar) : ((span.lineIndexStart > 0) ? A3($author$project$Luc$TextGen$insertString, absStart - 1, strJoined, ar) : A3($author$project$Luc$TextGen$insertString, absStart, strJoined, ar))) : A3($author$project$Luc$TextGen$insertString, absStart, strJoined, ar);
+	});
+var $author$project$Luc$TextGen$toRegionsEntryWithText = F3(
+	function (dims, text, a) {
 		return $author$project$Luc$TextGen$entryFromArray(
 			A3(
 				$elm$core$List$foldl,
-				function (e) {
-					return A2($elm$core$Array$set, e.index, e.label);
-				},
+				$author$project$Luc$TextGen$writeSpanToArray(dims),
 				$author$project$Luc$TextGen$emptyArray,
-				$author$project$Luc$TextGen$symbolizeRegions(
-					function (v) {
-						var _v0 = A2(
-							$elm$core$Debug$log,
-							'regions',
-							A2($author$project$Luc$TextGen$regionSpans, dims, v));
-						return v;
-					}(
-						A2($author$project$Luc$TextGen$regionsOfArray, dims, a)))));
+				$elm$core$List$concat(
+					$elm_community$maybe_extra$Maybe$Extra$values(
+						A2(
+							$elm$core$List$map,
+							$author$project$Luc$TextGen$correlateSpans(
+								$elm$core$String$words(text)),
+							A2(
+								$author$project$Luc$TextGen$regionSpans,
+								dims,
+								A2($author$project$Luc$TextGen$regionsOfArray, dims, a)))))));
 	});
 var $author$project$Luc$TextGen$generateEntries = F3(
 	function (probs, left, right) {
@@ -8295,8 +8367,10 @@ var $author$project$Luc$TextGen$generateEntries = F3(
 		var seedAfterInit = _v4.b;
 		return A2(
 			$elm$core$List$map,
-			$author$project$Luc$TextGen$toRegionsEntry(
-				{height: 30, width: 40}),
+			A2(
+				$author$project$Luc$TextGen$toRegionsEntryWithText,
+				{height: 30, width: 40},
+				$author$project$Luc$TextGen$sourceText),
 			A4(
 				nextGen,
 				initState,
@@ -9195,6 +9269,7 @@ var $author$project$PageIndices$indicesList = function (i) {
 var $author$project$Main$initAudio = _Platform_outgoingPort(
 	'initAudio',
 	$elm$json$Json$Encode$list($elm$json$Json$Encode$float));
+var $elm$core$Debug$log = _Debug_log;
 var $ianmackenzie$elm_units$Quantity$greaterThan = F2(
 	function (_v0, _v1) {
 		var y = _v0.a;
@@ -10019,7 +10094,6 @@ var $mdgriffith$elm_ui$Internal$Flag$flag = function (i) {
 };
 var $mdgriffith$elm_ui$Internal$Flag$fontFamily = $mdgriffith$elm_ui$Internal$Flag$flag(5);
 var $elm$core$String$toLower = _String_toLower;
-var $elm$core$String$words = _String_words;
 var $mdgriffith$elm_ui$Internal$Model$renderFontClassName = F2(
 	function (font, current) {
 		return _Utils_ap(
@@ -10206,6 +10280,10 @@ var $mdgriffith$elm_ui$Internal$Flag$alignRight = $mdgriffith$elm_ui$Internal$Fl
 var $mdgriffith$elm_ui$Internal$Flag$centerX = $mdgriffith$elm_ui$Internal$Flag$flag(42);
 var $mdgriffith$elm_ui$Internal$Flag$centerY = $mdgriffith$elm_ui$Internal$Flag$flag(43);
 var $elm$html$Html$div = _VirtualDom_node('div');
+var $elm$core$Set$Set_elm_builtin = function (a) {
+	return {$: 'Set_elm_builtin', a: a};
+};
+var $elm$core$Set$empty = $elm$core$Set$Set_elm_builtin($elm$core$Dict$empty);
 var $mdgriffith$elm_ui$Internal$Model$lengthClassName = function (x) {
 	switch (x.$) {
 		case 'Px':
@@ -10350,6 +10428,12 @@ var $mdgriffith$elm_ui$Internal$Model$getStyleName = function (style) {
 				$mdgriffith$elm_ui$Internal$Model$transformClass(x));
 	}
 };
+var $elm$core$Set$insert = F2(
+	function (key, _v0) {
+		var dict = _v0.a;
+		return $elm$core$Set$Set_elm_builtin(
+			A3($elm$core$Dict$insert, key, _Utils_Tuple0, dict));
+	});
 var $elm$core$Dict$member = F2(
 	function (key, dict) {
 		var _v0 = A2($elm$core$Dict$get, key, dict);
@@ -19719,7 +19803,7 @@ var $author$project$Main$main = $elm$browser$Browser$application(
 					ge: $author$project$Texts$textsToList($author$project$Texts$Gerhard$texts),
 					ld: A3(
 						$author$project$Luc$TextGen$generateEntries,
-						A3($author$project$Luc$TextGen$Probabilities, 0.65, 0.35, 0.0),
+						A3($author$project$Luc$TextGen$Probabilities, 0.62, 0.3, 0.0),
 						$author$project$Texts$textsToList($author$project$Texts$Gerhard$texts),
 						$author$project$Texts$textsToList($author$project$Texts$Ludvig$texts)),
 					le: $author$project$Texts$textsToList($author$project$Texts$Ludvig$texts)
