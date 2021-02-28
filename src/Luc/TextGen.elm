@@ -484,9 +484,9 @@ spanGroupsAux lst span acc =
             if
                 (current.line == idx.line)
                     && (abs (idx.indexInLine - current.lineIndexStart)
-                            <= 2
+                            <= 3
                             || abs (idx.indexInLine - current.lineIndexEnd)
-                            <= 2
+                            <= 3
                        )
             then
                 if idx.indexInLine < current.lineIndexStart then
@@ -662,7 +662,9 @@ collectNeighbors dims l a toCheck checked acc =
                 collectNeighbors dims
                     l
                     a
-                    (nextToCheck ++ neighborsToCheck)
+                    (nextToCheck
+                        ++ List.filter (\e -> not <| List.member e nextToCheck) neighborsToCheck
+                    )
                     (i :: checked)
                     (thisEntry :: acc ++ neighborEntries)
 
@@ -760,20 +762,21 @@ checkStartWithSpanList words span acc =
 
 correlateSpans :
     List String
+    -> Int
     -> List SpanWithLength
-    -> Maybe (List ( SpanWithLength, List String ))
-correlateSpans words spans =
-    case words of
+    -> ( Int, Maybe (List ( SpanWithLength, List String )) )
+correlateSpans words offset spans =
+    case List.drop offset words of
         [] ->
-            Nothing
+            ( offset, Nothing )
 
         wordsLst ->
             case checkStartWithSpanList wordsLst spans [] of
                 Just found ->
-                    Just found
+                    ( offset + 1, Just found )
 
                 Nothing ->
-                    correlateSpans (List.drop 1 words) spans
+                    correlateSpans words (offset + 1) spans
 
 
 insertString : Int -> String -> StringArray -> StringArray
@@ -827,7 +830,15 @@ toRegionsEntryWithText dims text a =
         --         v
         --    )
         |> regionSpans dims
-        |> List.map (correlateSpans (String.words text))
+        |> L.mapAccuml
+            (\offset spans ->
+                correlateSpans
+                    (rotate offset (String.words text))
+                    0
+                    spans
+            )
+            0
+        |> Tuple.second
         |> M.values
         |> List.concat
         |> List.foldl (writeSpanToArray dims) emptyArray

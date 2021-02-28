@@ -7802,22 +7802,27 @@ var $author$project$Luc$TextGen$checkStartWithSpanList = F3(
 			}
 		}
 	});
-var $author$project$Luc$TextGen$correlateSpans = F2(
-	function (words, spans) {
+var $author$project$Luc$TextGen$correlateSpans = F3(
+	function (words, offset, spans) {
 		correlateSpans:
 		while (true) {
-			if (!words.b) {
-				return $elm$core$Maybe$Nothing;
+			var _v0 = A2($elm$core$List$drop, offset, words);
+			if (!_v0.b) {
+				return _Utils_Tuple2(offset, $elm$core$Maybe$Nothing);
 			} else {
-				var wordsLst = words;
+				var wordsLst = _v0;
 				var _v1 = A3($author$project$Luc$TextGen$checkStartWithSpanList, wordsLst, spans, _List_Nil);
 				if (_v1.$ === 'Just') {
 					var found = _v1.a;
-					return $elm$core$Maybe$Just(found);
+					return _Utils_Tuple2(
+						offset + 1,
+						$elm$core$Maybe$Just(found));
 				} else {
-					var $temp$words = A2($elm$core$List$drop, 1, words),
+					var $temp$words = words,
+						$temp$offset = offset + 1,
 						$temp$spans = spans;
 					words = $temp$words;
+					offset = $temp$offset;
 					spans = $temp$spans;
 					continue correlateSpans;
 				}
@@ -7974,7 +7979,7 @@ var $author$project$Luc$TextGen$spanGroupsAux = F3(
 					var idx = _v4.a;
 					var rest = _v4.b;
 					var current = _v0.b.a;
-					if (_Utils_eq(current.line, idx.line) && (($elm$core$Basics$abs(idx.indexInLine - current.lineIndexStart) <= 2) || ($elm$core$Basics$abs(idx.indexInLine - current.lineIndexEnd) <= 2))) {
+					if (_Utils_eq(current.line, idx.line) && (($elm$core$Basics$abs(idx.indexInLine - current.lineIndexStart) <= 3) || ($elm$core$Basics$abs(idx.indexInLine - current.lineIndexEnd) <= 3))) {
 						if (_Utils_cmp(idx.indexInLine, current.lineIndexStart) < 0) {
 							var $temp$lst = rest,
 								$temp$span = $elm$core$Maybe$Just(
@@ -8144,7 +8149,14 @@ var $author$project$Luc$TextGen$collectNeighbors = F6(
 					var $temp$dims = dims,
 						$temp$l = l,
 						$temp$a = a,
-						$temp$toCheck = _Utils_ap(nextToCheck, neighborsToCheck),
+						$temp$toCheck = _Utils_ap(
+						nextToCheck,
+						A2(
+							$elm$core$List$filter,
+							function (e) {
+								return !A2($elm$core$List$member, e, nextToCheck);
+							},
+							neighborsToCheck)),
 						$temp$checked = A2($elm$core$List$cons, i, checked),
 						$temp$acc = A2(
 						$elm$core$List$cons,
@@ -8310,14 +8322,24 @@ var $author$project$Luc$TextGen$toRegionsEntryWithText = F3(
 				$author$project$Luc$TextGen$emptyArray,
 				$elm$core$List$concat(
 					$elm_community$maybe_extra$Maybe$Extra$values(
-						A2(
-							$elm$core$List$map,
-							$author$project$Luc$TextGen$correlateSpans(
-								$elm$core$String$words(text)),
+						A3(
+							$elm_community$list_extra$List$Extra$mapAccuml,
+							F2(
+								function (offset, spans) {
+									return A3(
+										$author$project$Luc$TextGen$correlateSpans,
+										A2(
+											$author$project$Utils$rotate,
+											offset,
+											$elm$core$String$words(text)),
+										0,
+										spans);
+								}),
+							0,
 							A2(
 								$author$project$Luc$TextGen$regionSpans,
 								dims,
-								A2($author$project$Luc$TextGen$regionsOfArray, dims, a)))))));
+								A2($author$project$Luc$TextGen$regionsOfArray, dims, a))).b))));
 	});
 var $author$project$Luc$TextGen$generateEntries = F3(
 	function (probs, left, right) {
@@ -19803,7 +19825,7 @@ var $author$project$Main$main = $elm$browser$Browser$application(
 					ge: $author$project$Texts$textsToList($author$project$Texts$Gerhard$texts),
 					ld: A3(
 						$author$project$Luc$TextGen$generateEntries,
-						A3($author$project$Luc$TextGen$Probabilities, 0.62, 0.3, 0.0),
+						A3($author$project$Luc$TextGen$Probabilities, 0.6, 0.35, 0.0),
 						$author$project$Texts$textsToList($author$project$Texts$Gerhard$texts),
 						$author$project$Texts$textsToList($author$project$Texts$Ludvig$texts)),
 					le: $author$project$Texts$textsToList($author$project$Texts$Ludvig$texts)
