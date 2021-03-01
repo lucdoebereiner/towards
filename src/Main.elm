@@ -35,7 +35,7 @@ import Utils
 
 
 config =
-    { scrollInc = 0.1, transitionDur = 1, transitionDepth = 1.0 }
+    { scrollInc = 0.1, transitionDur = 0, transitionDepth = 1.0 }
 
 
 type InitStatus
