@@ -2,6 +2,7 @@ module Texts.Ludvig exposing (texts)
 
 import Texts
 
+
 texts : List Texts.EntryWithIndex
 texts =
     [ ( 0, Texts.noNl "     _                   _             _ /  /7  -_/   7 / / 7 / /      //   --_   -   _  _|| |/    /|/-- _  _ -  _  / /  7||7-|_  _  _  7 /7|// _ / 7 / / / 77/7/    /  -/         / 7/     /   _   7-//        |   /7--  /||     |// / /        -            /       /                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 disruptions in                          the conceptual thermodynamics                                                                                                                                                                                                                                                                                                                                                                                   " )
