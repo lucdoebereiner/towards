@@ -1,0 +1,20 @@
+class PlayBufProcessor extends AudioWorkletProcessor {
+
+    constructor (options) {
+        super();
+    }
+    
+    process (inputs, outputs, parameters) {
+        const output = outputs[0];
+        const input = inputs[0];
+        
+        for (let s = 0; s < output[0].length; s++) {
+            for (let ch = 0; ch < output.length; ch++) {
+                output[ch][s] = ((Math.random() * 2 - 1) * 0.12);
+            }
+        }
+        return true
+    }
+}
+
+registerProcessor('playbufprocessor', PlayBufProcessor);

@@ -10,7 +10,8 @@ CLOSED: [2021-02-08 Mon 23:23]
   added /sendMute(index, monoff)/ method to the BufferLoader class.
   - /index/ is an integer in the range 0-3 (0 = david, 1 = gerhard, 2 =
     luc, 3 = ludvig)
-  - /monoff/ is boolean: true means that channel index will now be muted.
+  - /monoff/ is boolean: true means that channel index will now be
+    muted.
 - [ ] [LD] Make buttons in elm for control (elm)
 * TODO [#A] [LD] Rearrange folders for including each one's patches/codes for the text part
 - in the top folder
