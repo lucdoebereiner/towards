@@ -4,21 +4,20 @@ CLOSED: [2021-02-08 Mon 23:23]
  - [X] add mp3 conversion script to cronjob
  - [X] a file with silence for each of us. Erase what is there.
  - [X] Exclude mp3 from audio git folder
-* TODO [#A] Test mode [1/3]
-- [ ] [LD] Display text field borders and editors (elm) 
+* DONE [#A] Test mode [3/3]
+- [X] [LD] Display text field borders and editors (elm) 
 - [X] [DP] Mute for audio channels (js -> elm) 
   added /sendMute(index, monoff)/ method to the BufferLoader class.
   - /index/ is an integer in the range 0-3 (0 = david, 1 = gerhard, 2 =
     luc, 3 = ludvig)
-  - /monoff/ is boolean: true means that channel index will now be
-    muted.
-- [ ] [LD] Make buttons in elm for control (elm)
-* TODO [#A] [LD] Rearrange folders for including each one's patches/codes for the text part
+  - /monoff/ is boolean: true means that channel index will now be muted.
+- [X] [LD] Make buttons in elm for control (elm)
+* DONE [#A] [LD] Rearrange folders for including each one's patches/codes for the text part
 - in the top folder
 * TODO [#B] [LE] Audio mixing/fading
 - lagging of mixing parameters
 - lagging of pan (with constant lag time for the moment)
-* TODO [#B] [LD] Performance of page turning
+* DONE [#B] [LD] Performance of page turning
 * TODO [#C] [DP] Security Issues with SharedArrayBuffer
 * TODO [#C] [ALL] Think about the rotation parameter/interaction 
 * TODO [#C] [ALL] Averaging pages system
@@ -28,7 +27,7 @@ CLOSED: [2021-02-08 Mon 23:23]
 - experiment with "config.transitionDepth" in Main.elm
 - put "config.transitionDepth" in the URL
 - Calculate speed
-* TODO [#C] [LD] Set up font loading
+* DONE [#C] [LD] Set up font loading
 
 
 * Notes

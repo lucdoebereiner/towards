@@ -76,7 +76,7 @@ class PlayBufProcessor extends AudioWorkletProcessor {
         // const input = inputs[0];
 	// console.log(["outputs : ", output]);
 	// console.log(this.pan);
-	console.log(this.on);
+//	console.log(this.on);
 	if (this.init) {
             for (let s = 0; s < output[0].length; s++) {
 		let so = [0.0, 0.0, 0.0, 0.0];

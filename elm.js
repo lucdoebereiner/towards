@@ -4527,6 +4527,7 @@ var $elm$core$Basics$apR = F2(
 	function (x, f) {
 		return f(x);
 	});
+var $elm$core$Basics$eq = _Utils_equal;
 var $elm$core$Basics$True = {$: 'True'};
 var $mdgriffith$elm_animator$Internal$Timeline$hasChanged = function (_v0) {
 	var timeline = _v0.a;
@@ -4542,7 +4543,6 @@ var $mdgriffith$elm_animator$Internal$Timeline$hasChanged = function (_v0) {
 		return true;
 	}
 };
-var $elm$core$Basics$eq = _Utils_equal;
 var $mdgriffith$elm_animator$Internal$Timeline$justInitialized = function (_v0) {
 	var timeline = _v0.a;
 	var _v1 = timeline.now;
@@ -5460,16 +5460,52 @@ var $mdgriffith$elm_animator$Animator$Css$watching = F3(
 						newModel);
 				}));
 	});
-var $author$project$Main$animator = A3(
+var $author$project$Main$animatorDP = A3(
 	$mdgriffith$elm_animator$Animator$Css$watching,
 	function ($) {
-		return $.pageIndices;
+		return $.indexDP;
 	},
 	F2(
-		function (newIndices, model) {
+		function (newIndex, model) {
+			return _Utils_eq(newIndex, model.indexDP) ? model : _Utils_update(
+				model,
+				{indexDP: newIndex});
+		}),
+	$mdgriffith$elm_animator$Animator$animator);
+var $author$project$Main$animatorGE = A3(
+	$mdgriffith$elm_animator$Animator$Css$watching,
+	function ($) {
+		return $.indexGE;
+	},
+	F2(
+		function (newIndex, model) {
+			return _Utils_eq(newIndex, model.indexGE) ? model : _Utils_update(
+				model,
+				{indexGE: newIndex});
+		}),
+	$mdgriffith$elm_animator$Animator$animator);
+var $author$project$Main$animatorLD = A3(
+	$mdgriffith$elm_animator$Animator$Css$watching,
+	function ($) {
+		return $.indexLD;
+	},
+	F2(
+		function (newIndex, model) {
 			return _Utils_update(
 				model,
-				{pageIndices: newIndices});
+				{indexLD: newIndex});
+		}),
+	$mdgriffith$elm_animator$Animator$animator);
+var $author$project$Main$animatorLE = A3(
+	$mdgriffith$elm_animator$Animator$Css$watching,
+	function ($) {
+		return $.indexLE;
+	},
+	F2(
+		function (newIndex, model) {
+			return _Utils_eq(newIndex, model.indexLE) ? model : _Utils_update(
+				model,
+				{indexLE: newIndex});
 		}),
 	$mdgriffith$elm_animator$Animator$animator);
 var $elm$core$Basics$apL = F2(
@@ -6137,9 +6173,9 @@ var $author$project$PageIndices$PageIndices = F5(
 	function (le, dp, ge, ld, rotation) {
 		return {dp: dp, ge: ge, ld: ld, le: le, rotation: rotation};
 	});
-var $author$project$Pages$Root = F2(
-	function (a, b) {
-		return {$: 'Root', a: a, b: b};
+var $author$project$Pages$Root = F3(
+	function (a, b, c) {
+		return {$: 'Root', a: a, b: b, c: c};
 	});
 var $elm$url$Url$Parser$Internal$Parser = function (a) {
 	return {$: 'Parser', a: a};
@@ -6983,22 +7019,38 @@ var $elm$url$Url$Parser$parse = F2(
 					url.fragment,
 					$elm$core$Basics$identity)));
 	});
+var $author$project$Pages$test = A2(
+	$elm$url$Url$Parser$Query$map,
+	$elm$core$Maybe$withDefault(false),
+	A2(
+		$elm$url$Url$Parser$Query$enum,
+		'test',
+		$elm$core$Dict$fromList(
+			_List_fromArray(
+				[
+					_Utils_Tuple2('true', true),
+					_Utils_Tuple2('false', false)
+				]))));
 var $author$project$Pages$fromUrl = function (url) {
 	return A2(
 		$elm$core$Maybe$withDefault,
-		A2($author$project$Pages$Root, $author$project$PageIndices$default, true),
+		A3($author$project$Pages$Root, $author$project$PageIndices$default, true, false),
 		A2(
 			$elm$url$Url$Parser$parse,
 			A2(
 				$elm$url$Url$Parser$map,
-				F6(
-					function (l, d, g, ld, r, a) {
-						return A2(
+				F7(
+					function (l, d, g, ld, r, a, t) {
+						return A3(
 							$author$project$Pages$Root,
 							A5($author$project$PageIndices$PageIndices, l, d, g, ld, r),
-							a);
+							a,
+							t);
 					}),
-				A2($elm$url$Url$Parser$questionMark, $author$project$PageIndices$indicesParser, $author$project$Pages$audio)),
+				A2(
+					$elm$url$Url$Parser$questionMark,
+					A2($elm$url$Url$Parser$questionMark, $author$project$PageIndices$indicesParser, $author$project$Pages$audio),
+					$author$project$Pages$test)),
 			url));
 };
 var $author$project$Luc$TextGen$CharState = F3(
@@ -7684,6 +7736,99 @@ var $author$project$Utils$rotate = F2(
 			A2($elm$core$List$drop, modN, l),
 			A2($elm$core$List$take, modN, l));
 	});
+var $author$project$Luc$TextGen$sourceText = 'Artistic practice has a conceptual and an aesthetic dimension. Their irreconcilability is a prerequisite.  Aesthetic thought demonstrates that thought is not tied to language, but    that there are unconscious, bodily, felt, material, and practiced    forms of thought. Aesthetic thought does not reflect its object at a distance but it is a speculative action that transforms and interacts with material. There is no method. This is not because    artistic practice is based on turmoil, inspiration or whim, but    because no abstract scheme of operation can be subtracted from its    material entanglement. The irreconcilability is a    prerequisite.  Speculative practice works at a    distance. Materialist artistic practice does not consist in    reconciling thought and matter, but in recognizing the productive    distances between matter and thoughts themselves.  No abstract    scheme of operation can be subtracted from arts material    entanglement.  We work with appearances.';
+var $author$project$Luc$TextGen$checkStartWithSpan = F3(
+	function (words, span, acc) {
+		checkStartWithSpan:
+		while (true) {
+			var c = $elm$core$String$length(
+				A2($elm$core$String$join, ' ', acc));
+			if (_Utils_cmp(c, span.max) > 0) {
+				return $elm$core$Maybe$Nothing;
+			} else {
+				if (_Utils_cmp(c, span.min) > -1) {
+					return $elm$core$Maybe$Just(acc);
+				} else {
+					if (!words.b) {
+						return $elm$core$Maybe$Nothing;
+					} else {
+						var first = words.a;
+						var rest = words.b;
+						var $temp$words = rest,
+							$temp$span = span,
+							$temp$acc = _Utils_ap(
+							acc,
+							_List_fromArray(
+								[first]));
+						words = $temp$words;
+						span = $temp$span;
+						acc = $temp$acc;
+						continue checkStartWithSpan;
+					}
+				}
+			}
+		}
+	});
+var $author$project$Luc$TextGen$checkStartWithSpanList = F3(
+	function (words, span, acc) {
+		checkStartWithSpanList:
+		while (true) {
+			if (!span.b) {
+				return $elm$core$Maybe$Just(acc);
+			} else {
+				var thisSpan = span.a;
+				var otherSpans = span.b;
+				var thisCheck = A3($author$project$Luc$TextGen$checkStartWithSpan, words, thisSpan, _List_Nil);
+				if (thisCheck.$ === 'Nothing') {
+					return $elm$core$Maybe$Nothing;
+				} else {
+					var lst = thisCheck.a;
+					var $temp$words = A2(
+						$elm$core$List$drop,
+						$elm$core$List$length(lst),
+						words),
+						$temp$span = otherSpans,
+						$temp$acc = _Utils_ap(
+						acc,
+						_List_fromArray(
+							[
+								_Utils_Tuple2(thisSpan, lst)
+							]));
+					words = $temp$words;
+					span = $temp$span;
+					acc = $temp$acc;
+					continue checkStartWithSpanList;
+				}
+			}
+		}
+	});
+var $author$project$Luc$TextGen$correlateSpans = F3(
+	function (words, offset, spans) {
+		correlateSpans:
+		while (true) {
+			var _v0 = A2($elm$core$List$drop, offset, words);
+			if (!_v0.b) {
+				return _Utils_Tuple2(offset, $elm$core$Maybe$Nothing);
+			} else {
+				var wordsLst = _v0;
+				var _v1 = A3($author$project$Luc$TextGen$checkStartWithSpanList, wordsLst, spans, _List_Nil);
+				if (_v1.$ === 'Just') {
+					var found = _v1.a;
+					return _Utils_Tuple2(
+						offset + 1,
+						$elm$core$Maybe$Just(found));
+				} else {
+					var $temp$words = words,
+						$temp$offset = offset + 1,
+						$temp$spans = spans;
+					words = $temp$words;
+					offset = $temp$offset;
+					spans = $temp$spans;
+					continue correlateSpans;
+				}
+			}
+		}
+	});
 var $author$project$Luc$TextGen$emptyArray = A2(
 	$elm$core$Array$repeat,
 	40 * 30,
@@ -7714,6 +7859,199 @@ var $author$project$Luc$TextGen$stringFromArray = function (a) {
 		$elm$core$Array$toList(a));
 };
 var $author$project$Luc$TextGen$entryFromArray = A2($elm$core$Basics$composeL, $author$project$Texts$noNl, $author$project$Luc$TextGen$stringFromArray);
+var $elm$core$List$partition = F2(
+	function (pred, list) {
+		var step = F2(
+			function (x, _v0) {
+				var trues = _v0.a;
+				var falses = _v0.b;
+				return pred(x) ? _Utils_Tuple2(
+					A2($elm$core$List$cons, x, trues),
+					falses) : _Utils_Tuple2(
+					trues,
+					A2($elm$core$List$cons, x, falses));
+			});
+		return A3(
+			$elm$core$List$foldr,
+			step,
+			_Utils_Tuple2(_List_Nil, _List_Nil),
+			list);
+	});
+var $elm_community$list_extra$List$Extra$gatherWith = F2(
+	function (testFn, list) {
+		var helper = F2(
+			function (scattered, gathered) {
+				if (!scattered.b) {
+					return $elm$core$List$reverse(gathered);
+				} else {
+					var toGather = scattered.a;
+					var population = scattered.b;
+					var _v1 = A2(
+						$elm$core$List$partition,
+						testFn(toGather),
+						population);
+					var gathering = _v1.a;
+					var remaining = _v1.b;
+					return A2(
+						helper,
+						remaining,
+						A2(
+							$elm$core$List$cons,
+							_Utils_Tuple2(toGather, gathering),
+							gathered));
+				}
+			});
+		return A2(helper, list, _List_Nil);
+	});
+var $elm_community$list_extra$List$Extra$gatherEqualsBy = F2(
+	function (extract, list) {
+		return A2(
+			$elm_community$list_extra$List$Extra$gatherWith,
+			F2(
+				function (a, b) {
+					return _Utils_eq(
+						extract(a),
+						extract(b));
+				}),
+			list);
+	});
+var $author$project$Luc$TextGen$gatherRegions = function (regions) {
+	return A2(
+		$elm$core$List$map,
+		function (_v0) {
+			var r = _v0.a;
+			var collected = _v0.b;
+			return _Utils_Tuple2(
+				r.label,
+				A2($elm$core$List$cons, r, collected));
+		},
+		A2(
+			$elm_community$list_extra$List$Extra$gatherEqualsBy,
+			function ($) {
+				return $.label;
+			},
+			regions));
+};
+var $author$project$Luc$TextGen$lengthRange = F2(
+	function (dim, span) {
+		var minLength = (span.lineIndexEnd - span.lineIndexStart) + 1;
+		return {
+			line: span.line,
+			lineIndexEnd: span.lineIndexEnd,
+			lineIndexStart: span.lineIndexStart,
+			max: minLength + A2($elm$core$Basics$min, 2, dim.width - minLength),
+			min: minLength
+		};
+	});
+var $elm$core$List$sortBy = _List_sortBy;
+var $author$project$Luc$TextGen$spanGroupsAux = F3(
+	function (lst, span, acc) {
+		spanGroupsAux:
+		while (true) {
+			var _v0 = _Utils_Tuple2(lst, span);
+			if (!_v0.a.b) {
+				if (_v0.b.$ === 'Nothing') {
+					var _v1 = _v0.b;
+					return acc;
+				} else {
+					var curr = _v0.b.a;
+					return _Utils_ap(
+						acc,
+						_List_fromArray(
+							[curr]));
+				}
+			} else {
+				if (_v0.b.$ === 'Nothing') {
+					var _v2 = _v0.a;
+					var idx = _v2.a;
+					var rest = _v2.b;
+					var _v3 = _v0.b;
+					var $temp$lst = rest,
+						$temp$span = $elm$core$Maybe$Just(
+						{line: idx.line, lineIndexEnd: idx.indexInLine, lineIndexStart: idx.indexInLine}),
+						$temp$acc = acc;
+					lst = $temp$lst;
+					span = $temp$span;
+					acc = $temp$acc;
+					continue spanGroupsAux;
+				} else {
+					var _v4 = _v0.a;
+					var idx = _v4.a;
+					var rest = _v4.b;
+					var current = _v0.b.a;
+					if (_Utils_eq(current.line, idx.line) && (($elm$core$Basics$abs(idx.indexInLine - current.lineIndexStart) <= 3) || ($elm$core$Basics$abs(idx.indexInLine - current.lineIndexEnd) <= 3))) {
+						if (_Utils_cmp(idx.indexInLine, current.lineIndexStart) < 0) {
+							var $temp$lst = rest,
+								$temp$span = $elm$core$Maybe$Just(
+								_Utils_update(
+									current,
+									{lineIndexStart: idx.indexInLine})),
+								$temp$acc = acc;
+							lst = $temp$lst;
+							span = $temp$span;
+							acc = $temp$acc;
+							continue spanGroupsAux;
+						} else {
+							var $temp$lst = rest,
+								$temp$span = $elm$core$Maybe$Just(
+								_Utils_update(
+									current,
+									{lineIndexEnd: idx.indexInLine})),
+								$temp$acc = acc;
+							lst = $temp$lst;
+							span = $temp$span;
+							acc = $temp$acc;
+							continue spanGroupsAux;
+						}
+					} else {
+						var $temp$lst = rest,
+							$temp$span = $elm$core$Maybe$Just(
+							{line: idx.line, lineIndexEnd: idx.indexInLine, lineIndexStart: idx.indexInLine}),
+							$temp$acc = _Utils_ap(
+							acc,
+							_List_fromArray(
+								[current]));
+						lst = $temp$lst;
+						span = $temp$span;
+						acc = $temp$acc;
+						continue spanGroupsAux;
+					}
+				}
+			}
+		}
+	});
+var $author$project$Luc$TextGen$spanGroups = F2(
+	function (dims, _v0) {
+		var label = _v0.a;
+		var regions = _v0.b;
+		return function (lst) {
+			return A3($author$project$Luc$TextGen$spanGroupsAux, lst, $elm$core$Maybe$Nothing, _List_Nil);
+		}(
+			A2(
+				$elm$core$List$sortBy,
+				function ($) {
+					return $.index;
+				},
+				A2(
+					$elm$core$List$map,
+					function (r) {
+						var line = (r.index / dims.width) | 0;
+						return {index: r.index, indexInLine: r.index - (line * dims.width), line: line};
+					},
+					regions)));
+	});
+var $author$project$Luc$TextGen$regionSpans = F2(
+	function (dims, regions) {
+		return A2(
+			$elm$core$List$map,
+			function (r) {
+				return A2(
+					$elm$core$List$map,
+					$author$project$Luc$TextGen$lengthRange(dims),
+					A2($author$project$Luc$TextGen$spanGroups, dims, r));
+			},
+			$author$project$Luc$TextGen$gatherRegions(regions));
+	});
 var $author$project$Luc$TextGen$addToRegions = F2(
 	function (regions, entry) {
 		return A2(
@@ -7811,7 +8149,14 @@ var $author$project$Luc$TextGen$collectNeighbors = F6(
 					var $temp$dims = dims,
 						$temp$l = l,
 						$temp$a = a,
-						$temp$toCheck = _Utils_ap(nextToCheck, neighborsToCheck),
+						$temp$toCheck = _Utils_ap(
+						nextToCheck,
+						A2(
+							$elm$core$List$filter,
+							function (e) {
+								return !A2($elm$core$List$member, e, nextToCheck);
+							},
+							neighborsToCheck)),
 						$temp$checked = A2($elm$core$List$cons, i, checked),
 						$temp$acc = A2(
 						$elm$core$List$cons,
@@ -7882,23 +8227,19 @@ var $author$project$Luc$TextGen$regionsOfArray = F2(
 					$elm$core$Array$indexedMap,
 					F2(
 						function (i, s) {
-							if (s.visible) {
-								var c = A6(
-									$author$project$Luc$TextGen$collectNeighbors,
-									dims,
-									i,
-									a,
-									_List_fromArray(
-										[i]),
-									_List_Nil,
-									_List_Nil);
-								return c;
-							} else {
-								return _List_Nil;
-							}
+							return s.visible ? A6(
+								$author$project$Luc$TextGen$collectNeighbors,
+								dims,
+								i,
+								a,
+								_List_fromArray(
+									[i]),
+								_List_Nil,
+								_List_Nil) : _List_Nil;
 						}),
 					a)));
 	});
+var $elm$core$String$words = _String_words;
 var $elm$core$Elm$JsArray$unsafeSet = _JsArray_unsafeSet;
 var $elm$core$Array$setHelp = F4(
 	function (shift, index, value, tree) {
@@ -7942,65 +8283,63 @@ var $elm$core$Array$set = F3(
 			A4($elm$core$Array$setHelp, startShift, index, value, tree),
 			tail));
 	});
-var $elm$core$Char$fromCode = _Char_fromCode;
-var $elm$core$Set$Set_elm_builtin = function (a) {
-	return {$: 'Set_elm_builtin', a: a};
-};
-var $elm$core$Set$empty = $elm$core$Set$Set_elm_builtin($elm$core$Dict$empty);
-var $elm$core$Set$insert = F2(
-	function (key, _v0) {
-		var dict = _v0.a;
-		return $elm$core$Set$Set_elm_builtin(
-			A3($elm$core$Dict$insert, key, _Utils_Tuple0, dict));
+var $author$project$Luc$TextGen$insertString = F3(
+	function (startIdx, str, ar) {
+		insertString:
+		while (true) {
+			var _v0 = $elm$core$String$uncons(str);
+			if (_v0.$ === 'Just') {
+				var _v1 = _v0.a;
+				var ch = _v1.a;
+				var rest = _v1.b;
+				var $temp$startIdx = startIdx + 1,
+					$temp$str = rest,
+					$temp$ar = A3($elm$core$Array$set, startIdx, ch, ar);
+				startIdx = $temp$startIdx;
+				str = $temp$str;
+				ar = $temp$ar;
+				continue insertString;
+			} else {
+				return ar;
+			}
+		}
 	});
-var $elm$core$Set$fromList = function (list) {
-	return A3($elm$core$List$foldl, $elm$core$Set$insert, $elm$core$Set$empty, list);
-};
-var $author$project$Luc$TextGen$symbolizeRegions = function (r) {
-	var dict = $elm$core$Dict$fromList(
-		A2(
-			$elm$core$List$indexedMap,
-			F2(
-				function (i, l) {
-					return _Utils_Tuple2(
-						l,
-						$elm$core$Char$fromCode(i + 33));
-				}),
-			$elm$core$Set$toList(
-				$elm$core$Set$fromList(
-					A2(
-						$elm$core$List$map,
-						function ($) {
-							return $.label;
-						},
-						r)))));
-	return $elm_community$maybe_extra$Maybe$Extra$values(
-		A2(
-			$elm$core$List$map,
-			function (e) {
-				return A2(
-					$elm$core$Maybe$map,
-					function (newLabel) {
-						return {index: e.index, label: newLabel};
-					},
-					A2($elm$core$Dict$get, e.label, dict));
-			},
-			r));
-};
-var $author$project$Luc$TextGen$toRegionsEntry = F2(
-	function (dims, a) {
+var $author$project$Luc$TextGen$writeSpanToArray = F3(
+	function (dims, _v0, ar) {
+		var span = _v0.a;
+		var words = _v0.b;
+		var strJoined = A2($elm$core$String$join, ' ', words);
+		var lengthDifference = $elm$core$String$length(strJoined) - ((span.lineIndexEnd - span.lineIndexStart) + 1);
+		var absStart = span.lineIndexStart + (dims.width * span.line);
+		return (lengthDifference > 0) ? (_Utils_eq(span.lineIndexEnd, dims.width - 1) ? A3($author$project$Luc$TextGen$insertString, absStart - lengthDifference, strJoined, ar) : ((span.lineIndexStart > 0) ? A3($author$project$Luc$TextGen$insertString, absStart - 1, strJoined, ar) : A3($author$project$Luc$TextGen$insertString, absStart, strJoined, ar))) : A3($author$project$Luc$TextGen$insertString, absStart, strJoined, ar);
+	});
+var $author$project$Luc$TextGen$toRegionsEntryWithText = F3(
+	function (dims, text, a) {
 		return $author$project$Luc$TextGen$entryFromArray(
 			A3(
 				$elm$core$List$foldl,
-				function (e) {
-					return A2($elm$core$Array$set, e.index, e.label);
-				},
+				$author$project$Luc$TextGen$writeSpanToArray(dims),
 				$author$project$Luc$TextGen$emptyArray,
-				$author$project$Luc$TextGen$symbolizeRegions(
-					function (v) {
-						return v;
-					}(
-						A2($author$project$Luc$TextGen$regionsOfArray, dims, a)))));
+				$elm$core$List$concat(
+					$elm_community$maybe_extra$Maybe$Extra$values(
+						A3(
+							$elm_community$list_extra$List$Extra$mapAccuml,
+							F2(
+								function (offset, spans) {
+									return A3(
+										$author$project$Luc$TextGen$correlateSpans,
+										A2(
+											$author$project$Utils$rotate,
+											offset,
+											$elm$core$String$words(text)),
+										0,
+										spans);
+								}),
+							0,
+							A2(
+								$author$project$Luc$TextGen$regionSpans,
+								dims,
+								A2($author$project$Luc$TextGen$regionsOfArray, dims, a))).b))));
 	});
 var $author$project$Luc$TextGen$generateEntries = F3(
 	function (probs, left, right) {
@@ -8050,8 +8389,10 @@ var $author$project$Luc$TextGen$generateEntries = F3(
 		var seedAfterInit = _v4.b;
 		return A2(
 			$elm$core$List$map,
-			$author$project$Luc$TextGen$toRegionsEntry(
-				{height: 30, width: 40}),
+			A2(
+				$author$project$Luc$TextGen$toRegionsEntryWithText,
+				{height: 30, width: 40},
+				$author$project$Luc$TextGen$sourceText),
 			A4(
 				nextGen,
 				initState,
@@ -8081,6 +8422,10 @@ var $mdgriffith$elm_animator$Animator$init = function (first) {
 };
 var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
+var $author$project$Pages$testMode = function (_v0) {
+	var a = _v0.c;
+	return a;
+};
 var $author$project$Texts$David$texts = _List_fromArray(
 	[
 		_Utils_Tuple2(
@@ -8712,6 +9057,241 @@ var $author$project$Main$ampsCmd = F2(
 var $author$project$Main$authorPan = function (author) {
 	return (-0.7) + ((1.4 / 3) * $author$project$PageIndices$authorIndex(author));
 };
+var $author$project$Texts$Editor = function (a) {
+	return {$: 'Editor', a: a};
+};
+var $author$project$Texts$fromEditor = function (s) {
+	return $author$project$Texts$Editor(s);
+};
+var $mdgriffith$elm_animator$Animator$TransitionTo = F2(
+	function (a, b) {
+		return {$: 'TransitionTo', a: a, b: b};
+	});
+var $mdgriffith$elm_animator$Animator$event = $mdgriffith$elm_animator$Animator$TransitionTo;
+var $mdgriffith$elm_animator$Animator$initializeSchedule = F2(
+	function (waiting, steps) {
+		initializeSchedule:
+		while (true) {
+			if (!steps.b) {
+				return $elm$core$Maybe$Nothing;
+			} else {
+				if (steps.a.$ === 'Wait') {
+					var additionalWait = steps.a.a;
+					var moreSteps = steps.b;
+					var $temp$waiting = A2($ianmackenzie$elm_units$Quantity$plus, waiting, additionalWait),
+						$temp$steps = moreSteps;
+					waiting = $temp$waiting;
+					steps = $temp$steps;
+					continue initializeSchedule;
+				} else {
+					var _v1 = steps.a;
+					var dur = _v1.a;
+					var checkpoint = _v1.b;
+					var moreSteps = steps.b;
+					return $elm$core$Maybe$Just(
+						_Utils_Tuple2(
+							A3(
+								$mdgriffith$elm_animator$Internal$Timeline$Schedule,
+								waiting,
+								A3($mdgriffith$elm_animator$Internal$Timeline$Event, dur, checkpoint, $elm$core$Maybe$Nothing),
+								_List_Nil),
+							moreSteps));
+				}
+			}
+		}
+	});
+var $ianmackenzie$elm_units$Duration$seconds = function (numSeconds) {
+	return $ianmackenzie$elm_units$Quantity$Quantity(numSeconds);
+};
+var $ianmackenzie$elm_units$Duration$milliseconds = function (numMilliseconds) {
+	return $ianmackenzie$elm_units$Duration$seconds(0.001 * numMilliseconds);
+};
+var $mdgriffith$elm_animator$Animator$millis = $ianmackenzie$elm_units$Duration$milliseconds;
+var $mdgriffith$elm_animator$Internal$Timeline$addToDwell = F2(
+	function (duration, maybeDwell) {
+		if (!$ianmackenzie$elm_units$Duration$inMilliseconds(duration)) {
+			return maybeDwell;
+		} else {
+			if (maybeDwell.$ === 'Nothing') {
+				return $elm$core$Maybe$Just(duration);
+			} else {
+				var existing = maybeDwell.a;
+				return $elm$core$Maybe$Just(
+					A2($ianmackenzie$elm_units$Quantity$plus, duration, existing));
+			}
+		}
+	});
+var $mdgriffith$elm_animator$Internal$Timeline$extendEventDwell = F2(
+	function (extendBy, thisEvent) {
+		var at = thisEvent.a;
+		var ev = thisEvent.b;
+		var maybeDwell = thisEvent.c;
+		return (!$ianmackenzie$elm_units$Duration$inMilliseconds(extendBy)) ? thisEvent : A3(
+			$mdgriffith$elm_animator$Internal$Timeline$Event,
+			at,
+			ev,
+			A2($mdgriffith$elm_animator$Internal$Timeline$addToDwell, extendBy, maybeDwell));
+	});
+var $mdgriffith$elm_animator$Animator$stepsToEvents = F2(
+	function (currentStep, _v0) {
+		var delay = _v0.a;
+		var startEvent = _v0.b;
+		var events = _v0.c;
+		if (!events.b) {
+			if (currentStep.$ === 'Wait') {
+				var waiting = currentStep.a;
+				return A3(
+					$mdgriffith$elm_animator$Internal$Timeline$Schedule,
+					delay,
+					A2($mdgriffith$elm_animator$Internal$Timeline$extendEventDwell, waiting, startEvent),
+					events);
+			} else {
+				var dur = currentStep.a;
+				var checkpoint = currentStep.b;
+				return A3(
+					$mdgriffith$elm_animator$Internal$Timeline$Schedule,
+					delay,
+					startEvent,
+					_List_fromArray(
+						[
+							A3($mdgriffith$elm_animator$Internal$Timeline$Event, dur, checkpoint, $elm$core$Maybe$Nothing)
+						]));
+			}
+		} else {
+			var _v3 = events.a;
+			var durationTo = _v3.a;
+			var recentEvent = _v3.b;
+			var maybeDwell = _v3.c;
+			var remaining = events.b;
+			if (currentStep.$ === 'Wait') {
+				var dur = currentStep.a;
+				return A3(
+					$mdgriffith$elm_animator$Internal$Timeline$Schedule,
+					delay,
+					startEvent,
+					A2(
+						$elm$core$List$cons,
+						A3(
+							$mdgriffith$elm_animator$Internal$Timeline$Event,
+							durationTo,
+							recentEvent,
+							A2($mdgriffith$elm_animator$Internal$Timeline$addToDwell, dur, maybeDwell)),
+						remaining));
+			} else {
+				var dur = currentStep.a;
+				var checkpoint = currentStep.b;
+				return _Utils_eq(checkpoint, recentEvent) ? A3(
+					$mdgriffith$elm_animator$Internal$Timeline$Schedule,
+					delay,
+					startEvent,
+					A2(
+						$elm$core$List$cons,
+						A3(
+							$mdgriffith$elm_animator$Internal$Timeline$Event,
+							durationTo,
+							recentEvent,
+							A2($mdgriffith$elm_animator$Internal$Timeline$addToDwell, dur, maybeDwell)),
+						remaining)) : A3(
+					$mdgriffith$elm_animator$Internal$Timeline$Schedule,
+					delay,
+					startEvent,
+					A2(
+						$elm$core$List$cons,
+						A3($mdgriffith$elm_animator$Internal$Timeline$Event, dur, checkpoint, $elm$core$Maybe$Nothing),
+						events));
+			}
+		}
+	});
+var $mdgriffith$elm_animator$Animator$interrupt = F2(
+	function (steps, _v0) {
+		var tl = _v0.a;
+		return $mdgriffith$elm_animator$Internal$Timeline$Timeline(
+			_Utils_update(
+				tl,
+				{
+					interruption: function () {
+						var _v1 = A2(
+							$mdgriffith$elm_animator$Animator$initializeSchedule,
+							$mdgriffith$elm_animator$Animator$millis(0),
+							steps);
+						if (_v1.$ === 'Nothing') {
+							return tl.interruption;
+						} else {
+							var _v2 = _v1.a;
+							var schedule = _v2.a;
+							var otherSteps = _v2.b;
+							return A2(
+								$elm$core$List$cons,
+								A3($elm$core$List$foldl, $mdgriffith$elm_animator$Animator$stepsToEvents, schedule, otherSteps),
+								tl.interruption);
+						}
+					}(),
+					running: true
+				}));
+	});
+var $mdgriffith$elm_animator$Animator$go = F3(
+	function (duration, ev, timeline) {
+		return A2(
+			$mdgriffith$elm_animator$Animator$interrupt,
+			_List_fromArray(
+				[
+					A2($mdgriffith$elm_animator$Animator$event, duration, ev)
+				]),
+			timeline);
+	});
+var $elm_community$basics_extra$Basics$Extra$fractionalModBy = F2(
+	function (modulus, x) {
+		return x - (modulus * $elm$core$Basics$floor(x / modulus));
+	});
+var $elm$core$Basics$round = _Basics_round;
+var $author$project$PageIndices$roundFloat = function (f) {
+	return function (i) {
+		return i / 1000;
+	}(
+		$elm$core$Basics$round(f * 1000));
+};
+var $author$project$PageIndices$setIndex = F3(
+	function (author, f, indices) {
+		switch (author.$) {
+			case 'Luc':
+				return _Utils_update(
+					indices,
+					{ld: f});
+			case 'Gerhard':
+				return _Utils_update(
+					indices,
+					{ge: f});
+			case 'David':
+				return _Utils_update(
+					indices,
+					{dp: f});
+			default:
+				return _Utils_update(
+					indices,
+					{le: f});
+		}
+	});
+var $author$project$PageIndices$incIndex = F4(
+	function (author, inc, max, indices) {
+		var newIdx = $author$project$PageIndices$roundFloat(
+			A2(
+				$elm_community$basics_extra$Basics$Extra$fractionalModBy,
+				max,
+				inc + A2($author$project$PageIndices$getIndex, author, indices)));
+		return A3($author$project$PageIndices$setIndex, author, newIdx, indices);
+	});
+var $author$project$PageIndices$indicesList = function (i) {
+	return A2(
+		$elm$core$List$map,
+		function (a) {
+			return A2($author$project$PageIndices$getIndex, a, i);
+		},
+		$author$project$PageIndices$authors);
+};
+var $author$project$Main$initAudio = _Platform_outgoingPort(
+	'initAudio',
+	$elm$json$Json$Encode$list($elm$json$Json$Encode$float));
+var $elm$core$Debug$log = _Debug_log;
 var $ianmackenzie$elm_units$Quantity$greaterThan = F2(
 	function (_v0, _v1) {
 		var y = _v0.a;
@@ -8721,12 +9301,6 @@ var $ianmackenzie$elm_units$Quantity$greaterThan = F2(
 var $mdgriffith$elm_animator$Internal$Time$inMilliseconds = function (_v0) {
 	var ms = _v0.a;
 	return ms;
-};
-var $ianmackenzie$elm_units$Duration$seconds = function (numSeconds) {
-	return $ianmackenzie$elm_units$Quantity$Quantity(numSeconds);
-};
-var $ianmackenzie$elm_units$Duration$milliseconds = function (numMilliseconds) {
-	return $ianmackenzie$elm_units$Duration$seconds(0.001 * numMilliseconds);
 };
 var $mdgriffith$elm_animator$Internal$Time$duration = F2(
 	function (one, two) {
@@ -9102,242 +9676,15 @@ var $mdgriffith$elm_animator$Internal$Timeline$current = function (timeline) {
 		timeline);
 };
 var $mdgriffith$elm_animator$Animator$current = $mdgriffith$elm_animator$Internal$Timeline$current;
-var $author$project$Texts$Editor = function (a) {
-	return {$: 'Editor', a: a};
+var $author$project$Main$modelIndices = function (m) {
+	return A5(
+		$author$project$PageIndices$PageIndices,
+		$mdgriffith$elm_animator$Animator$current(m.indexLE),
+		$mdgriffith$elm_animator$Animator$current(m.indexDP),
+		$mdgriffith$elm_animator$Animator$current(m.indexGE),
+		$mdgriffith$elm_animator$Animator$current(m.indexLD),
+		m.rotation);
 };
-var $author$project$Texts$fromEditor = function (s) {
-	return $author$project$Texts$Editor(s);
-};
-var $author$project$PageIndices$parsePageIndices = A2($elm$url$Url$Parser$map, $author$project$PageIndices$PageIndices, $author$project$PageIndices$indicesParser);
-var $author$project$PageIndices$fromUrl = function (url) {
-	return A2(
-		$elm$core$Maybe$withDefault,
-		$author$project$PageIndices$default,
-		A2($elm$url$Url$Parser$parse, $author$project$PageIndices$parsePageIndices, url));
-};
-var $mdgriffith$elm_animator$Animator$TransitionTo = F2(
-	function (a, b) {
-		return {$: 'TransitionTo', a: a, b: b};
-	});
-var $mdgriffith$elm_animator$Animator$event = $mdgriffith$elm_animator$Animator$TransitionTo;
-var $mdgriffith$elm_animator$Animator$initializeSchedule = F2(
-	function (waiting, steps) {
-		initializeSchedule:
-		while (true) {
-			if (!steps.b) {
-				return $elm$core$Maybe$Nothing;
-			} else {
-				if (steps.a.$ === 'Wait') {
-					var additionalWait = steps.a.a;
-					var moreSteps = steps.b;
-					var $temp$waiting = A2($ianmackenzie$elm_units$Quantity$plus, waiting, additionalWait),
-						$temp$steps = moreSteps;
-					waiting = $temp$waiting;
-					steps = $temp$steps;
-					continue initializeSchedule;
-				} else {
-					var _v1 = steps.a;
-					var dur = _v1.a;
-					var checkpoint = _v1.b;
-					var moreSteps = steps.b;
-					return $elm$core$Maybe$Just(
-						_Utils_Tuple2(
-							A3(
-								$mdgriffith$elm_animator$Internal$Timeline$Schedule,
-								waiting,
-								A3($mdgriffith$elm_animator$Internal$Timeline$Event, dur, checkpoint, $elm$core$Maybe$Nothing),
-								_List_Nil),
-							moreSteps));
-				}
-			}
-		}
-	});
-var $mdgriffith$elm_animator$Animator$millis = $ianmackenzie$elm_units$Duration$milliseconds;
-var $mdgriffith$elm_animator$Internal$Timeline$addToDwell = F2(
-	function (duration, maybeDwell) {
-		if (!$ianmackenzie$elm_units$Duration$inMilliseconds(duration)) {
-			return maybeDwell;
-		} else {
-			if (maybeDwell.$ === 'Nothing') {
-				return $elm$core$Maybe$Just(duration);
-			} else {
-				var existing = maybeDwell.a;
-				return $elm$core$Maybe$Just(
-					A2($ianmackenzie$elm_units$Quantity$plus, duration, existing));
-			}
-		}
-	});
-var $mdgriffith$elm_animator$Internal$Timeline$extendEventDwell = F2(
-	function (extendBy, thisEvent) {
-		var at = thisEvent.a;
-		var ev = thisEvent.b;
-		var maybeDwell = thisEvent.c;
-		return (!$ianmackenzie$elm_units$Duration$inMilliseconds(extendBy)) ? thisEvent : A3(
-			$mdgriffith$elm_animator$Internal$Timeline$Event,
-			at,
-			ev,
-			A2($mdgriffith$elm_animator$Internal$Timeline$addToDwell, extendBy, maybeDwell));
-	});
-var $mdgriffith$elm_animator$Animator$stepsToEvents = F2(
-	function (currentStep, _v0) {
-		var delay = _v0.a;
-		var startEvent = _v0.b;
-		var events = _v0.c;
-		if (!events.b) {
-			if (currentStep.$ === 'Wait') {
-				var waiting = currentStep.a;
-				return A3(
-					$mdgriffith$elm_animator$Internal$Timeline$Schedule,
-					delay,
-					A2($mdgriffith$elm_animator$Internal$Timeline$extendEventDwell, waiting, startEvent),
-					events);
-			} else {
-				var dur = currentStep.a;
-				var checkpoint = currentStep.b;
-				return A3(
-					$mdgriffith$elm_animator$Internal$Timeline$Schedule,
-					delay,
-					startEvent,
-					_List_fromArray(
-						[
-							A3($mdgriffith$elm_animator$Internal$Timeline$Event, dur, checkpoint, $elm$core$Maybe$Nothing)
-						]));
-			}
-		} else {
-			var _v3 = events.a;
-			var durationTo = _v3.a;
-			var recentEvent = _v3.b;
-			var maybeDwell = _v3.c;
-			var remaining = events.b;
-			if (currentStep.$ === 'Wait') {
-				var dur = currentStep.a;
-				return A3(
-					$mdgriffith$elm_animator$Internal$Timeline$Schedule,
-					delay,
-					startEvent,
-					A2(
-						$elm$core$List$cons,
-						A3(
-							$mdgriffith$elm_animator$Internal$Timeline$Event,
-							durationTo,
-							recentEvent,
-							A2($mdgriffith$elm_animator$Internal$Timeline$addToDwell, dur, maybeDwell)),
-						remaining));
-			} else {
-				var dur = currentStep.a;
-				var checkpoint = currentStep.b;
-				return _Utils_eq(checkpoint, recentEvent) ? A3(
-					$mdgriffith$elm_animator$Internal$Timeline$Schedule,
-					delay,
-					startEvent,
-					A2(
-						$elm$core$List$cons,
-						A3(
-							$mdgriffith$elm_animator$Internal$Timeline$Event,
-							durationTo,
-							recentEvent,
-							A2($mdgriffith$elm_animator$Internal$Timeline$addToDwell, dur, maybeDwell)),
-						remaining)) : A3(
-					$mdgriffith$elm_animator$Internal$Timeline$Schedule,
-					delay,
-					startEvent,
-					A2(
-						$elm$core$List$cons,
-						A3($mdgriffith$elm_animator$Internal$Timeline$Event, dur, checkpoint, $elm$core$Maybe$Nothing),
-						events));
-			}
-		}
-	});
-var $mdgriffith$elm_animator$Animator$interrupt = F2(
-	function (steps, _v0) {
-		var tl = _v0.a;
-		return $mdgriffith$elm_animator$Internal$Timeline$Timeline(
-			_Utils_update(
-				tl,
-				{
-					interruption: function () {
-						var _v1 = A2(
-							$mdgriffith$elm_animator$Animator$initializeSchedule,
-							$mdgriffith$elm_animator$Animator$millis(0),
-							steps);
-						if (_v1.$ === 'Nothing') {
-							return tl.interruption;
-						} else {
-							var _v2 = _v1.a;
-							var schedule = _v2.a;
-							var otherSteps = _v2.b;
-							return A2(
-								$elm$core$List$cons,
-								A3($elm$core$List$foldl, $mdgriffith$elm_animator$Animator$stepsToEvents, schedule, otherSteps),
-								tl.interruption);
-						}
-					}(),
-					running: true
-				}));
-	});
-var $mdgriffith$elm_animator$Animator$go = F3(
-	function (duration, ev, timeline) {
-		return A2(
-			$mdgriffith$elm_animator$Animator$interrupt,
-			_List_fromArray(
-				[
-					A2($mdgriffith$elm_animator$Animator$event, duration, ev)
-				]),
-			timeline);
-	});
-var $elm_community$basics_extra$Basics$Extra$fractionalModBy = F2(
-	function (modulus, x) {
-		return x - (modulus * $elm$core$Basics$floor(x / modulus));
-	});
-var $elm$core$Basics$round = _Basics_round;
-var $author$project$PageIndices$roundFloat = function (f) {
-	return function (i) {
-		return i / 1000;
-	}(
-		$elm$core$Basics$round(f * 1000));
-};
-var $author$project$PageIndices$setIndex = F3(
-	function (author, f, indices) {
-		switch (author.$) {
-			case 'Luc':
-				return _Utils_update(
-					indices,
-					{ld: f});
-			case 'Gerhard':
-				return _Utils_update(
-					indices,
-					{ge: f});
-			case 'David':
-				return _Utils_update(
-					indices,
-					{dp: f});
-			default:
-				return _Utils_update(
-					indices,
-					{le: f});
-		}
-	});
-var $author$project$PageIndices$incIndex = F4(
-	function (author, inc, max, indices) {
-		var newIdx = $author$project$PageIndices$roundFloat(
-			A2(
-				$elm_community$basics_extra$Basics$Extra$fractionalModBy,
-				max,
-				inc + A2($author$project$PageIndices$getIndex, author, indices)));
-		return A3($author$project$PageIndices$setIndex, author, newIdx, indices);
-	});
-var $author$project$PageIndices$indicesList = function (i) {
-	return A2(
-		$elm$core$List$map,
-		function (a) {
-			return A2($author$project$PageIndices$getIndex, a, i);
-		},
-		$author$project$PageIndices$authors);
-};
-var $author$project$Main$initAudio = _Platform_outgoingPort(
-	'initAudio',
-	$elm$json$Json$Encode$list($elm$json$Json$Encode$float));
-var $elm$core$Debug$log = _Debug_log;
 var $author$project$Texts$formatPrinting = function (s) {
 	return A3(
 		$elm$core$String$padRight,
@@ -9350,7 +9697,23 @@ var $author$project$Texts$formatPrinting = function (s) {
 };
 var $author$project$Texts$printEntry = A2($elm$core$Basics$composeL, $author$project$Texts$formatPrinting, $author$project$Texts$entryString);
 var $elm$browser$Browser$Navigation$pushUrl = _Browser_pushUrl;
+var $author$project$Pages$root = $author$project$Pages$Root;
 var $mdgriffith$elm_animator$Animator$seconds = $ianmackenzie$elm_units$Duration$seconds;
+var $elm$json$Json$Encode$bool = _Json_wrap;
+var $author$project$Main$sendMute = _Platform_outgoingPort(
+	'sendMute',
+	function ($) {
+		var a = $.a;
+		var b = $.b;
+		return A2(
+			$elm$json$Json$Encode$list,
+			$elm$core$Basics$identity,
+			_List_fromArray(
+				[
+					$elm$json$Json$Encode$int(a),
+					$elm$json$Json$Encode$bool(b)
+				]));
+	});
 var $author$project$Texts$getText = F2(
 	function (author, texts) {
 		switch (author.$) {
@@ -9456,7 +9819,13 @@ var $elm$url$Url$Builder$absolute = F2(
 	function (pathSegments, parameters) {
 		return '/' + (A2($elm$core$String$join, '/', pathSegments) + $elm$url$Url$Builder$toQuery(parameters));
 	});
-var $elm$core$String$fromFloat = _String_fromNumber;
+var $author$project$Pages$boolToString = function (b) {
+	if (b) {
+		return 'true';
+	} else {
+		return 'false';
+	}
+};
 var $elm$url$Url$Builder$QueryParameter = F2(
 	function (a, b) {
 		return {$: 'QueryParameter', a: a, b: b};
@@ -9469,39 +9838,90 @@ var $elm$url$Url$Builder$string = F2(
 			$elm$url$Url$percentEncode(key),
 			$elm$url$Url$percentEncode(value));
 	});
+var $elm$core$String$fromFloat = _String_fromNumber;
 var $author$project$PageIndices$toUrl = function (p) {
+	return _List_fromArray(
+		[
+			A2(
+			$elm$url$Url$Builder$string,
+			'david',
+			$elm$core$String$fromFloat(p.dp)),
+			A2(
+			$elm$url$Url$Builder$string,
+			'luc',
+			$elm$core$String$fromFloat(p.ld)),
+			A2(
+			$elm$url$Url$Builder$string,
+			'gerhard',
+			$elm$core$String$fromFloat(p.ge)),
+			A2(
+			$elm$url$Url$Builder$string,
+			'ludvig',
+			$elm$core$String$fromFloat(p.le)),
+			A2(
+			$elm$url$Url$Builder$string,
+			'rotation',
+			$elm$core$String$fromInt(p.rotation))
+		]);
+};
+var $author$project$Pages$withAudio = function (_v0) {
+	var a = _v0.b;
+	return a;
+};
+var $author$project$Pages$toUrl = function (p) {
 	return A2(
 		$elm$url$Url$Builder$absolute,
 		_List_Nil,
-		_List_fromArray(
-			[
-				A2(
-				$elm$url$Url$Builder$string,
-				'david',
-				$elm$core$String$fromFloat(p.dp)),
-				A2(
-				$elm$url$Url$Builder$string,
-				'luc',
-				$elm$core$String$fromFloat(p.ld)),
-				A2(
-				$elm$url$Url$Builder$string,
-				'gerhard',
-				$elm$core$String$fromFloat(p.ge)),
-				A2(
-				$elm$url$Url$Builder$string,
-				'ludvig',
-				$elm$core$String$fromFloat(p.le)),
-				A2(
-				$elm$url$Url$Builder$string,
-				'rotation',
-				$elm$core$String$fromInt(p.rotation))
-			]));
+		_Utils_ap(
+			$author$project$PageIndices$toUrl(
+				$author$project$Pages$indices(p)),
+			_Utils_ap(
+				_List_fromArray(
+					[
+						A2(
+						$elm$url$Url$Builder$string,
+						'audio',
+						$author$project$Pages$boolToString(
+							$author$project$Pages$withAudio(p)))
+					]),
+				$author$project$Pages$testMode(p) ? _List_fromArray(
+					[
+						A2($elm$url$Url$Builder$string, 'test', 'true')
+					]) : _List_Nil)));
 };
 var $mdgriffith$elm_animator$Animator$update = F3(
 	function (newTime, _v0, model) {
 		var updateModel = _v0.b;
 		return A2(updateModel, newTime, model);
 	});
+var $author$project$PageIndices$updateAuthor = F3(
+	function (author, i, p) {
+		switch (author.$) {
+			case 'David':
+				return _Utils_update(
+					p,
+					{dp: i});
+			case 'Gerhard':
+				return _Utils_update(
+					p,
+					{ge: i});
+			case 'Luc':
+				return _Utils_update(
+					p,
+					{ld: i});
+			default:
+				return _Utils_update(
+					p,
+					{le: i});
+		}
+	});
+var $author$project$Main$withAudio = function (s) {
+	if (s.$ === 'WithoutAudio') {
+		return false;
+	} else {
+		return true;
+	}
+};
 var $author$project$Main$update = F2(
 	function (msg, model) {
 		switch (msg.$) {
@@ -9510,7 +9930,7 @@ var $author$project$Main$update = F2(
 					model,
 					$author$project$Main$initAudio(
 						$author$project$PageIndices$indicesList(
-							$mdgriffith$elm_animator$Animator$current(model.pageIndices))));
+							$author$project$Main$modelIndices(model))));
 			case 'BufferLoaderCreated':
 				var b = msg.a;
 				var panCmds = A2(
@@ -9523,9 +9943,10 @@ var $author$project$Main$update = F2(
 					},
 					$author$project$PageIndices$authors);
 				var maxIdx = $author$project$Texts$length(model.texts);
-				var indices = $mdgriffith$elm_animator$Animator$current(model.pageIndices);
-				var amps = A2($author$project$Main$ampsCmd, model, indices);
-				var _v1 = A2($elm$core$Debug$log, 'buffer loader created', b);
+				var amps = A2(
+					$author$project$Main$ampsCmd,
+					model,
+					$author$project$Main$modelIndices(model));
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
@@ -9540,18 +9961,23 @@ var $author$project$Main$update = F2(
 					author,
 					$author$project$Main$config.scrollInc * incDec,
 					$author$project$Texts$length(model.texts),
-					$mdgriffith$elm_animator$Animator$current(model.pageIndices));
+					$author$project$Main$modelIndices(model));
 				return _Utils_Tuple2(
 					model,
 					A2(
 						$elm$browser$Browser$Navigation$pushUrl,
 						model.navKey,
-						$author$project$PageIndices$toUrl(newIndices)));
+						$author$project$Pages$toUrl(
+							A3(
+								$author$project$Pages$root,
+								newIndices,
+								$author$project$Main$withAudio(model.initStatus),
+								model.testMode))));
 			case 'SetEditor':
 				var author = msg.a;
 				var str = msg.b;
 				var entry = $author$project$Texts$fromEditor(str);
-				var _v2 = A2(
+				var _v1 = A2(
 					$elm$core$Debug$log,
 					'Text:',
 					$author$project$Texts$printEntry(entry));
@@ -9562,7 +9988,7 @@ var $author$project$Main$update = F2(
 							texts: A4(
 								$author$project$Texts$setAuthorTextAt,
 								author,
-								$mdgriffith$elm_animator$Animator$current(model.pageIndices),
+								$author$project$Main$modelIndices(model),
 								entry,
 								model.texts)
 						}),
@@ -9570,33 +9996,100 @@ var $author$project$Main$update = F2(
 			case 'Tick':
 				var newTime = msg.a;
 				return _Utils_Tuple2(
-					A3($mdgriffith$elm_animator$Animator$update, newTime, $author$project$Main$animator, model),
+					A3(
+						$mdgriffith$elm_animator$Animator$update,
+						newTime,
+						$author$project$Main$animatorLE,
+						A3(
+							$mdgriffith$elm_animator$Animator$update,
+							newTime,
+							$author$project$Main$animatorDP,
+							A3(
+								$mdgriffith$elm_animator$Animator$update,
+								newTime,
+								$author$project$Main$animatorGE,
+								A3($mdgriffith$elm_animator$Animator$update, newTime, $author$project$Main$animatorLD, model)))),
 					$elm$core$Platform$Cmd$none);
 			case 'ClickedLink':
 				return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
 			case 'UrlChanged':
 				var url = msg.a;
-				var newIndices = $author$project$PageIndices$fromUrl(url);
+				var page = $author$project$Pages$fromUrl(url);
+				var newIndices = $author$project$Pages$indices(page);
 				var amps = A2($author$project$Main$ampsCmd, model, newIndices);
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
 						{
-							pageIndices: A3(
+							indexDP: A3(
 								$mdgriffith$elm_animator$Animator$go,
 								$mdgriffith$elm_animator$Animator$seconds($author$project$Main$config.transitionDur),
-								newIndices,
-								model.pageIndices)
+								newIndices.dp,
+								model.indexDP),
+							indexGE: A3(
+								$mdgriffith$elm_animator$Animator$go,
+								$mdgriffith$elm_animator$Animator$seconds($author$project$Main$config.transitionDur),
+								newIndices.ge,
+								model.indexGE),
+							indexLD: A3(
+								$mdgriffith$elm_animator$Animator$go,
+								$mdgriffith$elm_animator$Animator$seconds($author$project$Main$config.transitionDur),
+								newIndices.ld,
+								model.indexLD),
+							indexLE: A3(
+								$mdgriffith$elm_animator$Animator$go,
+								$mdgriffith$elm_animator$Animator$seconds($author$project$Main$config.transitionDur),
+								newIndices.le,
+								model.indexLE)
 						}),
 					amps);
-			default:
-				var newIndices = msg.a;
+			case 'SetPage':
+				var author = msg.a;
+				var index = msg.b;
 				return _Utils_Tuple2(
 					model,
 					A2(
 						$elm$browser$Browser$Navigation$pushUrl,
 						model.navKey,
-						$author$project$PageIndices$toUrl(newIndices)));
+						$author$project$Pages$toUrl(
+							A3(
+								$author$project$Pages$root,
+								A3(
+									$author$project$PageIndices$updateAuthor,
+									author,
+									index,
+									$author$project$Main$modelIndices(model)),
+								$author$project$Main$withAudio(model.initStatus),
+								model.testMode))));
+			default:
+				var author = msg.a;
+				var b = msg.b;
+				var newModel = function () {
+					switch (author.$) {
+						case 'Gerhard':
+							return _Utils_update(
+								model,
+								{muteGE: b});
+						case 'Ludvig':
+							return _Utils_update(
+								model,
+								{muteLE: b});
+						case 'Luc':
+							return _Utils_update(
+								model,
+								{muteLD: b});
+						default:
+							return _Utils_update(
+								model,
+								{muteDP: b});
+					}
+				}();
+				return _Utils_Tuple2(
+					newModel,
+					$author$project$Main$sendMute(
+						_Utils_Tuple2(
+							$author$project$PageIndices$authorIndex(author),
+							b)));
 		}
 	});
 var $mdgriffith$elm_ui$Internal$Model$AlignY = function (a) {
@@ -9623,7 +10116,6 @@ var $mdgriffith$elm_ui$Internal$Flag$flag = function (i) {
 };
 var $mdgriffith$elm_ui$Internal$Flag$fontFamily = $mdgriffith$elm_ui$Internal$Flag$flag(5);
 var $elm$core$String$toLower = _String_toLower;
-var $elm$core$String$words = _String_words;
 var $mdgriffith$elm_ui$Internal$Model$renderFontClassName = F2(
 	function (font, current) {
 		return _Utils_ap(
@@ -9810,6 +10302,10 @@ var $mdgriffith$elm_ui$Internal$Flag$alignRight = $mdgriffith$elm_ui$Internal$Fl
 var $mdgriffith$elm_ui$Internal$Flag$centerX = $mdgriffith$elm_ui$Internal$Flag$flag(42);
 var $mdgriffith$elm_ui$Internal$Flag$centerY = $mdgriffith$elm_ui$Internal$Flag$flag(43);
 var $elm$html$Html$div = _VirtualDom_node('div');
+var $elm$core$Set$Set_elm_builtin = function (a) {
+	return {$: 'Set_elm_builtin', a: a};
+};
+var $elm$core$Set$empty = $elm$core$Set$Set_elm_builtin($elm$core$Dict$empty);
 var $mdgriffith$elm_ui$Internal$Model$lengthClassName = function (x) {
 	switch (x.$) {
 		case 'Px':
@@ -9954,6 +10450,12 @@ var $mdgriffith$elm_ui$Internal$Model$getStyleName = function (style) {
 				$mdgriffith$elm_ui$Internal$Model$transformClass(x));
 	}
 };
+var $elm$core$Set$insert = F2(
+	function (key, _v0) {
+		var dict = _v0.a;
+		return $elm$core$Set$Set_elm_builtin(
+			A3($elm$core$Dict$insert, key, _Utils_Tuple0, dict));
+	});
 var $elm$core$Dict$member = F2(
 	function (key, dict) {
 		var _v0 = A2($elm$core$Dict$get, key, dict);
@@ -15273,12 +15775,12 @@ var $mdgriffith$elm_ui$Element$Font$size = function (i) {
 		$mdgriffith$elm_ui$Internal$Flag$fontSize,
 		$mdgriffith$elm_ui$Internal$Model$FontSize(i));
 };
+var $mdgriffith$elm_ui$Element$Font$typeface = $mdgriffith$elm_ui$Internal$Model$Typeface;
 var $author$project$Main$InitAudio = {$: 'InitAudio'};
 var $mdgriffith$elm_ui$Internal$Model$Button = {$: 'Button'};
 var $mdgriffith$elm_ui$Internal$Model$Describe = function (a) {
 	return {$: 'Describe', a: a};
 };
-var $elm$json$Json$Encode$bool = _Json_wrap;
 var $elm$html$Html$Attributes$boolProperty = F2(
 	function (key, bool) {
 		return A2(
@@ -15640,34 +16142,31 @@ var $mdgriffith$elm_ui$Internal$Model$AlignX = function (a) {
 };
 var $mdgriffith$elm_ui$Internal$Model$CenterX = {$: 'CenterX'};
 var $mdgriffith$elm_ui$Element$centerX = $mdgriffith$elm_ui$Internal$Model$AlignX($mdgriffith$elm_ui$Internal$Model$CenterX);
-var $author$project$Main$SetPage = function (a) {
-	return {$: 'SetPage', a: a};
-};
+var $author$project$Main$SetPage = F2(
+	function (a, b) {
+		return {$: 'SetPage', a: a, b: b};
+	});
 var $author$project$Main$buttonStyling = _List_fromArray(
 	[
 		$mdgriffith$elm_ui$Element$Border$width(1),
 		$mdgriffith$elm_ui$Element$padding(10),
 		$mdgriffith$elm_ui$Element$centerX
 	]);
-var $author$project$PageIndices$nextIndex = F3(
-	function (author, max, indices) {
-		var newIdx = $author$project$PageIndices$roundFloat(
+var $author$project$PageIndices$nextIndex = F2(
+	function (max, index) {
+		return $author$project$PageIndices$roundFloat(
 			A2(
 				$elm_community$basics_extra$Basics$Extra$fractionalModBy,
 				max,
-				$elm$core$Basics$floor(
-					A2($author$project$PageIndices$getIndex, author, indices)) + 1));
-		return A3($author$project$PageIndices$setIndex, author, newIdx, indices);
+				$elm$core$Basics$floor(index) + 1));
 	});
-var $author$project$PageIndices$previousIndex = F3(
-	function (author, max, indices) {
-		var newIdx = $author$project$PageIndices$roundFloat(
+var $author$project$PageIndices$previousIndex = F2(
+	function (max, index) {
+		return $author$project$PageIndices$roundFloat(
 			A2(
 				$elm_community$basics_extra$Basics$Extra$fractionalModBy,
 				max,
-				$elm$core$Basics$ceiling(
-					A2($author$project$PageIndices$getIndex, author, indices)) - 1));
-		return A3($author$project$PageIndices$setIndex, author, newIdx, indices);
+				$elm$core$Basics$ceiling(index) - 1));
 	});
 var $mdgriffith$elm_ui$Internal$Model$AsRow = {$: 'AsRow'};
 var $mdgriffith$elm_ui$Internal$Model$asRow = $mdgriffith$elm_ui$Internal$Model$AsRow;
@@ -15690,10 +16189,9 @@ var $mdgriffith$elm_ui$Element$row = F2(
 			$mdgriffith$elm_ui$Internal$Model$Unkeyed(children));
 	});
 var $author$project$Main$columnButtons = F3(
-	function (author, maxIdx, indices) {
-		var idx = A2($author$project$PageIndices$getIndex, author, indices);
-		var forward = A3($author$project$PageIndices$nextIndex, author, maxIdx, indices);
-		var back = A3($author$project$PageIndices$previousIndex, author, maxIdx, indices);
+	function (author, maxIdx, index) {
+		var forward = A2($author$project$PageIndices$nextIndex, maxIdx, index);
+		var back = A2($author$project$PageIndices$previousIndex, maxIdx, index);
 		return A2(
 			$mdgriffith$elm_ui$Element$row,
 			_List_fromArray(
@@ -15709,17 +16207,17 @@ var $author$project$Main$columnButtons = F3(
 					{
 						label: $mdgriffith$elm_ui$Element$text('<'),
 						onPress: $elm$core$Maybe$Just(
-							$author$project$Main$SetPage(back))
+							A2($author$project$Main$SetPage, author, back))
 					}),
 					$mdgriffith$elm_ui$Element$text(
-					$elm$core$String$fromFloat(idx)),
+					$elm$core$String$fromFloat(index)),
 					A2(
 					$mdgriffith$elm_ui$Element$Input$button,
 					$author$project$Main$buttonStyling,
 					{
 						label: $mdgriffith$elm_ui$Element$text('>'),
 						onPress: $elm$core$Maybe$Just(
-							$author$project$Main$SetPage(forward))
+							A2($author$project$Main$SetPage, author, forward))
 					})
 				]));
 	});
@@ -15736,7 +16234,7 @@ var $author$project$Main$emptyColumn = function (n) {
 			[
 				$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$shrink),
 				$mdgriffith$elm_ui$Element$htmlAttribute(
-				A2($elm$html$Html$Attributes$style, 'line-height', '2'))
+				A2($elm$html$Html$Attributes$style, 'line-height', '1'))
 			]),
 		$mdgriffith$elm_ui$Element$html(
 			A2(
@@ -15766,37 +16264,187 @@ var $elm$core$List$intersperse = F2(
 			return A2($elm$core$List$cons, hd, spersed);
 		}
 	});
-var $author$project$Main$buttons = F2(
-	function (indices, maxIdx) {
+var $author$project$Main$SetMute = F2(
+	function (a, b) {
+		return {$: 'SetMute', a: a, b: b};
+	});
+var $mdgriffith$elm_ui$Element$Background$color = function (clr) {
+	return A2(
+		$mdgriffith$elm_ui$Internal$Model$StyleClass,
+		$mdgriffith$elm_ui$Internal$Flag$bgColor,
+		A3(
+			$mdgriffith$elm_ui$Internal$Model$Colored,
+			'bg-' + $mdgriffith$elm_ui$Internal$Model$formatColorClass(clr),
+			'background-color',
+			clr));
+};
+var $mdgriffith$elm_ui$Element$rgb = F3(
+	function (r, g, b) {
+		return A4($mdgriffith$elm_ui$Internal$Model$Rgba, r, g, b, 1);
+	});
+var $author$project$Main$muteButtonStyling = function (b) {
+	return b ? A2(
+		$elm$core$List$cons,
+		$mdgriffith$elm_ui$Element$Background$color(
+			A3($mdgriffith$elm_ui$Element$rgb, 0.6, 0.6, 0.6)),
+		$author$project$Main$buttonStyling) : $author$project$Main$buttonStyling;
+};
+var $author$project$Main$muteButton = F2(
+	function (author, state) {
 		return A2(
-			$mdgriffith$elm_ui$Element$row,
-			_List_fromArray(
-				[$mdgriffith$elm_ui$Element$centerX]),
+			$mdgriffith$elm_ui$Element$Input$button,
+			$author$project$Main$muteButtonStyling(state),
+			{
+				label: $mdgriffith$elm_ui$Element$text('Mute'),
+				onPress: $elm$core$Maybe$Just(
+					A2($author$project$Main$SetMute, author, !state))
+			});
+	});
+var $author$project$Main$muteOf = F2(
+	function (author, m) {
+		switch (author.$) {
+			case 'Gerhard':
+				return m.muteGE;
+			case 'Luc':
+				return m.muteLD;
+			case 'Ludvig':
+				return m.muteLE;
+			default:
+				return m.muteDP;
+		}
+	});
+var $mdgriffith$elm_ui$Internal$Model$Empty = {$: 'Empty'};
+var $mdgriffith$elm_ui$Element$none = $mdgriffith$elm_ui$Internal$Model$Empty;
+var $mdgriffith$elm_ui$Element$spacingXY = F2(
+	function (x, y) {
+		return A2(
+			$mdgriffith$elm_ui$Internal$Model$StyleClass,
+			$mdgriffith$elm_ui$Internal$Flag$spacing,
+			A3(
+				$mdgriffith$elm_ui$Internal$Model$SpacingStyle,
+				A2($mdgriffith$elm_ui$Internal$Model$spacingName, x, y),
+				x,
+				y));
+	});
+var $author$project$Main$buttons = function (model) {
+	var maxIdx = $author$project$Texts$length(model.texts);
+	var indices = $author$project$Main$modelIndices(model);
+	return A2(
+		$mdgriffith$elm_ui$Element$row,
+		_List_fromArray(
+			[$mdgriffith$elm_ui$Element$centerX]),
+		A2(
+			$elm$core$List$intersperse,
+			$author$project$Main$emptyColumn(1),
 			A2(
-				$elm$core$List$intersperse,
-				$author$project$Main$emptyColumn(1),
+				$elm$core$List$map,
+				function (b) {
+					return A2(
+						$mdgriffith$elm_ui$Element$column,
+						_List_fromArray(
+							[
+								$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$shrink)
+							]),
+						_List_fromArray(
+							[
+								$author$project$Main$emptyColumn(40),
+								b
+							]));
+				},
 				A2(
 					$elm$core$List$map,
-					function (b) {
+					function (author) {
 						return A2(
 							$mdgriffith$elm_ui$Element$column,
 							_List_fromArray(
 								[
-									$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$shrink)
+									A2($mdgriffith$elm_ui$Element$spacingXY, 0, 10),
+									$mdgriffith$elm_ui$Element$centerX
 								]),
 							_List_fromArray(
 								[
-									$author$project$Main$emptyColumn(40),
-									b
+									A3(
+									$author$project$Main$columnButtons,
+									author,
+									maxIdx,
+									A2($author$project$PageIndices$getIndex, author, indices)),
+									model.testMode ? A2(
+									$author$project$Main$muteButton,
+									author,
+									A2($author$project$Main$muteOf, author, model)) : $mdgriffith$elm_ui$Element$none
 								]));
 					},
-					A2(
-						$elm$core$List$map,
-						function (author) {
-							return A3($author$project$Main$columnButtons, author, maxIdx, indices);
-						},
-						$author$project$PageIndices$authorsInOrder(indices)))));
+					$author$project$PageIndices$authorsInOrder(indices)))));
+};
+var $mdgriffith$elm_ui$Element$Lazy$embed = function (x) {
+	switch (x.$) {
+		case 'Unstyled':
+			var html = x.a;
+			return html;
+		case 'Styled':
+			var styled = x.a;
+			return styled.html(
+				A2(
+					$mdgriffith$elm_ui$Internal$Model$OnlyDynamic,
+					{
+						focus: {backgroundColor: $elm$core$Maybe$Nothing, borderColor: $elm$core$Maybe$Nothing, shadow: $elm$core$Maybe$Nothing},
+						hover: $mdgriffith$elm_ui$Internal$Model$AllowHover,
+						mode: $mdgriffith$elm_ui$Internal$Model$Layout
+					},
+					styled.styles));
+		case 'Text':
+			var text = x.a;
+			return $elm$core$Basics$always(
+				$elm$virtual_dom$VirtualDom$text(text));
+		default:
+			return $elm$core$Basics$always(
+				$elm$virtual_dom$VirtualDom$text(''));
+	}
+};
+var $mdgriffith$elm_ui$Element$Lazy$apply3 = F4(
+	function (fn, a, b, c) {
+		return $mdgriffith$elm_ui$Element$Lazy$embed(
+			A3(fn, a, b, c));
 	});
+var $elm$virtual_dom$VirtualDom$lazy5 = _VirtualDom_lazy5;
+var $mdgriffith$elm_ui$Element$Lazy$lazy3 = F4(
+	function (fn, a, b, c) {
+		return $mdgriffith$elm_ui$Internal$Model$Unstyled(
+			A5($elm$virtual_dom$VirtualDom$lazy5, $mdgriffith$elm_ui$Element$Lazy$apply3, fn, a, b, c));
+	});
+var $mdgriffith$elm_ui$Internal$Model$InFront = {$: 'InFront'};
+var $mdgriffith$elm_ui$Internal$Model$Nearby = F2(
+	function (a, b) {
+		return {$: 'Nearby', a: a, b: b};
+	});
+var $mdgriffith$elm_ui$Element$createNearby = F2(
+	function (loc, element) {
+		if (element.$ === 'Empty') {
+			return $mdgriffith$elm_ui$Internal$Model$NoAttribute;
+		} else {
+			return A2($mdgriffith$elm_ui$Internal$Model$Nearby, loc, element);
+		}
+	});
+var $mdgriffith$elm_ui$Element$inFront = function (element) {
+	return A2($mdgriffith$elm_ui$Element$createNearby, $mdgriffith$elm_ui$Internal$Model$InFront, element);
+};
+var $author$project$Main$matryoshka = function (els) {
+	if (els.b) {
+		var first = els.a;
+		var rest = els.b;
+		return A2(
+			$mdgriffith$elm_ui$Element$el,
+			_List_fromArray(
+				[
+					$mdgriffith$elm_ui$Element$inFront(
+					$author$project$Main$matryoshka(rest)),
+					$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$fill)
+				]),
+			first);
+	} else {
+		return $mdgriffith$elm_ui$Element$none;
+	}
+};
 var $author$project$Main$Scroll = F2(
 	function (a, b) {
 		return {$: 'Scroll', a: a, b: b};
@@ -18037,16 +18685,24 @@ var $mdgriffith$elm_animator$Animator$Css$Linear = F3(
 var $mdgriffith$elm_animator$Animator$Css$opacity = function (lookup) {
 	return A3($mdgriffith$elm_animator$Animator$Css$Linear, 'opacity', lookup, $elm$core$String$fromFloat);
 };
-var $author$project$Main$textColumn = F5(
-	function (timeline, author, index, maxIdx, entry) {
+var $mdgriffith$elm_ui$Internal$Flag$borderStyle = $mdgriffith$elm_ui$Internal$Flag$flag(11);
+var $mdgriffith$elm_ui$Element$Border$solid = A2($mdgriffith$elm_ui$Internal$Model$Class, $mdgriffith$elm_ui$Internal$Flag$borderStyle, $mdgriffith$elm_ui$Internal$Style$classes.borderSolid);
+var $author$project$Main$textColumn = F6(
+	function (border, timeline, author, index, maxIdx, entry) {
 		return A2(
 			$mdgriffith$elm_ui$Element$el,
-			_List_fromArray(
-				[
-					$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$shrink),
-					$mdgriffith$elm_ui$Element$htmlAttribute(
-					A2($elm$html$Html$Attributes$style, 'line-height', '2'))
-				]),
+			_Utils_ap(
+				_List_fromArray(
+					[
+						$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$shrink),
+						$mdgriffith$elm_ui$Element$htmlAttribute(
+						A2($elm$html$Html$Attributes$style, 'line-height', '2'))
+					]),
+				border ? _List_fromArray(
+					[
+						$mdgriffith$elm_ui$Element$Border$solid,
+						$mdgriffith$elm_ui$Element$Border$width(1)
+					]) : _List_Nil),
 			$mdgriffith$elm_ui$Element$html(
 				A4(
 					$mdgriffith$elm_animator$Animator$Css$div,
@@ -18054,14 +18710,10 @@ var $author$project$Main$textColumn = F5(
 					_List_fromArray(
 						[
 							$mdgriffith$elm_animator$Animator$Css$opacity(
-							function (indices) {
+							function (currentIndex) {
 								return $mdgriffith$elm_animator$Animator$at(
 									$author$project$Main$distanceToOpacity(
-										A3(
-											$author$project$Main$calcDistance,
-											A2($author$project$PageIndices$getIndex, author, indices),
-											index,
-											maxIdx)));
+										A3($author$project$Main$calcDistance, currentIndex, index, maxIdx)));
 							})
 						]),
 					_List_Nil,
@@ -18086,143 +18738,6 @@ var $author$project$Main$textColumn = F5(
 								]))
 						]))));
 	});
-var $author$project$Main$iteration = F4(
-	function (timeline, index, maxIdx, current) {
-		return A2(
-			$mdgriffith$elm_ui$Element$row,
-			_List_fromArray(
-				[$mdgriffith$elm_ui$Element$centerX, $mdgriffith$elm_ui$Element$centerY]),
-			A2(
-				$elm$core$List$intersperse,
-				$author$project$Main$emptyColumn(1),
-				A2(
-					$elm$core$List$map,
-					function (author) {
-						return A5(
-							$author$project$Main$textColumn,
-							timeline,
-							author,
-							index,
-							maxIdx,
-							A2($author$project$Texts$getText, author, current));
-					},
-					$author$project$PageIndices$authorsInOrder(
-						$mdgriffith$elm_animator$Animator$current(timeline)))));
-	});
-var $mdgriffith$elm_ui$Internal$Model$InFront = {$: 'InFront'};
-var $mdgriffith$elm_ui$Internal$Model$Nearby = F2(
-	function (a, b) {
-		return {$: 'Nearby', a: a, b: b};
-	});
-var $mdgriffith$elm_ui$Element$createNearby = F2(
-	function (loc, element) {
-		if (element.$ === 'Empty') {
-			return $mdgriffith$elm_ui$Internal$Model$NoAttribute;
-		} else {
-			return A2($mdgriffith$elm_ui$Internal$Model$Nearby, loc, element);
-		}
-	});
-var $mdgriffith$elm_ui$Element$inFront = function (element) {
-	return A2($mdgriffith$elm_ui$Element$createNearby, $mdgriffith$elm_ui$Internal$Model$InFront, element);
-};
-var $mdgriffith$elm_ui$Internal$Model$Empty = {$: 'Empty'};
-var $mdgriffith$elm_ui$Element$none = $mdgriffith$elm_ui$Internal$Model$Empty;
-var $author$project$Main$matryoshka = function (els) {
-	if (els.b) {
-		var first = els.a;
-		var rest = els.b;
-		return A2(
-			$mdgriffith$elm_ui$Element$el,
-			_List_fromArray(
-				[
-					$mdgriffith$elm_ui$Element$inFront(
-					$author$project$Main$matryoshka(rest)),
-					$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$fill)
-				]),
-			first);
-	} else {
-		return $mdgriffith$elm_ui$Element$none;
-	}
-};
-var $mdgriffith$elm_ui$Element$spacingXY = F2(
-	function (x, y) {
-		return A2(
-			$mdgriffith$elm_ui$Internal$Model$StyleClass,
-			$mdgriffith$elm_ui$Internal$Flag$spacing,
-			A3(
-				$mdgriffith$elm_ui$Internal$Model$SpacingStyle,
-				A2($mdgriffith$elm_ui$Internal$Model$spacingName, x, y),
-				x,
-				y));
-	});
-var $elm_community$list_extra$List$Extra$last = function (items) {
-	last:
-	while (true) {
-		if (!items.b) {
-			return $elm$core$Maybe$Nothing;
-		} else {
-			if (!items.b.b) {
-				var x = items.a;
-				return $elm$core$Maybe$Just(x);
-			} else {
-				var rest = items.b;
-				var $temp$items = rest;
-				items = $temp$items;
-				continue last;
-			}
-		}
-	}
-};
-var $author$project$Texts$repeatLastN = F2(
-	function (n, lst) {
-		var lack = n - $elm$core$List$length(lst);
-		if (lack > 0) {
-			var _v0 = $elm_community$list_extra$List$Extra$last(lst);
-			if (_v0.$ === 'Just') {
-				var l = _v0.a;
-				return _Utils_ap(
-					lst,
-					A2($elm$core$List$repeat, n, l));
-			} else {
-				return lst;
-			}
-		} else {
-			return lst;
-		}
-	});
-var $author$project$Texts$padLists = function (lsts) {
-	return function (n) {
-		return A2(
-			$elm$core$List$map,
-			$author$project$Texts$repeatLastN(n),
-			lsts);
-	}(
-		$author$project$Texts$maxLength(lsts));
-};
-var $elm_community$list_extra$List$Extra$rowsLength = function (listOfLists) {
-	if (!listOfLists.b) {
-		return 0;
-	} else {
-		var x = listOfLists.a;
-		return $elm$core$List$length(x);
-	}
-};
-var $elm_community$list_extra$List$Extra$transpose = function (listOfLists) {
-	return A3(
-		$elm$core$List$foldr,
-		$elm$core$List$map2($elm$core$List$cons),
-		A2(
-			$elm$core$List$repeat,
-			$elm_community$list_extra$List$Extra$rowsLength(listOfLists),
-			_List_Nil),
-		listOfLists);
-};
-var $author$project$Texts$transposedTexts = function (texts) {
-	return $elm_community$list_extra$List$Extra$transpose(
-		$author$project$Texts$padLists(
-			_List_fromArray(
-				[texts.dp, texts.ge, texts.ld, texts.le])));
-};
 var $author$project$Main$SetEditor = F2(
 	function (a, b) {
 		return {$: 'SetEditor', a: a, b: b};
@@ -18366,16 +18881,6 @@ var $mdgriffith$elm_ui$Element$Input$calcMoveToCompensateForPadding = function (
 			$elm$core$Basics$floor(vSpace / 2));
 	}
 };
-var $mdgriffith$elm_ui$Element$Background$color = function (clr) {
-	return A2(
-		$mdgriffith$elm_ui$Internal$Model$StyleClass,
-		$mdgriffith$elm_ui$Internal$Flag$bgColor,
-		A3(
-			$mdgriffith$elm_ui$Internal$Model$Colored,
-			'bg-' + $mdgriffith$elm_ui$Internal$Model$formatColorClass(clr),
-			'background-color',
-			clr));
-};
 var $mdgriffith$elm_ui$Internal$Flag$borderColor = $mdgriffith$elm_ui$Internal$Flag$flag(28);
 var $mdgriffith$elm_ui$Element$Border$color = function (clr) {
 	return A2(
@@ -18387,10 +18892,6 @@ var $mdgriffith$elm_ui$Element$Border$color = function (clr) {
 			'border-color',
 			clr));
 };
-var $mdgriffith$elm_ui$Element$rgb = F3(
-	function (r, g, b) {
-		return A4($mdgriffith$elm_ui$Internal$Model$Rgba, r, g, b, 1);
-	});
 var $mdgriffith$elm_ui$Element$Input$darkGrey = A3($mdgriffith$elm_ui$Element$rgb, 186 / 255, 189 / 255, 182 / 255);
 var $mdgriffith$elm_ui$Element$paddingXY = F2(
 	function (x, y) {
@@ -19186,7 +19687,7 @@ var $author$project$Texts$toEditor = function (e) {
 	}
 };
 var $author$project$Main$viewEditable = function (m) {
-	var indices = $mdgriffith$elm_animator$Animator$current(m.pageIndices);
+	var indices = $author$project$Main$modelIndices(m);
 	var extractString = A2(
 		$elm$core$Basics$composeL,
 		$elm$core$Maybe$withDefault(' '),
@@ -19206,66 +19707,81 @@ var $author$project$Main$viewEditable = function (m) {
 		A2(
 			$elm$core$List$intersperse,
 			$author$project$Main$emptyColumn(1),
-			_List_fromArray(
-				[
-					A2(
-					$author$project$Main$editColumn,
-					david,
-					$author$project$Main$SetEditor($author$project$PageIndices$David)),
-					A2(
-					$author$project$Main$editColumn,
-					gerhard,
-					$author$project$Main$SetEditor($author$project$PageIndices$Gerhard)),
-					A2(
-					$author$project$Main$editColumn,
-					luc,
-					$author$project$Main$SetEditor($author$project$PageIndices$Luc)),
-					A2(
-					$author$project$Main$editColumn,
-					ludvig,
-					$author$project$Main$SetEditor($author$project$PageIndices$Ludvig))
-				])));
+			A2(
+				$author$project$Utils$rotate,
+				m.rotation,
+				_List_fromArray(
+					[
+						A2(
+						$author$project$Main$editColumn,
+						david,
+						$author$project$Main$SetEditor($author$project$PageIndices$David)),
+						A2(
+						$author$project$Main$editColumn,
+						gerhard,
+						$author$project$Main$SetEditor($author$project$PageIndices$Gerhard)),
+						A2(
+						$author$project$Main$editColumn,
+						luc,
+						$author$project$Main$SetEditor($author$project$PageIndices$Luc)),
+						A2(
+						$author$project$Main$editColumn,
+						ludvig,
+						$author$project$Main$SetEditor($author$project$PageIndices$Ludvig))
+					]))));
 };
 var $author$project$Main$viewColumns = function (model) {
+	var maxIdx = $author$project$Texts$length(model.texts);
+	var authorTexts = F3(
+		function (author, entries, timeline) {
+			var currInterpolationIdx = $mdgriffith$elm_animator$Animator$current(timeline);
+			return $author$project$Main$matryoshka(
+				A2(
+					$elm$core$List$filterMap,
+					function (_v0) {
+						var dist = _v0.a;
+						var column = _v0.b;
+						return (_Utils_cmp(dist, $author$project$Main$config.transitionDepth * 2) < 0) ? $elm$core$Maybe$Just(column) : $elm$core$Maybe$Nothing;
+					},
+					A2(
+						$elm$core$List$indexedMap,
+						F2(
+							function (i, e) {
+								var dist = A3($author$project$Main$calcDistance, currInterpolationIdx, i, maxIdx);
+								return _Utils_Tuple2(
+									dist,
+									A6($author$project$Main$textColumn, model.testMode, timeline, author, i, maxIdx, e));
+							}),
+						entries)));
+		});
 	return A2(
 		$mdgriffith$elm_ui$Element$column,
 		_List_fromArray(
 			[
 				$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$fill),
-				A2($mdgriffith$elm_ui$Element$spacingXY, 0, 20)
+				A2($mdgriffith$elm_ui$Element$spacingXY, 0, 5)
 			]),
 		_List_fromArray(
 			[
-				$author$project$Main$matryoshka(
 				A2(
-					$elm$core$List$indexedMap,
-					F2(
-						function (i, l) {
-							if ((((l.b && l.b.b) && l.b.b.b) && l.b.b.b.b) && (!l.b.b.b.b.b)) {
-								var d = l.a;
-								var _v1 = l.b;
-								var g = _v1.a;
-								var _v2 = _v1.b;
-								var luc = _v2.a;
-								var _v3 = _v2.b;
-								var ludvig = _v3.a;
-								return A4(
-									$author$project$Main$iteration,
-									model.pageIndices,
-									i,
-									$author$project$Texts$length(model.texts),
-									{dp: d, ge: g, ld: luc, le: ludvig});
-							} else {
-								var _v4 = A2($elm$core$Debug$log, 'l', l);
-								return $mdgriffith$elm_ui$Element$text('Problem');
-							}
-						}),
-					$author$project$Texts$transposedTexts(model.texts))),
+				$mdgriffith$elm_ui$Element$row,
+				_List_fromArray(
+					[$mdgriffith$elm_ui$Element$centerX, $mdgriffith$elm_ui$Element$centerY]),
 				A2(
-				$author$project$Main$buttons,
-				$mdgriffith$elm_animator$Animator$current(model.pageIndices),
-				$author$project$Texts$length(model.texts)),
-				$author$project$Main$viewEditable(model)
+					$elm$core$List$intersperse,
+					$author$project$Main$emptyColumn(1),
+					A2(
+						$author$project$Utils$rotate,
+						model.rotation,
+						_List_fromArray(
+							[
+								A4($mdgriffith$elm_ui$Element$Lazy$lazy3, authorTexts, $author$project$PageIndices$David, model.texts.dp, model.indexDP),
+								A4($mdgriffith$elm_ui$Element$Lazy$lazy3, authorTexts, $author$project$PageIndices$Gerhard, model.texts.ge, model.indexGE),
+								A4($mdgriffith$elm_ui$Element$Lazy$lazy3, authorTexts, $author$project$PageIndices$Luc, model.texts.ld, model.indexLD),
+								A4($mdgriffith$elm_ui$Element$Lazy$lazy3, authorTexts, $author$project$PageIndices$Ludvig, model.texts.le, model.indexLE)
+							])))),
+				$author$project$Main$buttons(model),
+				model.testMode ? $author$project$Main$viewEditable(model) : $mdgriffith$elm_ui$Element$none
 			]));
 };
 var $author$project$Main$viewMainContent = function (model) {
@@ -19287,19 +19803,18 @@ var $author$project$Main$view = function (model) {
 						$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$fill),
 						$mdgriffith$elm_ui$Element$centerY,
 						$mdgriffith$elm_ui$Element$padding(20),
-						$mdgriffith$elm_ui$Element$Font$size(14),
+						$mdgriffith$elm_ui$Element$Font$size(13),
 						$mdgriffith$elm_ui$Element$Font$family(
 						_List_fromArray(
-							[$mdgriffith$elm_ui$Element$Font$monospace]))
+							[
+								$mdgriffith$elm_ui$Element$Font$typeface('Inconsolata'),
+								$mdgriffith$elm_ui$Element$Font$monospace
+							]))
 					]),
 				$author$project$Main$viewMainContent(model))
 			]),
 		title: 'Towards'
 	};
-};
-var $author$project$Pages$withAudio = function (_v0) {
-	var a = _v0.b;
-	return a;
 };
 var $author$project$Main$main = $elm$browser$Browser$application(
 	{
@@ -19310,7 +19825,7 @@ var $author$project$Main$main = $elm$browser$Browser$application(
 					ge: $author$project$Texts$textsToList($author$project$Texts$Gerhard$texts),
 					ld: A3(
 						$author$project$Luc$TextGen$generateEntries,
-						A3($author$project$Luc$TextGen$Probabilities, 0.65, 0.35, 0.0),
+						A3($author$project$Luc$TextGen$Probabilities, 0.6, 0.35, 0.0),
 						$author$project$Texts$textsToList($author$project$Texts$Gerhard$texts),
 						$author$project$Texts$textsToList($author$project$Texts$Ludvig$texts)),
 					le: $author$project$Texts$textsToList($author$project$Texts$Ludvig$texts)
@@ -19318,11 +19833,23 @@ var $author$project$Main$main = $elm$browser$Browser$application(
 				var page = $author$project$Pages$fromUrl(url);
 				return _Utils_Tuple2(
 					{
+						indexDP: $mdgriffith$elm_animator$Animator$init(
+							$author$project$Pages$indices(page).dp),
+						indexGE: $mdgriffith$elm_animator$Animator$init(
+							$author$project$Pages$indices(page).ge),
+						indexLD: $mdgriffith$elm_animator$Animator$init(
+							$author$project$Pages$indices(page).ld),
+						indexLE: $mdgriffith$elm_animator$Animator$init(
+							$author$project$Pages$indices(page).le),
 						initStatus: (!$author$project$Pages$withAudio(page)) ? $author$project$Main$WithoutAudio : $author$project$Main$Uninitialized,
+						muteDP: false,
+						muteGE: false,
+						muteLD: false,
+						muteLE: false,
 						navKey: navKey,
 						needsUpdate: false,
-						pageIndices: $mdgriffith$elm_animator$Animator$init(
-							$author$project$Pages$indices(page)),
+						rotation: $author$project$Pages$indices(page).rotation,
+						testMode: $author$project$Pages$testMode(page),
 						texts: texts
 					},
 					$elm$core$Platform$Cmd$none);
@@ -19333,7 +19860,10 @@ var $author$project$Main$main = $elm$browser$Browser$application(
 			return $elm$core$Platform$Sub$batch(
 				_List_fromArray(
 					[
-						A3($mdgriffith$elm_animator$Animator$toSubscription, $author$project$Main$Tick, model, $author$project$Main$animator),
+						A3($mdgriffith$elm_animator$Animator$toSubscription, $author$project$Main$Tick, model, $author$project$Main$animatorLD),
+						A3($mdgriffith$elm_animator$Animator$toSubscription, $author$project$Main$Tick, model, $author$project$Main$animatorLE),
+						A3($mdgriffith$elm_animator$Animator$toSubscription, $author$project$Main$Tick, model, $author$project$Main$animatorDP),
+						A3($mdgriffith$elm_animator$Animator$toSubscription, $author$project$Main$Tick, model, $author$project$Main$animatorGE),
 						$author$project$Main$bufferLoaderCreated($author$project$Main$BufferLoaderCreated)
 					]));
 		},

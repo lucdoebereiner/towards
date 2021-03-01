@@ -394,18 +394,7 @@ generateEntries probs left right =
                 _ ->
                     []
     in
-    List.map (toRegionsEntry { width = 40, height = 30 })
-        -- (\a ->
-        --     entryFromArray <|
-        --         Array.map
-        --             (\s ->
-        --                 if s.visible then
-        --                     'x'
-        --                 else
-        --                     ' '
-        --             )
-        --             a
-        -- )
+    List.map (toRegionsEntryWithText { width = 40, height = 30 } sourceText)
         (nextGen initState (rotate 1 left) (rotate 1 right) seedAfterInit)
 
 
@@ -428,6 +417,119 @@ addToRegions regions entry =
 
     else
         entry :: regions
+
+
+gatherRegions : Regions Int -> List ( Int, Regions Int )
+gatherRegions regions =
+    L.gatherEqualsBy .label regions
+        |> List.map (\( r, collected ) -> ( r.label, r :: collected ))
+
+
+type alias Span a =
+    { a
+        | line : Int
+        , lineIndexStart : Int
+        , lineIndexEnd : Int
+    }
+
+
+type alias SpanWithLength =
+    Span { min : Int, max : Int }
+
+
+lengthRange : Dimensions -> Span a -> SpanWithLength
+lengthRange dim span =
+    let
+        minLength =
+            (span.lineIndexEnd - span.lineIndexStart) + 1
+    in
+    { line = span.line
+    , lineIndexStart = span.lineIndexStart
+    , lineIndexEnd = span.lineIndexEnd
+    , min = minLength
+    , max = minLength + min 2 (dim.width - minLength)
+    }
+
+
+regionSpans : Dimensions -> Regions Int -> List (List SpanWithLength)
+regionSpans dims regions =
+    gatherRegions regions
+        |> List.map (\r -> List.map (lengthRange dims) (spanGroups dims r))
+
+
+
+-- lst needs to be sorted by .index
+
+
+spanGroupsAux : List IndexWithLine -> Maybe (Span {}) -> List (Span {}) -> List (Span {})
+spanGroupsAux lst span acc =
+    case ( lst, span ) of
+        ( [], Nothing ) ->
+            acc
+
+        ( [], Just curr ) ->
+            acc ++ [ curr ]
+
+        ( idx :: rest, Nothing ) ->
+            spanGroupsAux rest
+                (Just
+                    { line = idx.line
+                    , lineIndexStart = idx.indexInLine
+                    , lineIndexEnd = idx.indexInLine
+                    }
+                )
+                acc
+
+        ( idx :: rest, Just current ) ->
+            if
+                (current.line == idx.line)
+                    && (abs (idx.indexInLine - current.lineIndexStart)
+                            <= 3
+                            || abs (idx.indexInLine - current.lineIndexEnd)
+                            <= 3
+                       )
+            then
+                if idx.indexInLine < current.lineIndexStart then
+                    spanGroupsAux rest (Just { current | lineIndexStart = idx.indexInLine }) acc
+
+                else
+                    spanGroupsAux rest (Just { current | lineIndexEnd = idx.indexInLine }) acc
+
+            else
+                spanGroupsAux rest
+                    (Just
+                        { line = idx.line
+                        , lineIndexStart = idx.indexInLine
+                        , lineIndexEnd = idx.indexInLine
+                        }
+                    )
+                    (acc ++ [ current ])
+
+
+type alias IndexWithLine =
+    { line : Int
+    , indexInLine : Int
+    , index : Int
+    }
+
+
+
+-- assumes all regions have the same label
+
+
+spanGroups : Dimensions -> ( Int, Regions Int ) -> List (Span {})
+spanGroups dims ( label, regions ) =
+    List.map
+        (\r ->
+            let
+                line =
+                    r.index // dims.width
+            in
+            { line = line, indexInLine = r.index - (line * dims.width), index = r.index }
+        )
+        regions
+        |> List.sortBy .index
+        |> (\lst -> spanGroupsAux lst Nothing [])
 
 
 symbolizeRegions : Regions Int -> Regions Char
@@ -515,6 +617,10 @@ flip function argB argA =
     function argA argB
 
 
+
+-- todo optimize
+
+
 collectNeighbors :
     Dimensions
     -> Int
@@ -556,7 +662,9 @@ collectNeighbors dims l a toCheck checked acc =
                 collectNeighbors dims
                     l
                     a
-                    (nextToCheck ++ neighborsToCheck)
+                    (nextToCheck
+                        ++ List.filter (\e -> not <| List.member e nextToCheck) neighborsToCheck
+                    )
                     (i :: checked)
                     (thisEntry :: acc ++ neighborEntries)
 
@@ -577,28 +685,7 @@ regionsOfArray dims a =
     Array.indexedMap
         (\i s ->
             if s.visible then
-                let
-                    c =
-                        collectNeighbors dims i a [ i ] [] []
-
-                    -- _ =
-                    --     Debug.log "collected" c
-                in
-                c
-                -- { index = i, label = i }
-                --     :: (neighborIndices dims i
-                --             |> List.map
-                --                 (\n ->
-                --                     if
-                --                         Maybe.map .visible (Array.get n a)
-                --                             |> Maybe.withDefault False
-                --                     then
-                --                         Just { index = n, label = i }
-                --                     else
-                --                         Nothing
-                --                 )
-                --             |> M.values
-                --        )
+                collectNeighbors dims i a [ i ] [] []
 
             else
                 []
@@ -611,19 +698,152 @@ regionsOfArray dims a =
 toRegionsEntry : Dimensions -> Array CharState -> Entry
 toRegionsEntry dims a =
     regionsOfArray dims a
-        |> (\v ->
-                -- let
-                --     _ =
-                --         Debug.log "regions" v
-                -- in
-                v
-           )
+        -- |> (\v ->
+        --         let
+        --             _ =
+        --                 Debug.log "regions" (regionSpans dims v)
+        --         in
+        --         v
+        --    )
         |> symbolizeRegions
         |> List.foldl (\e -> Array.set e.index e.label) emptyArray
         |> entryFromArray
 
 
 
--- ideas shift generation by one to react to current neighbord and start with content not empty [done]
--- redefine neighborhood to avoid line break [done]
--- detect regions
+-- check texts and spans
+
+
+checkStartWithSpan : List String -> SpanWithLength -> List String -> Maybe (List String)
+checkStartWithSpan words span acc =
+    let
+        c =
+            String.join " " acc |> String.length
+    in
+    if c > span.max then
+        Nothing
+
+    else if c >= span.min then
+        Just acc
+
+    else
+        case words of
+            [] ->
+                Nothing
+
+            first :: rest ->
+                checkStartWithSpan rest span (acc ++ [ first ])
+
+
+checkStartWithSpanList :
+    List String
+    -> List SpanWithLength
+    -> List ( SpanWithLength, List String )
+    -> Maybe (List ( SpanWithLength, List String ))
+checkStartWithSpanList words span acc =
+    case span of
+        [] ->
+            Just acc
+
+        thisSpan :: otherSpans ->
+            let
+                thisCheck =
+                    checkStartWithSpan words thisSpan []
+            in
+            case thisCheck of
+                Nothing ->
+                    Nothing
+
+                Just lst ->
+                    checkStartWithSpanList (List.drop (List.length lst) words)
+                        otherSpans
+                        (acc ++ [ ( thisSpan, lst ) ])
+
+
+correlateSpans :
+    List String
+    -> Int
+    -> List SpanWithLength
+    -> ( Int, Maybe (List ( SpanWithLength, List String )) )
+correlateSpans words offset spans =
+    case List.drop offset words of
+        [] ->
+            ( offset, Nothing )
+
+        wordsLst ->
+            case checkStartWithSpanList wordsLst spans [] of
+                Just found ->
+                    ( offset + 1, Just found )
+
+                Nothing ->
+                    correlateSpans words (offset + 1) spans
+
+
+insertString : Int -> String -> StringArray -> StringArray
+insertString startIdx str ar =
+    case String.uncons str of
+        Just ( ch, rest ) ->
+            insertString (startIdx + 1) rest (Array.set startIdx ch ar)
+
+        Nothing ->
+            ar
+
+
+writeSpanToArray :
+    Dimensions
+    -> ( SpanWithLength, List String )
+    -> StringArray
+    -> StringArray
+writeSpanToArray dims ( span, words ) ar =
+    let
+        strJoined =
+            String.join " " words
+
+        lengthDifference =
+            String.length strJoined - ((span.lineIndexEnd - span.lineIndexStart) + 1)
+
+        absStart =
+            span.lineIndexStart + (dims.width * span.line)
+    in
+    if lengthDifference > 0 then
+        if span.lineIndexEnd == (dims.width - 1) then
+            insertString (absStart - lengthDifference) strJoined ar
+
+        else if span.lineIndexStart > 0 then
+            insertString (absStart - 1) strJoined ar
+
+        else
+            insertString absStart strJoined ar
+
+    else
+        insertString absStart strJoined ar
+
+
+toRegionsEntryWithText : Dimensions -> String -> Array CharState -> Entry
+toRegionsEntryWithText dims text a =
+    regionsOfArray dims a
+        -- |> (\v ->
+        --         let
+        --             _ =
+        --                 Debug.log "regions" (regionSpans dims v)
+        --         in
+        --         v
+        --    )
+        |> regionSpans dims
+        |> L.mapAccuml
+            (\offset spans ->
+                correlateSpans
+                    (rotate offset (String.words text))
+                    0
+                    spans
+            )
+            0
+        |> Tuple.second
+        |> M.values
+        |> List.concat
+        |> List.foldl (writeSpanToArray dims) emptyArray
+        |> entryFromArray
+
+
+sourceText =
+    "Artistic practice has a conceptual and an aesthetic dimension. Their irreconcilability is a prerequisite.  Aesthetic thought demonstrates that thought is not tied to language, but    that there are unconscious, bodily, felt, material, and practiced    forms of thought. Aesthetic thought does not reflect its object at a distance but it is a speculative action that transforms and interacts with material. There is no method. This is not because    artistic practice is based on turmoil, inspiration or whim, but    because no abstract scheme of operation can be subtracted from its    material entanglement. The irreconcilability is a    prerequisite.  Speculative practice works at a    distance. Materialist artistic practice does not consist in    reconciling thought and matter, but in recognizing the productive    distances between matter and thoughts themselves.  No abstract    scheme of operation can be subtracted from arts material    entanglement.  We work with appearances."

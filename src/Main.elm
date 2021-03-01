@@ -9,9 +9,11 @@ import Browser
 import Browser.Events
 import Browser.Navigation as Nav
 import Element exposing (..)
+import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
 import Element.Input as Input
+import Element.Lazy exposing (..)
 import Html exposing (pre)
 import Html.Attributes as Attributes
 import Html.Events
@@ -29,6 +31,7 @@ import Texts.Ludvig as Ludvig
 import Time
 import Url exposing (Url)
 import Url.Parser
+import Utils
 
 
 config =
@@ -41,13 +44,58 @@ type InitStatus
     | WithoutAudio
 
 
+withAudio : InitStatus -> Bool
+withAudio s =
+    case s of
+        WithoutAudio ->
+            False
+
+        _ ->
+            True
+
+
 type alias Model =
-    { pageIndices : Animator.Timeline PageIndices
+    { indexGE : Animator.Timeline Float
+    , indexLE : Animator.Timeline Float
+    , indexLD : Animator.Timeline Float
+    , indexDP : Animator.Timeline Float
+    , rotation : Int
     , navKey : Nav.Key
     , needsUpdate : Bool
     , texts : Texts
     , initStatus : InitStatus
+    , testMode : Bool
+    , muteGE : Bool
+    , muteLE : Bool
+    , muteDP : Bool
+    , muteLD : Bool
     }
+
+
+modelIndices : Model -> PageIndices
+modelIndices m =
+    PageIndices.PageIndices
+        (Animator.current m.indexLE)
+        (Animator.current m.indexDP)
+        (Animator.current m.indexGE)
+        (Animator.current m.indexLD)
+        m.rotation
+
+
+muteOf : Author -> Model -> Bool
+muteOf author m =
+    case author of
+        Gerhard ->
+            m.muteGE
+
+        Luc ->
+            m.muteLD
+
+        Ludvig ->
+            m.muteLE
+
+        David ->
+            m.muteDP
 
 
 main =
@@ -64,15 +112,16 @@ main =
                         , dp = Texts.textsToList David.texts
                         , ld =
                             Luc.TextGen.generateEntries
-                                (Luc.TextGen.Probabilities 0.65 0.35 0.0)
+                                (Luc.TextGen.Probabilities 0.6 0.35 0.0)
                                 (Texts.textsToList Gerhard.texts)
                                 (Texts.textsToList Ludvig.texts)
-
-                        --Texts.textsToList Luc.texts
                         }
                 in
-                ( { pageIndices =
-                        Animator.init (Pages.indices page)
+                ( { indexGE = Animator.init (Pages.indices page).ge
+                  , indexLD = Animator.init (Pages.indices page).ld
+                  , indexLE = Animator.init (Pages.indices page).le
+                  , indexDP = Animator.init (Pages.indices page).dp
+                  , rotation = (Pages.indices page).rotation
                   , navKey = navKey
                   , needsUpdate = False
                   , texts = texts
@@ -82,6 +131,11 @@ main =
 
                         else
                             Uninitialized
+                  , testMode = Pages.testMode page
+                  , muteLD = False
+                  , muteGE = False
+                  , muteLE = False
+                  , muteDP = False
                   }
                 , Cmd.none
                 )
@@ -90,7 +144,13 @@ main =
         , subscriptions =
             \model ->
                 Sub.batch
-                    [ animator
+                    [ animatorLD
+                        |> Animator.toSubscription Tick model
+                    , animatorLE
+                        |> Animator.toSubscription Tick model
+                    , animatorDP
+                        |> Animator.toSubscription Tick model
+                    , animatorGE
                         |> Animator.toSubscription Tick model
                     , bufferLoaderCreated BufferLoaderCreated
                     ]
@@ -112,6 +172,9 @@ port setAmps : ( Int, Array Float ) -> Cmd msg
 port setPan : ( Int, Float ) -> Cmd msg
 
 
+port sendMute : ( Int, Bool ) -> Cmd msg
+
+
 port bufferLoaderCreated : (Bool -> msg) -> Sub msg
 
 
@@ -123,9 +186,10 @@ type Msg
     = Tick Time.Posix
     | ClickedLink Browser.UrlRequest
     | UrlChanged Url.Url
-    | SetPage PageIndices
+    | SetPage Author Float
     | SetEditor Author String
     | Scroll Float Author
+    | SetMute Author Bool
     | BufferLoaderCreated Bool
     | InitAudio
 
@@ -160,21 +224,18 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         InitAudio ->
-            ( model, initAudio (PageIndices.indicesList (Animator.current model.pageIndices)) )
+            ( model
+            , initAudio
+                (PageIndices.indicesList (modelIndices model))
+            )
 
         BufferLoaderCreated b ->
             let
-                _ =
-                    Debug.log "buffer loader created" b
-
                 maxIdx =
                     Texts.length model.texts
 
-                indices =
-                    Animator.current model.pageIndices
-
                 amps =
-                    ampsCmd model indices
+                    ampsCmd model (modelIndices model)
 
                 panCmds =
                     List.map
@@ -194,16 +255,16 @@ update msg model =
                     PageIndices.incIndex author
                         (config.scrollInc * incDec)
                         (Texts.length model.texts)
-                        (Animator.current model.pageIndices)
-
-                -- amps =
-                --     ampsCmd model newIndices
+                        (modelIndices model)
             in
             ( model
-            , --Cmd.batch
-              Nav.pushUrl model.navKey (PageIndices.toUrl newIndices)
-              -- , amps
-              -- ]
+            , Nav.pushUrl model.navKey
+                (Pages.toUrl
+                    (Pages.root newIndices
+                        (withAudio model.initStatus)
+                        model.testMode
+                    )
+                )
             )
 
         SetEditor author str ->
@@ -218,7 +279,7 @@ update msg model =
                 | texts =
                     Texts.setAuthorTextAt
                         author
-                        (Animator.current model.pageIndices)
+                        (modelIndices model)
                         entry
                         model.texts
               }
@@ -226,7 +287,10 @@ update msg model =
             )
 
         Tick newTime ->
-            ( Animator.update newTime animator model
+            ( Animator.update newTime animatorLD model
+                |> Animator.update newTime animatorGE
+                |> Animator.update newTime animatorDP
+                |> Animator.update newTime animatorLE
             , Cmd.none
             )
 
@@ -235,42 +299,121 @@ update msg model =
 
         UrlChanged url ->
             let
+                page =
+                    Pages.fromUrl url
+
                 newIndices =
-                    PageIndices.fromUrl url
+                    Pages.indices page
 
                 amps =
                     ampsCmd model newIndices
             in
             ( { model
-                | pageIndices =
-                    model.pageIndices
+                | indexLD =
+                    model.indexLD
                         |> Animator.go
                             (Animator.seconds config.transitionDur)
-                            newIndices
+                            newIndices.ld
+                , indexLE =
+                    model.indexLE
+                        |> Animator.go
+                            (Animator.seconds config.transitionDur)
+                            newIndices.le
+                , indexGE =
+                    model.indexGE
+                        |> Animator.go
+                            (Animator.seconds config.transitionDur)
+                            newIndices.ge
+                , indexDP =
+                    model.indexDP
+                        |> Animator.go
+                            (Animator.seconds config.transitionDur)
+                            newIndices.dp
               }
             , amps
             )
 
-        SetPage newIndices ->
-            -- let
-            --     amps =
-            --         ampsCmd model newIndices
-            -- in
+        SetPage author index ->
             ( model
             , Nav.pushUrl
                 model.navKey
-                (PageIndices.toUrl newIndices)
-              -- , amps
-              -- ]
+                (Pages.toUrl
+                    (Pages.root
+                        (PageIndices.updateAuthor
+                            author
+                            index
+                            (modelIndices model)
+                        )
+                        (withAudio model.initStatus)
+                        model.testMode
+                    )
+                )
+            )
+
+        SetMute author b ->
+            let
+                newModel =
+                    case author of
+                        Gerhard ->
+                            { model | muteGE = b }
+
+                        Ludvig ->
+                            { model | muteLE = b }
+
+                        Luc ->
+                            { model | muteLD = b }
+
+                        David ->
+                            { model | muteDP = b }
+            in
+            ( newModel, sendMute ( PageIndices.authorIndex author, b ) )
+
+
+animatorLD : Animator.Animator Model
+animatorLD =
+    Animator.animator
+        |> Animator.Css.watching .indexLD
+            (\newIndex model ->
+                { model | indexLD = newIndex }
             )
 
 
-animator : Animator.Animator Model
-animator =
+animatorLE : Animator.Animator Model
+animatorLE =
     Animator.animator
-        |> Animator.Css.watching .pageIndices
-            (\newIndices model ->
-                { model | pageIndices = newIndices }
+        |> Animator.Css.watching .indexLE
+            (\newIndex model ->
+                if newIndex == model.indexLE then
+                    model
+
+                else
+                    { model | indexLE = newIndex }
+            )
+
+
+animatorDP : Animator.Animator Model
+animatorDP =
+    Animator.animator
+        |> Animator.Css.watching .indexDP
+            (\newIndex model ->
+                if newIndex == model.indexDP then
+                    model
+
+                else
+                    { model | indexDP = newIndex }
+            )
+
+
+animatorGE : Animator.Animator Model
+animatorGE =
+    Animator.animator
+        |> Animator.Css.watching .indexGE
+            (\newIndex model ->
+                if newIndex == model.indexGE then
+                    model
+
+                else
+                    { model | indexGE = newIndex }
             )
 
 
@@ -313,31 +456,34 @@ ampArray indices author maxIdx =
     Array.initialize maxIdx (\i -> calcDistance authorIdx i maxIdx |> distanceToOpacity)
 
 
-
--- panAndAmp : PageIndices -> Author -> Int -> ( Float, Array Float )
--- panAndAmp indices author maxIdx =
---     ( authorPan author, ampArray indices author maxIdx )
---
-
-
 textColumn :
-    Animator.Timeline PageIndices
+    Bool
+    -> Animator.Timeline Float
     -> Author
     -> Int
     -> Int
     -> Entry
     -> Element Msg
-textColumn timeline author index maxIdx entry =
+textColumn border timeline author index maxIdx entry =
     el
-        [ width shrink
-        , htmlAttribute (Attributes.style "line-height" "2")
-        ]
+        ([ width shrink
+         , htmlAttribute (Attributes.style "line-height" "2")
+         ]
+            ++ (if border then
+                    [ Border.solid
+                    , Border.width 1
+                    ]
+
+                else
+                    []
+               )
+        )
     <|
         html
             (Animator.Css.div timeline
                 [ Animator.Css.opacity <|
-                    \indices ->
-                        calcDistance (PageIndices.getIndex author indices) index maxIdx
+                    \currentIndex ->
+                        calcDistance currentIndex index maxIdx
                             |> distanceToOpacity
                             |> Animator.at
                 ]
@@ -351,7 +497,7 @@ textColumn timeline author index maxIdx entry =
 emptyColumn n =
     el
         [ width shrink
-        , htmlAttribute (Attributes.style "line-height" "2")
+        , htmlAttribute (Attributes.style "line-height" "1")
         ]
     <|
         html
@@ -359,26 +505,6 @@ emptyColumn n =
                 []
                 [ Html.text (String.repeat n " ") ]
             )
-
-
-iteration :
-    Animator.Timeline PageIndices
-    -> Int
-    -> Int
-    -> Texts.CurrentEntries
-    -> Element Msg
-iteration timeline index maxIdx current =
-    row [ centerX, centerY ] <|
-        List.intersperse (emptyColumn 1) <|
-            List.map
-                (\author ->
-                    textColumn timeline
-                        author
-                        index
-                        maxIdx
-                        (Texts.getText author current)
-                )
-                (PageIndices.authorsInOrder (Animator.current timeline))
 
 
 matryoshka : List (Element msg) -> Element msg
@@ -399,37 +525,59 @@ buttonStyling =
     [ Border.width 1, padding 10, centerX ]
 
 
-columnButtons : Author -> Int -> PageIndices -> Element Msg
-columnButtons author maxIdx indices =
+muteButtonStyling b =
+    if b then
+        Background.color (rgb 0.6 0.6 0.6) :: buttonStyling
+
+    else
+        buttonStyling
+
+
+muteButton : Author -> Bool -> Element Msg
+muteButton author state =
+    Input.button (muteButtonStyling state)
+        { onPress =
+            Just <|
+                SetMute author (not state)
+        , label = text "Mute"
+        }
+
+
+columnButtons : Author -> Int -> Float -> Element Msg
+columnButtons author maxIdx index =
     let
         back =
-            PageIndices.previousIndex author maxIdx indices
+            PageIndices.previousIndex maxIdx index
 
         forward =
-            PageIndices.nextIndex author maxIdx indices
-
-        idx =
-            PageIndices.getIndex author indices
+            PageIndices.nextIndex maxIdx index
     in
     row [ centerX, spacing 10 ]
         [ Input.button buttonStyling
             { onPress =
                 Just <|
-                    SetPage back
+                    SetPage author back
             , label = text "<"
             }
-        , text (String.fromFloat idx)
+        , text (String.fromFloat index)
         , Input.button buttonStyling
             { onPress =
                 Just <|
-                    SetPage forward
+                    SetPage author forward
             , label = text ">"
             }
         ]
 
 
-buttons : PageIndices -> Int -> Element Msg
-buttons indices maxIdx =
+buttons : Model -> Element Msg
+buttons model =
+    let
+        maxIdx =
+            Texts.length model.texts
+
+        indices =
+            modelIndices model
+    in
     row [ centerX ] <|
         List.intersperse (emptyColumn 1) <|
             List.map
@@ -441,9 +589,16 @@ buttons indices maxIdx =
                 )
                 (List.map
                     (\author ->
-                        columnButtons author
-                            maxIdx
-                            indices
+                        column [ spacingXY 0 10, centerX ]
+                            [ columnButtons author
+                                maxIdx
+                                (PageIndices.getIndex author indices)
+                            , if model.testMode then
+                                muteButton author (muteOf author model)
+
+                              else
+                                none
+                            ]
                     )
                     (PageIndices.authorsInOrder indices)
                 )
@@ -473,7 +628,7 @@ viewEditable : Model -> Element Msg
 viewEditable m =
     let
         indices =
-            Animator.current m.pageIndices
+            modelIndices m
 
         extractString =
             Maybe.withDefault " " << Maybe.map Texts.toEditor
@@ -496,11 +651,13 @@ viewEditable m =
     in
     row [ centerX, centerY ] <|
         List.intersperse (emptyColumn 1)
-            [ editColumn david (SetEditor David)
-            , editColumn gerhard (SetEditor Gerhard)
-            , editColumn luc (SetEditor Luc)
-            , editColumn ludvig (SetEditor Ludvig)
-            ]
+            (Utils.rotate m.rotation
+                [ editColumn david (SetEditor David)
+                , editColumn gerhard (SetEditor Gerhard)
+                , editColumn luc (SetEditor Luc)
+                , editColumn ludvig (SetEditor Ludvig)
+                ]
+            )
 
 
 introPage : Element Msg
@@ -514,28 +671,49 @@ introPage =
 
 viewColumns : Model -> Element Msg
 viewColumns model =
-    column [ width fill, spacingXY 0 20 ] <|
-        [ matryoshka <|
-            List.indexedMap
-                (\i l ->
-                    case l of
-                        [ d, g, luc, ludvig ] ->
-                            iteration model.pageIndices
-                                i
-                                (Texts.length model.texts)
-                                { ld = luc, dp = d, ge = g, le = ludvig }
+    let
+        maxIdx =
+            Texts.length model.texts
 
-                        _ ->
-                            let
-                                _ =
-                                    Debug.log "l" l
-                            in
-                            text "Problem"
+        authorTexts author entries timeline =
+            let
+                currInterpolationIdx =
+                    Animator.current timeline
+            in
+            List.indexedMap
+                (\i e ->
+                    let
+                        dist =
+                            calcDistance currInterpolationIdx i maxIdx
+                    in
+                    ( dist, textColumn model.testMode timeline author i maxIdx e )
                 )
-                (Texts.transposedTexts model.texts)
-        , buttons (Animator.current model.pageIndices)
-            (Texts.length model.texts)
-        , viewEditable model
+                entries
+                |> List.filterMap
+                    (\( dist, column ) ->
+                        if dist < (config.transitionDepth * 2) then
+                            Just column
+
+                        else
+                            Nothing
+                    )
+                |> matryoshka
+    in
+    column [ width fill, spacingXY 0 5 ] <|
+        [ row [ centerX, centerY ] <|
+            List.intersperse (emptyColumn 1) <|
+                Utils.rotate model.rotation
+                    [ lazy3 authorTexts David model.texts.dp model.indexDP
+                    , lazy3 authorTexts Gerhard model.texts.ge model.indexGE
+                    , lazy3 authorTexts Luc model.texts.ld model.indexLD
+                    , lazy3 authorTexts Ludvig model.texts.le model.indexLE
+                    ]
+        , buttons model
+        , if model.testMode then
+            viewEditable model
+
+          else
+            none
         ]
 
 
@@ -557,9 +735,9 @@ view model =
             [ width fill
             , centerY
             , padding 20
-            , Font.size 14
+            , Font.size 13
             , Font.family
-                [ Font.monospace ]
+                [ Font.typeface "Inconsolata", Font.monospace ]
             ]
           <|
             viewMainContent model

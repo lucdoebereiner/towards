@@ -4,7 +4,15 @@
 	<meta charset="UTF-8">
 	<title>Main</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="preconnect" href="https://fonts.gstatic.com">
+	<link href="https://fonts.googleapis.com/css2?family=Inconsolata&display=swap" rel="stylesheet">
     </head>
+    <style>
+     pre {
+	 font-family: "Inconsolata";
+	 
+     }
+    </style>
 
   <body>
     <div id="app"></div>
@@ -21,7 +29,6 @@
 	 init(indices,app.ports.bufferLoaderCreated);
      });
 
-
      app.ports.setAmps.subscribe(function(idxAndAmps) {
 	 bufferLoader.sendAmps(idxAndAmps[0], idxAndAmps[1]);
      });
@@ -30,6 +37,11 @@
 	 bufferLoader.sendPan(idxAndPan[0], idxAndPan[1]);
      });
 
+     app.ports.sendMute.subscribe(function(idxAndMute) {
+	 bufferLoader.sendMute(idxAndMute[0], idxAndMute[1]);
+     });
+
+     
     </script>
 
   </body>
