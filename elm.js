@@ -9038,7 +9038,7 @@ var $author$project$Main$calcDistance = F3(
 		var reverseDistance = maxIdx - distance;
 		return A2($elm$core$Basics$min, distance, reverseDistance);
 	});
-var $author$project$Main$config = {scrollInc: 0.1, transitionDepth: 1.0, transitionDur: 1};
+var $author$project$Main$config = {scrollInc: 0.1, transitionDepth: 1.0, transitionDur: 0};
 var $author$project$Main$distanceToOpacity = function (d) {
 	return (_Utils_cmp(d, $author$project$Main$config.transitionDepth) > -1) ? 0.0 : (($author$project$Main$config.transitionDepth - d) / $author$project$Main$config.transitionDepth);
 };
