@@ -12,31 +12,23 @@ class BufferLoader {
 	this.onload = callback;
 	this.loadCount = 0;
 	this.names = ["david", "gerhard", "luc", "ludvig"];
-	this.shBuf = [];
 	this.index2l = 0;
 	this.sr = this.context.sampleRate;
 	this.loadIndices = [];
 	// console.log("sr : ");
 	// console.log(this.sr);
 	this.node.port.postMessage({init: [pageNum, this.sr, duration]});
-	for (var i = 0; i < 4; ++i) {
-	    this.shBuf[i] = [];
-	    for (var j = 0; j < pageNum; ++j) {
-		this.shBuf[i][j] = new SharedArrayBuffer(4 * this.sr * duration); // 32 bit floats
-	    }
-	}
 	this.shArray = [];
 	for (var i = 0; i < 4; ++i) {
 	    this.shArray[i] = [];
-	    for (var j = 0; j < pageNum; ++j) {
-		this.shArray[i][j] = new Float32Array(this.shBuf[i][j]); // 32 bit floats
-	    }
+	    // for (var j = 0; j < pageNum; ++j) {
+	    // 	this.shArray[i][j] = new Float32Array( this.sr * duration ); // 32 bit floats
+	    // }
 	}
-
     }
 
     sendBuffer(page, index){
-	this.node.port.postMessage({load: [page, index, this.shBuf[index][page]]});
+	this.node.port.postMessage({load: [page, index, this.shArray[index][page]]});
     }
 
     sendAmps(index, amps) {
@@ -76,9 +68,7 @@ class BufferLoader {
 			return;
 		    }
 		    var chdata = buffer.getChannelData(0);
-		    for (var i = 0; i<loader.sr * duration; ++i) {
-			loader.shArray[index][page][i] = chdata[i];
-		    };
+		    loader.shArray[index][page] = chdata;
 		    loader.index2l = loader.index2l + 1;
 		    if (loader.index2l%8 == 0) {
 			for (var j = 1; j<9; ++j) {

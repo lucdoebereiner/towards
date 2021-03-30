@@ -39,11 +39,11 @@ class PlayBufProcessor extends AudioWorkletProcessor {
 		this.init = true;
 	    }
 	    if (e.data.load) {
-		// console.log("gotload");
-		// console.log(e.data.load);
+		console.log("gotload");
+		console.log(e.data.load);
 		var pp = e.data.load[0];
 		var idx = e.data.load[1];
-		this.shArray[idx][pp] = new Float32Array(e.data.load[2]);
+		this.shArray[idx][pp] = e.data.load[2];
 	    }
 	    if (e.data.amps) {
 		// console.log("gotamps");
