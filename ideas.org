@@ -18,7 +18,9 @@ CLOSED: [2021-02-08 Mon 23:23]
 - lagging of mixing parameters
 - lagging of pan (with constant lag time for the moment)
 * DONE [#B] [LD] Performance of page turning
-* TODO [#C] [DP] Security Issues with SharedArrayBuffer
+* DONE [#C] [DP] Security Issues with SharedArrayBuffer
+CLOSED: [2021-03-30 Tue 13:22]
+switched back to normal float32 arrays
 * TODO [#C] [ALL] Think about the rotation parameter/interaction 
 * TODO [#C] [ALL] Averaging pages system
 - Pages dynamically change to converge to one average page number
