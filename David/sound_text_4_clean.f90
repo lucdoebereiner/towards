@@ -12,19 +12,21 @@ module towards
   integer :: systextn = 95
   integer, parameter :: ngbrs = 15
   
-  real(8), dimension(3) :: alpha, beta
+  real(8), dimension(4,3) :: alpha, beta
   real(8), dimension(4) :: freq, bw, sinf
-  real(8), dimension(4) :: trlaycoup ! trans layer coupling
+  real(8), dimension(4,4) :: trlaycoup ! trans layer coupling
   real(8), dimension(2) :: excoup ! external influence i.e. Gerhard and Ludvig
-  real(8), dimension(2) :: trpagecoup ! reans page coupling : for later 
+  real(8), dimension(4,2) :: trpagecoup ! trans page coupling
   real(8), parameter :: dt = 1.0_8 / (2.0_8 * 48000.0_8)
   integer, parameter :: fade = 4800 ! fade length in samples 
   real(8), dimension(seconds*samples) :: ger, lud
   
   real(8), dimension(:,:,:,:), allocatable :: textsys
-  real(8), dimension(4) :: soundtemp
+  ! real(8), dimension(4) :: soundtemp
   ! real(8), dimension(:,:), allocatable :: soundsys ! maybe save all the state and reiterate multiple times
-  real(8), dimension(:,:,:,:), allocatable :: soundsysp, soundsyst 
+  real(8), dimension(:,:,:,:), allocatable :: soundsyspt, soundsyszt, soundsyst
+  ! real(8), dimension(:,:,:,:), pointer :: soundsysp, soundsyst
+  ! real(8), dimension(:,:,:,:), allocatable :: soundsysp, soundsyst 
   real(8), dimension(:,:), allocatable :: soundout
   
   real(8), parameter :: dttext = 0.0002  
@@ -46,11 +48,9 @@ module towards
 contains
 
   subroutine commit ()
-
     call system("cp ./David.elm ../src/Texts/David.elm")
     call chdir("../")
     call system("./build.sh")
-
   end subroutine commit
 
 
@@ -80,8 +80,7 @@ contains
     write(21, "(A)") " ]"
     flush(21)
     close(21)
-    call commit()
-    
+    call commit()    
   end subroutine exportForElm
   
   subroutine exportAudio ()
@@ -93,10 +92,6 @@ contains
     ss = seconds*samples
     
     do i = 1, page
-       ! write (filename, "(A8,I2.2,A3)") "./david_", i+8, ".au"
-       ! write (filename, "(A8,I2.2,A3)") "./david_", i+8, ".au"
-
-       ! print *, trim(filename)
     
        open(unit=20,file="./david.au",form='unformatted',access='stream',status='replace',convert='big_endian')
        write(20) ".snd"
@@ -131,8 +126,10 @@ contains
        else
           write (filename, "(A39,I2,A1)") "cp ./david.wav ../../towards_files/page", i-1, "/"
        end if
+
        print *, trim(filename)
        call system(filename)
+       
      end do
 
   end subroutine exportAudio
@@ -283,61 +280,148 @@ contains
 
   end function coupCalc
 
-  subroutine dynsound()
-    integer :: i, j, p, s, ss
-    real(8) :: tmp
+  function soundsyspn(p, s)
+    integer, intent(in) :: p, s
+    real(8), dimension(2, numlayers, numosc) :: soundsyspn
+    integer :: ss, pn
+    ss = samples*seconds
 
+    soundsyspn(1, :, :) = soundsyspt(2,s,:,:) 
+
+    pn = p + 1
+    if (pn .le. page) then
+       soundsyspn(2,:,:) = soundsyst(pn,s,:,:)
+    else
+       soundsyspn(2,:,:) = soundsyszt(1,s,:,:)
+       pn = 1
+    end if
+    
+    if (s .eq. ss) then
+       soundsyspt(2,:,:,:) = soundsyspt(1,:,:,:)
+       soundsyspt(1,:,:,:) = soundsyst(pn,:,:,:)
+    end if
+    
+  end function soundsyspn
+
+  
+  subroutine dynsound()
+    integer :: i, j, p, s, ss, t, pn, sn, li
+    real(8) :: tmp
+    real(8), dimension(2,numlayers,numosc) :: syspn
+    real(8), dimension(numlayers,numosc) :: laysound
+    
     print*, "in dynsound"
+    
+    ! ss = seconds*samples
+    ! p = 1
+    ! s = 1
+    ! do i = 1, ss*page
+    !    do j = 1, 4
+    !       soundtemp(j) = soundtemp(j) + freq(j) * dt
+    !    end do
+    !    soundtemp = modulo(soundtemp, pi2)
+    !    s = modulo(i-1, ss) + 1
+    !    p = int(i/(ss)) + 1
+    !    soundout(p, s) = (gauss(bw(1), soundtemp(1)) * sin(soundtemp(1) * sinf(1)) + gauss(bw(2), soundtemp(2)) * sin(soundtemp(2) * sinf(2))) & 
+    !          & * (gaussder(bw(3), soundtemp(3)) * sin(soundtemp(3) * sinf(3)) + gaussder(bw(4), soundtemp(4)) * sin(soundtemp(4) * sinf(4))) &
+    !          & * 0.2_8
+    ! end do
     
     ss = seconds*samples
     p = 1
     s = 1
-    do i = 1, ss*page
-       do j = 1, 4
-          soundtemp(j) = soundtemp(j) + freq(j) * dt
+    do t = 1, ss*page
+       s = modulo(t-1, ss) + 1
+       p = int((t-1)/ss) + 1
+
+       syspn = soundsyspn(p, s)
+       ! print*, "got p and n"
+       
+       sn = s + 1
+       pn = p
+       if (sn .gt. ss) then
+          sn = 1
+          pn = modulo(p,page) + 1
+          if (pn .eq. 1) then
+             print*, "saving initial page ", p
+             soundsyszt(1,:,:,:) = soundsyst(1,:,:,:)
+          end if
+       end if
+       
+       ! print*, "get next dxs"
+
+       if (p .ne. pn) then
+          print*, "page ", p
+       end if
+
+       do i = 1, numlayers
+          do j = 1, numosc
+             if (i .lt. 3) then 
+                laysound(i, j) = gauss(bw(i), soundsyst(p,s,i,j)) * sin(soundsyst(p,s,i,j) * sinf(i))
+             else
+                laysound(i, j) = gaussder(bw(i), soundsyst(p,s,i,j)) * sin(soundsyst(p,s,i,j) * sinf(i))
+             end if
+          end do
        end do
-       soundtemp = modulo(soundtemp, pi2)
-       s = modulo(i-1, ss) + 1
-       p = int(i/(ss)) + 1
-       soundout(p, s) = (gauss(bw(1), soundtemp(1)) * sin(soundtemp(1) * sinf(1)) + gauss(bw(2), soundtemp(2)) * sin(soundtemp(2) * sinf(2))) & 
-             & * (gaussder(bw(3), soundtemp(3)) * sin(soundtemp(3) * sinf(3)) + gaussder(bw(4), soundtemp(4)) * sin(soundtemp(4) * sinf(4))) &
-             & * 0.2_8
+       ! print*, "comp sound"
+
+       ! soundout(p, s) = sum(gauss(bw(1), soundsyst(p,s,1,:)) * sin(soundsyst(p,s,1,:) * sinf(1)) &
+       !      & + gauss(bw(2), soundsyst(p,s,2,:)) * sin(soundsyst(p,s,2,:) * sinf(2))) & 
+       !      & * sum(gaussder(bw(3), soundsyst(p,s,3,:)) * sin(soundsyst(p,s,3,:) * sinf(3)) &
+       !      & + gaussder(bw(4), soundsyst(p,s,4,:)) * sin(soundsyst(p,s,4,:) * sinf(4))) &
+       !      & * 0.2_8
+       soundout(p, s) = ( sum(laysound(1:2,:)) * sum(laysound(3:4,:)) )* 0.1_8
+       ! print*, "mixed sound"
+       
+       do i = 1, numlayers
+          li = i - 1
+          if (li .eq. 0) then
+             li = numlayers
+          end if
+          
+          do j = 1, numosc
+             ! print*, p ," page " , s, " sample ", i, " lay : osc : ", j, " : prev and next ", modulo(j-2,numosc) + 1, " ", modulo(j,numosc) + 1
+             tmp = freq(i) + &
+                  & alpha(i,1) * &
+                  & (sin(soundsyst(p, s, i, modulo(j-2,numosc) + 1) - soundsyst(p, s, i,j) - beta(i,1)) &
+                  & - sin(soundsyst(p, s, i, modulo(j,numosc) + 1) - soundsyst(p, s, i,j) - beta(i,1))) &
+                  & + alpha(i,2) * &
+                  & (sin(2.0_8*(soundsyst(p, s, i, modulo(j-2,numosc) + 1) - soundsyst(p, s, i,j)) - beta(i,2)) &
+                  & - sin(2.0_8*(soundsyst(p, s, i, modulo(j,numosc) + 1) - soundsyst(p, s, i,j)) - beta(i,2))) & 
+                  & + alpha(i,3) * &
+                  & (sin(3.0_8*(soundsyst(p, s, i, modulo(j-2,numosc) + 1) - soundsyst(p, s, i,j)) - beta(i,3)) &
+                  & - sin(3.0_8*(soundsyst(p, s, i, modulo(j,numosc) + 1) - soundsyst(p, s, i,j)) - beta(i,3))) &
+                  & + trlaycoup(i,li) * laysound(li, j) &
+                  & + sum(trpagecoup(i,:) * syspn(:,i,j))
+             soundsyst(pn, sn, i,j) = soundsyst(p, s, i,j) + tmp * dt          
+          end do
+       end do
+       ! print*, " and return pn and sn", pn, sn 
+
+       p = pn
+       s = sn
+       do i = numlayers, 1, -1
+          do j = numosc, 1, -1
+             tmp = freq(i) + &
+                  & alpha(i,1) * &
+                  & (sin(soundsyst(p, s, i, modulo(j-2,numosc) + 1) - soundsyst(p, s, i,j) - beta(i,1)) &
+                  & - sin(soundsyst(p, s, i, modulo(j,numosc) + 1) - soundsyst(p, s, i,j) - beta(i,1))) &
+                  & + alpha(i,2) * &
+                  & (sin(2.0_8*(soundsyst(p, s, i, modulo(j-2,numosc) + 1) - soundsyst(p, s, i,j)) - beta(i,2)) &
+                  & - sin(2.0_8*(soundsyst(p, s, i, modulo(j,numosc) + 1) - soundsyst(p, s, i,j)) - beta(i,2))) & 
+                  & + alpha(i,3) * &
+                  & (sin(3.0_8*(soundsyst(p, s, i, modulo(j-2,numosc) + 1) - soundsyst(p, s, i,j)) - beta(i,3)) &
+                  & - sin(3.0_8*(soundsyst(p, s, i, modulo(j,numosc) + 1) - soundsyst(p, s, i,j)) - beta(i,3))) &
+                  & + trlaycoup(i,li) * laysound(li, j) &
+                  & + sum(trpagecoup(i,:) * syspn(:,i,j))
+             soundsyst(pn, sn, i,j) = soundsyst(p, s, i,j) + tmp * dt          
+          end do
+       end do
+
+       soundsyst(pn,sn,:,:) = modulo(soundsyst(pn,sn,:,:), pi2)       
+
     end do
 
-    
-    
-    ! do i = 1, numlayers
-    !    do j = 1, numosc
-    !       tmp = freq(i) + &
-    !            & alpha(1) * &
-    !            & (sin(soundsys(i, modulo(j-2,numosc) + 1) - soundsys(i,j) - beta(1)) &
-    !            & - sin(soundsys(i, modulo(j,numosc) + 1) - soundsys(i,j) - beta(1))) &
-    !            & + alpha(2) * &
-    !            & (sin(2.0_8*(soundsys(i, modulo(j-2,numosc) + 1) - soundsys(i,j)) - beta(2)) &
-    !            & - sin(2.0_8*(soundsys(i, modulo(j,numosc) + 1) - soundsys(i,j)) - beta(2))) & 
-    !            & + alpha(3) * &
-    !            & (sin(3.0_8*(soundsys(i, modulo(j-2,numosc) + 1) - soundsys(i,j)) - beta(3)) &
-    !            & - sin(3.0_8*(soundsys(i, modulo(j,numosc) + 1) - soundsys(i,j)) - beta(3)))
-    !       soundsys(i,j) = soundsys(i,j) + tmp * dt          
-    !    end do
-    ! end do
-    ! do i = numlayers, 1, -1
-    !    do j = numosc, 1, -1
-    !       tmp = freq(i) + &
-    !            & alpha(1) * &
-    !            & (sin(soundsys(i, modulo(j-2,numosc) + 1) - soundsys(i,j) - beta(1)) &
-    !            & - sin(soundsys(i, modulo(j,numosc) + 1) - soundsys(i,j) - beta(1))) &
-    !            & + alpha(2) * &
-    !            & (sin(2.0_8*(soundsys(i, modulo(j-2,numosc) + 1) - soundsys(i,j)) - beta(2)) &
-    !            & - sin(2.0_8*(soundsys(i, modulo(j,numosc) + 1) - soundsys(i,j)) - beta(2))) & 
-    !            & + alpha(3) * &
-    !            & (sin(3.0_8*(soundsys(i, modulo(j-2,numosc) + 1) - soundsys(i,j)) - beta(3)) &
-    !            & - sin(3.0_8*(soundsys(i, modulo(j,numosc) + 1) - soundsys(i,j)) - beta(3)))
-    !       soundsys(i,j) = soundsys(i,j) + tmp * dt                              
-    !    end do
-    ! end do
-    
-    ! soundsys = modulo(soundsys, pi2)
     
   end subroutine dynsound
 
@@ -425,136 +509,151 @@ program digest
      close(19)
 
   else
-     
-     allocate(textsys(page,line,chars,systextn))
-     ! allocate(soundsys(numlayers,numosc))
-     ! allocate(soundsysp(page,seconds*samples,numlayers,numosc))
-     allocate(soundsyst(page,seconds*samples,numlayers,numosc))
-     allocate(soundout(page,seconds*samples))
-     allocate(systexttmp(page,line,chars,systextn))
-     allocate(is(ngbrs))
-     allocate(couptext(ngbrs, systextn, systextn))
-     allocate(inhcoup(systextn, systextn))
-     allocate(textenarr(page,line,chars,systextn))
-     allocate(maxt(page,line,chars))
 
-     ! soundsysp = 0.0_8
-     soundsyst = 0.0_8
+     if (io .eq. 1) then
+        allocate(systexttmp(page,line,chars,systextn))
+        allocate(is(ngbrs))
+        allocate(couptext(ngbrs, systextn, systextn))
+        allocate(inhcoup(systextn, systextn))
+        allocate(textenarr(page,line,chars,systextn))
+        allocate(maxt(page,line,chars))
+        
+        inhcoup = 1.0_8
+        textenarr = 0.0_8
+        couptext = 0.0_8
 
-     alpha(1) = 100.0_8
-     alpha(2) = 200.0_8
-     alpha(3) = 800.0_8
+        print*, "reading"
+        open(unit=19,file="./text.txt",status='old', action='read')
 
-     beta(1) = 1.1_8
-     beta(2) = 0.2_8
-     beta(3) = 0.71_8
+        ! read in
+        ! open(unit=17,file="./soundsys.bin",form='unformatted',access='stream',status='old',action='read')
+        ! do i = 1, page
+        !    do j = 1, seconds*samples
+        !       do k = 1, numlayers
+        !          do l = 1, numosc
+        !             read(17) soundsys(i,j,k,l)
+        !          end do
+        !       end do
+        !    end do
+        ! end do
+        ! close(17)
 
-     freq(1) = 0.05_8
-     freq(2) = 1.5_8
-     freq(3) = 200.0_8
-     freq(4) = 1000.0_8
-
-     bw(1) = 10.0_8
-     bw(2) = 100.0_8
-     bw(3) = 1000.0_8
-     bw(4) = 10000.0_8
-
-
-     sinf(1) = 100.0_8
-     sinf(2) = 100.0_8
-     sinf(3) = 1000.0_8
-     sinf(4) = 1000.0_8
-
-     trlaycoup(1) = 1.0_8
-     trlaycoup(2) = 1.0_8
-     trlaycoup(3) = 1.0_8
-     trlaycoup(4) = 1.0_8
-
-     ger = 0.0_8
-     lud = 0.0_8
-     excoup(1) = 100.0_8
-     excoup(2) = 100.0_8
-
-     inhcoup = 1.0_8
-     textenarr = 0.0_8
-     couptext = 0.0_8
-
-
-     print*, "n for iterations"
-     read*, it
-
-     print*, "reading"
-     open(unit=19,file="./text.txt",status='old', action='read')
-
-     ! read in
-     ! open(unit=17,file="./soundsys.bin",form='unformatted',access='stream',status='old',action='read')
-     ! do i = 1, page
-     !    do j = 1, seconds*samples
-     !       do k = 1, numlayers
-     !          do l = 1, numosc
-     !             read(17) soundsys(i,j,k,l)
-     !          end do
-     !       end do
-     !    end do
-     ! end do
-     ! close(17)
-
-     do i = 1, page
-        do j = 1, line
-           do k = 1, chars
-              read(19, "(A)", advance="no") at
-              maxt(i,j,k) = c2i(at) 
-           end do
-        end do
-     end do
-     close(19)
-
-     open(unit=18,file="./textsys.bin",form='unformatted',access='stream',status='old',action='read')
-     do i = 1, page
-        do j = 1, line
-           do k = 1, chars
-              do l = 1, systextn
-                 read(18) textsys(i,j,k,l)
+        do i = 1, page
+           do j = 1, line
+              do k = 1, chars
+                 read(19, "(A)", advance="no") at
+                 maxt(i,j,k) = c2i(at) 
               end do
            end do
         end do
-     end do
-     close(18)
+        close(19)
 
-     ! print*, "size", systextn
+        open(unit=18,file="./textsys.bin",form='unformatted',access='stream',status='old',action='read')
+        do i = 1, page
+           do j = 1, line
+              do k = 1, chars
+                 do l = 1, systextn
+                    read(18) textsys(i,j,k,l)
+                 end do
+              end do
+           end do
+        end do
+        close(18)
 
-     statement = "Artistic research is in its essence a collective and collaborative endeavour. It is situated particular and subjective: neither valid nor objective. Artistic research does not produce nor transport knowledge. Staging the conditions for aesthetic thinking. Formal and material practices are interwoven into each other, but nevertheless maintain an incompressible difference. This is where the generative potential for aesthetic research lies, exploring and exposing this gap."
+        ! print*, "size", systextn
 
-     couptext = 0.1_8 ! if mutiplicative
-     sl = len(statement)
-     do i = 1, sl
-        j = c2i(statement(i:i))        
-        do k = 1, ngbrs
-           is(k) = modulo(i-1-k,sl) + 1
-        end do
-        do k = 1, ngbrs
-           is(k) = c2i(statement(is(k):is(k)))
-        end do
-        do k = 1, ngbrs
-           ! couptext(k, j, is(k)) = couptext(k, j, is(k)) + 0.1_8
-           if (couptext(k, j, is(k)) .gt. 0.5_8) then
-              couptext(k, j, is(k)) = couptext(k, j, is(k)) * 1.1_8
-           else
-              couptext(k, j, is(k)) = 1.1_8
-           end if
-        end do
-     end do
+        statement = "Artistic research is in its essence a collective and collaborative endeavour. It is situated particular and subjective: neither valid nor objective. Artistic research does not produce nor transport knowledge. Staging the conditions for aesthetic thinking. Formal and material practices are interwoven into each other, but nevertheless maintain an incompressible difference. This is where the generative potential for aesthetic research lies, exploring and exposing this gap."
 
-     do i = 1, numlayers
-        do j = 1, numosc
-           soundsyst(1,1,i,j) = rand(0) * pi2
+        couptext = 0.1_8 ! if mutiplicative
+        sl = len(statement)
+        do i = 1, sl
+           j = c2i(statement(i:i))        
+           do k = 1, ngbrs
+              is(k) = modulo(i-1-k,sl) + 1
+           end do
+           do k = 1, ngbrs
+              is(k) = c2i(statement(is(k):is(k)))
+           end do
+           do k = 1, ngbrs
+              ! couptext(k, j, is(k)) = couptext(k, j, is(k)) + 0.1_8
+              if (couptext(k, j, is(k)) .gt. 0.5_8) then
+                 couptext(k, j, is(k)) = couptext(k, j, is(k)) * 1.1_8
+              else
+                 couptext(k, j, is(k)) = 1.1_8
+              end if
+           end do
         end do
-     end do
+
+
+     else
+        allocate(textsys(page,line,chars,systextn))
+        ! allocate(soundsys(numlayers,numosc))
+        allocate(soundsyspt(2,seconds*samples,numlayers,numosc))
+        allocate(soundsyszt(1,seconds*samples,numlayers,numosc))
+        allocate(soundsyst(page,seconds*samples,numlayers,numosc))
+        allocate(soundout(page,seconds*samples))
+        
+        soundsyspt = 0.0_8
+        soundsyszt = 0.0_8
+        ! soundsyst = 0.0_8
+        
+        ! soundsysp => soundsyspt
+        ! soundsyst => soundsystt
+        
+        alpha(:,1) = 1.0_8
+        alpha(:,2) = 2.0_8
+        alpha(:,3) = 2.0_8
+        
+        beta(:,1) = 1.1_8
+        beta(:,2) = 0.2_8
+        beta(:,3) = 0.71_8
+        
+        freq(1) = 0.05_8
+        freq(2) = 1.5_8
+        freq(3) = 200.0_8
+        freq(4) = 1000.0_8
+        
+        bw(1) = 10.0_8
+        bw(2) = 100.0_8
+        bw(3) = 1000.0_8
+        bw(4) = 500.0_8
+        
+
+        sinf(1) = 100.0_8
+        sinf(2) = 100.0_8
+        sinf(3) = 1000.0_8
+        sinf(4) = 10000.0_8
+        
+        trlaycoup(:,1) = 0.5_8
+        trlaycoup(:,2) = 0.2_8
+        trlaycoup(:,3) = 0.1_8
+        trlaycoup(:,4) = 0.01_8
+
+        trpagecoup(1,:) = -0.7_8
+        trpagecoup(2,:) = -0.5_8
+        trpagecoup(3,:) = -0.5_8
+        trpagecoup(4,:) = -2.5_8
+        
+        ger = 0.0_8
+        lud = 0.0_8
+        excoup(1) = 100.0_8
+        excoup(2) = 100.0_8
+
+        do i = 1, numlayers
+           do j = 1, numosc
+              soundsyst(1,1,i,j) = rand(0) * pi2
+           end do
+        end do
+
+     end if
+     
+     print*, "n for iterations"
+     read*, it
      
      print*, "computing"
      do i = 1, it
         ! if (mod(i,100) .eq. 0) then
-        print*, i
+        print*, "iteration", i
         ! end if
         if (io .eq. 1) then 
            call dyntext()
@@ -566,46 +665,46 @@ program digest
         end if
      end do
      
+     if (io .eq. 1) then 
 
-     ! open(unit=17,file="./soundsys.bin",form='unformatted',access='stream',status='replace')
-     ! do i = 1, page
-     !    do j = 1, seconds*samples
-     !       do k = 1, numlayers
-     !          do l = 1, numosc
-     !             write(17) soundsys(i,j,k,l)
-     !          end do
-     !       end do
-     !    end do
-     ! end do
-     ! flush(17)
-     ! close(17)
-     
-     open(unit=18,file="./textsys.bin",form='unformatted',access='stream',status='replace')
-     do i = 1, page
-        do j = 1, line
-           do k = 1, chars
-              do l = 1, systextn
-                 write(18) textsys(i,j,k,l)
+        ! open(unit=17,file="./soundsys.bin",form='unformatted',access='stream',status='replace')
+        ! do i = 1, page
+        !    do j = 1, seconds*samples
+        !       do k = 1, numlayers
+        !          do l = 1, numosc
+        !             write(17) soundsys(i,j,k,l)
+        !          end do
+        !       end do
+        !    end do
+        ! end do
+        ! flush(17)
+        ! close(17)
+
+        open(unit=18,file="./textsys.bin",form='unformatted',access='stream',status='replace')
+        do i = 1, page
+           do j = 1, line
+              do k = 1, chars
+                 do l = 1, systextn
+                    write(18) textsys(i,j,k,l)
+                 end do
               end do
            end do
         end do
-     end do
-     flush(18)
-     close(18)
+        flush(18)
+        close(18)
 
-     open(unit=19,file="./text.txt",status='replace', action='write')
-     ! test
-     do i = 1, page
-        do j = 1, line
-           do k = 1, chars
-              write(19, "(A)", advance="no") i2c(maxt(i,j,k))
+        open(unit=19,file="./text.txt",status='replace', action='write')
+        ! test
+        do i = 1, page
+           do j = 1, line
+              do k = 1, chars
+                 write(19, "(A)", advance="no") i2c(maxt(i,j,k))
+              end do
            end do
         end do
-     end do
-     flush(19)
-     close(19)
+        flush(19)
+        close(19)
 
-     if (io .eq. 1) then 
         call exportForElm()
      else if (io .eq. 2) then   
         call exportAudio()
